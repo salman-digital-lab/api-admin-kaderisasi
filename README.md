@@ -1,4 +1,4 @@
-# Base modul untuk Serice Api Website Portal Public
+# Base modul untuk Serice Api Website Content Management System BMKA
 
 Prosedur yang harus di patuhi selama pengembangan service dilakukan
 
