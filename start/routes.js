@@ -1,4 +1,4 @@
-'use strict'
+"use strict";
 
 /*
 |--------------------------------------------------------------------------
@@ -14,8 +14,9 @@
 */
 
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
-const Route = use('Route')
+const Route = use("Route");
 
-Route.get('/', ({ view }) => {
-  return view.render('welcome');
-})
+Route.group(() => {
+  Route.resource("activity-category", "ActivityCategoryController").apiOnly();
+  Route.resource("activity", "ActivityController").apiOnly();
+}).prefix("api/v1");
