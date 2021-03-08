@@ -19,3 +19,7 @@ const Route = use('Route')
 Route.get('/', ({ view }) => {
   return view.render('welcome');
 })
+
+Route.post('/register', 'AuthController.register')
+Route.post('/login', 'AuthController.login')
+
