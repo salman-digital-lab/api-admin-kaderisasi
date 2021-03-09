@@ -20,6 +20,10 @@ Route.get('/', ({ view }) => {
   return view.render('welcome');
 })
 
-Route.post('/register', 'AuthController.register')
-Route.post('/login', 'AuthController.login')
+Route.resource('user', 'UserController').apiOnly()
+Route.post('/user/login', 'UserController.login')
+
+Route.get('tes', ({ auth }) => {
+  return auth.getUser()
+}).middleware('auth')
 

@@ -5,7 +5,7 @@ const Model = use('Model')
 
 class Group extends Model {
     users_group() {
-        return this.hasMany('App/Models/UserGroup')
+        return this.hasMany('App/Models/UsersGroup')
     }
 }
 

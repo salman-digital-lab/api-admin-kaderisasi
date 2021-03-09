@@ -18,7 +18,7 @@ class UsersGroup extends Model {
     }
 
     groups() {
-        return this.belongsTo('App/Models/Gruop')
+        return this.belongsTo('App/Models/Group')
     }
 }
 

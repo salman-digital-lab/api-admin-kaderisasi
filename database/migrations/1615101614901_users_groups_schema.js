@@ -6,8 +6,8 @@ const Schema = use('Schema')
 class UsersGroupsSchema extends Schema {
   up() {
     this.create('users_groups', (table) => {
-      table.integer('user_id').primary().notNullable().unsigned().references('id').inTable('users')
-      table.integer('group_id').notNullable().unsigned().references('id').inTable('groups')
+      table.integer('user_id').primary().notNullable().unsigned().references('id').inTable('users').onDelete('CASCADE')
+      table.integer('group_id').notNullable().unsigned().references('id').inTable('groups').onDelete('CASCADE')
 
     })
   }
