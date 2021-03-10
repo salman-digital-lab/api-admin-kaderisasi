@@ -99,9 +99,11 @@ class UserController {
 
     async update({ request, response, params }) {
 
+        const id = params.id
+
         const rules = {
-            username: `required|unique:users,username,id,${params.id}`,
-            email: `required|email|unique:users,email,id,${params.id}`,
+            username: `required|unique:users,username,id,${id}`,
+            email: `required|email|unique:users,email,id,${id}`,
             password: 'min:6',
             first_name: 'required',
             last_name: 'required',
@@ -120,8 +122,6 @@ class UserController {
             last_name,
             group_id
         } = await request.all()
-
-        const id = params.id
 
         if (request.input('password')) {
             await User
@@ -166,7 +166,7 @@ class UserController {
             const user = await User.find(id)
             await user.delete()
 
-            return response.json({ status: 'SUCCESS', message: 'delete user success' })
+            return response.json({ status: 'SUCCESS', message: `delete user with id ${id} success` })
         } catch (error) {
             return response.json({
                 status: 'FAILED',

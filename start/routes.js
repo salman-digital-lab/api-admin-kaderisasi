@@ -22,6 +22,7 @@ Route.get('/', ({ view }) => {
 
 Route.resource('user', 'UserController').apiOnly()
 Route.post('/user/login', 'UserController.login')
+Route.resource('group', 'GroupController').apiOnly().middleware('auth')
 
 Route.get('tes', ({ auth }) => {
   return auth.getUser()
