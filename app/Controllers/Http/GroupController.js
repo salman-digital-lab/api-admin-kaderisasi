@@ -57,6 +57,36 @@ class GroupController {
         return response.json({ status: 'SUCCESS', message: 'successfully added new group', data })
     }
 
+    async show({ params, response }) {
+        try {
+            const id = params.id
+            const group = await Group
+                .query()
+                .where('id', id)
+                .withCount('users_group as number_of_users')
+                .fetch()
+
+            if (group.toJSON().length > 0) {
+                return response.json({
+                    status: 'SUCCESS',
+                    message: 'success get group',
+                    group
+                })
+            } else {
+                return response.json({
+                    status: 'FAILED',
+                    message: 'group not found'
+                })
+            }
+
+        } catch (error) {
+            return response.json({
+                status: 'FAILED',
+                message: error.message
+            })
+        }
+    }
+
     async update({ request, response, params }) {
 
         const id = params.id

@@ -97,6 +97,36 @@ class UserController {
         return response.json({ status: 'SUCCESS', message: 'Register Success', data })
     }
 
+    async show({ params, response }) {
+        try {
+            const id = params.id
+            const user = await User
+                .query()
+                .where('id', id)
+                .with('users_group.groups')
+                .fetch()
+
+            if (user.toJSON().length > 0) {
+                return response.json({
+                    status: 'SUCCESS',
+                    message: 'success get user',
+                    user
+                })
+            } else {
+                return response.json({
+                    status: 'FAILED',
+                    message: 'user not found'
+                })
+            }
+
+        } catch (error) {
+            return response.json({
+                status: 'FAILED',
+                message: error.message
+            })
+        }
+    }
+
     async update({ request, response, params }) {
 
         const id = params.id
