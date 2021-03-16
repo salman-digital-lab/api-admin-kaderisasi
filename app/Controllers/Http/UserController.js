@@ -137,7 +137,8 @@ class UserController {
             email: `required|email|unique:users,email,id,${id}`,
             first_name: 'required',
             last_name: 'required',
-            group_id: 'required'
+            group_id: 'required',
+            active: 'boolean'
         }
         const validation = await validateAll(request.all(), rules)
         if (validation.fails()) {
@@ -149,7 +150,8 @@ class UserController {
             email,
             first_name,
             last_name,
-            group_id
+            group_id,
+            active
         } = await request.all()
 
         await User
@@ -160,6 +162,7 @@ class UserController {
                 email,
                 first_name,
                 last_name,
+                active
             })
 
         await UsersGroup
