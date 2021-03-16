@@ -27,7 +27,3 @@ Route.group(() => {
   Route.post('user/:id/upload', 'UserController.upload')
   Route.resource('group', 'GroupController').apiOnly().middleware('auth')
 }).prefix('/v1')
-
-Route.get('tes', ({ auth }) => {
-  return auth.getUser()
-})
