@@ -20,11 +20,14 @@ Route.get('/', ({ view }) => {
   return view.render('welcome');
 })
 
-Route.resource('user', 'UserController').apiOnly()
-Route.post('/user/login', 'UserController.login')
-Route.resource('group', 'GroupController').apiOnly().middleware('auth')
+Route.group(() => {
+  Route.resource('user', 'UserController').apiOnly()
+  Route.post('/user/login', 'UserController.login')
+  Route.post('/user/:id/reset-password', 'UserController.reset_password')
+  Route.post('user/:id/upload', 'UserController.upload')
+  Route.resource('group', 'GroupController').apiOnly().middleware('auth')
+}).prefix('/v1')
 
 Route.get('tes', ({ auth }) => {
   return auth.getUser()
-}).middleware('auth')
-
+})

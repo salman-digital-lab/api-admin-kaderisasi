@@ -5,6 +5,7 @@ const UsersGroup = use('App/Models/UsersGroup')
 const Group = use('App/Models/Group')
 const { validateAll } = use('Validator')
 const Hash = use('Hash')
+const Helpers = use('Helpers')
 
 class UserController {
 
@@ -17,14 +18,14 @@ class UserController {
 
         const validation = await validateAll(request.all(), rules)
         if (validation.fails()) {
-            return response.json({ status: 'FAILED', data: validation.messages() })
+            return response.json({ status: 'FAILED', message: validation.messages() })
         }
 
         const { email, password } = request.all()
 
         try {
             const user = await User.findBy('email', email)
-            const token = await auth.attempt(email, password);
+            const token = await auth.withRefreshToken().attempt(email, password);
 
             if (!user.active) {
                 return response.json({ status: 'FAILED', message: 'the account is inactive' })
@@ -65,7 +66,7 @@ class UserController {
 
         const validation = await validateAll(request.all(), rules)
         if (validation.fails()) {
-            return response.json({ status: 'FAILED', data: validation.messages() })
+            return response.json({ status: 'FAILED', message: validation.messages() })
         }
 
         const {
@@ -134,47 +135,32 @@ class UserController {
         const rules = {
             username: `required|unique:users,username,id,${id}`,
             email: `required|email|unique:users,email,id,${id}`,
-            password: 'min:6',
             first_name: 'required',
             last_name: 'required',
             group_id: 'required'
         }
         const validation = await validateAll(request.all(), rules)
         if (validation.fails()) {
-            return response.json({ status: 'FAILED', data: validation.messages() })
+            return response.json({ status: 'FAILED', message: validation.messages() })
         }
 
         const {
             username,
             email,
-            password,
             first_name,
             last_name,
             group_id
         } = await request.all()
 
-        if (request.input('password')) {
-            await User
-                .query()
-                .where('id', id)
-                .update({
-                    username,
-                    email,
-                    password: await Hash.make(password),
-                    first_name,
-                    last_name,
-                })
-        } else {
-            await User
-                .query()
-                .where('id', id)
-                .update({
-                    username,
-                    email,
-                    first_name,
-                    last_name,
-                })
-        }
+        await User
+            .query()
+            .where('id', id)
+            .update({
+                username,
+                email,
+                first_name,
+                last_name,
+            })
 
         await UsersGroup
             .query()
@@ -190,6 +176,34 @@ class UserController {
         return response.json({ status: 'SUCCESS', message: 'Update Success', user })
     }
 
+    async reset_password({ request, params, response }) {
+        const id = params.id
+        const rules = {
+            password: 'required|min:6',
+            password_confirmation: 'same:password'
+        }
+
+        const validation = await validateAll(request.all(), rules)
+        if (validation.fails()) {
+            return response.json({ status: 'FAILED', message: validation.messages() })
+        }
+
+        const { password } = request.all()
+
+        await User
+            .query()
+            .where('id', id)
+            .update({
+                password: await Hash.make(password)
+            })
+
+        return response.json({
+            status: 'SUCCESS',
+            message: 'password reset successfully',
+            new_password: password
+        })
+    }
+
     async destroy({ params, response }) {
         try {
             const id = params.id
@@ -203,7 +217,55 @@ class UserController {
                 message: error.message
             })
         }
+    }
 
+    async upload({ request, params, response, }) {
+
+        const rules = {
+            file_image: `required`
+        }
+        const validation = await validateAll(request.all(), rules)
+        if (validation.fails()) {
+            return response.json({ status: 'FAILED', message: validation.messages() })
+        }
+
+        const image = request.file('image', {
+            types: ['image'],
+            size: '2mb',
+            extnames: ['png', 'jpg', 'jpeg']
+        })
+
+        await image.move(Helpers.tmpPath('uploads'), {
+            name: `${new Date().getTime()}-${image.clientName}`,
+            overwrite: true
+        })
+
+        if (!image.moved()) {
+            return response.json({
+                status: 'FAILED',
+                message: image.error()
+            })
+        }
+
+        const id = params.id
+        try {
+            await User
+                .query()
+                .where('id', id)
+                .update({
+                    file_image: Helpers.tmpPath(image.fileName)
+                })
+        } catch (error) {
+            return response.json({
+                status: 'FAILED',
+                message: error.message
+            })
+        }
+
+        return response.json({
+            status: 'SUCCESS',
+            message: 'Gambar berhasil di upload'
+        })
     }
 }
 
