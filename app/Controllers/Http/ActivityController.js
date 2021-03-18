@@ -6,6 +6,7 @@
 
 const { validate, sanitizor } = use("Validator");
 const Category = use("App/Models/ActivityCategory");
+const ActivityFormTemplate = use("App/Models/ActivityFormTemplate");
 const Activity = use("App/Models/Activity");
 const Helpers = use('Helpers')
 // const { unlink } = use('fs')
@@ -87,6 +88,7 @@ class ActivityController {
     }
 
     let categories_id = "";
+    let form_id = "";
 
     if (data.category_id) {
       const categories = await Category.all();
@@ -100,6 +102,19 @@ class ActivityController {
       }
     }
 
+    if (data.form_id) {
+      const forms = await ActivityFormTemplate.all();
+
+      for (let index = 0; index < forms.toJSON().length; index++) {
+        if (index === forms.toJSON().length - 1) {
+          form_id += forms.toJSON()[index].id;
+        } else {
+          form_id += forms.toJSON()[index].id + ",";
+        }
+      }
+    }
+
+
     const rules = {
       name: "required",
       slug: "required_if:name|unique:activities,slug",
@@ -108,6 +123,7 @@ class ActivityController {
       register_begin_date: "required|date",
       register_end_date: `required_if:register_begin_date|date|after:${data.register_begin_date}`,
       category_id: `required|number|in:${categories_id}`,
+      form_id: `required_if:form_id|number|in:${form_id}`,
       minimum_role_id: "required_if:minimum_role_id|number",
       status: "required_if:status|in:OPENED,CLOSED",
       is_published: "required_if:is_published|in:0,1",
@@ -161,7 +177,7 @@ class ActivityController {
       activity.status = data.status;
       activity.minimum_role_id = data.minimum_role_id;
       activity.banner_image = bannerImageName;
-      activity.form = data.form;
+      activity.form_id = data.form_id;
       activity.is_published = data.is_published;
 
       await activity.save();
@@ -193,15 +209,14 @@ class ActivityController {
    */
   async show({ params, response }) {
 
+    const { id } = params;
+    const activities = await Activity.query()
+      .where({ id: id, is_deleted: 0 })
+      .with("activityCategory")
+      .fetch()
+
     try {
-
-      const { id } = params;
-      const activities = await Activity.query()
-        .where({ id: id, is_deleted: 0 })
-        .with("activityCategory")
-        .fetch()
-
-      if (activities) {
+      if (activities.rows.length > 0) {
         return response
           .status(200)
           .json({
@@ -249,6 +264,7 @@ class ActivityController {
       }
 
       let categories_id = "";
+      let form_id = "";
 
       if (data.category_id) {
         const categories = await Category.all();
@@ -258,6 +274,18 @@ class ActivityController {
             categories_id += categories.toJSON()[index].id;
           } else {
             categories_id += categories.toJSON()[index].id + ",";
+          }
+        }
+      }
+
+      if (data.form_id) {
+        const forms = await ActivityFormTemplate.all();
+
+        for (let index = 0; index < forms.toJSON().length; index++) {
+          if (index === forms.toJSON().length - 1) {
+            form_id += forms.toJSON()[index].id;
+          } else {
+            form_id += forms.toJSON()[index].id + ",";
           }
         }
       }
@@ -273,6 +301,7 @@ class ActivityController {
         register_begin_date: "required_if:register_begin_date|date",
         register_end_date: `required_if:register_end_date|date|after:${register_begin_date}`,
         category_id: `required_if:category_id|number|in:${categories_id}`,
+        form_id: `required_if:form_id|number|in:${form_id}`,
         minimum_role_id: "required_if:minimum_role_id|number",
         status: "required_if:status|in:OPENED,CLOSED",
         is_published: "required_if:is_published|in:0,1",
@@ -342,7 +371,7 @@ class ActivityController {
         if (bannerImageName) {
           activity.banner_image = bannerImageName;
         }
-        activity.form = data.form;
+        activity.form_id = data.form_id;
         activity.is_published = data.is_published;
 
         await activity.save();
@@ -389,17 +418,12 @@ class ActivityController {
         activity.is_deleted = 1
         activity.save()
 
-        const activities = await Activity.query()
-          .where({ id: activity.id, is_deleted: 0 })
-          .with("activityCategory")
-          .fetch()
-
         return response
           .status(200)
           .json({
             status: "SUCCESS",
             message: "Data Kategori Aktivitas berhasil dihapus!",
-            data: activities,
+            data: activity,
           });
       } catch (error) {
         return response
