@@ -23,17 +23,20 @@ class ActivityCategoryController {
   async index({ response }) {
     try {
       const categories = await Category.all();
-      return response.json({
-        message: "success",
-        status: true,
-        data: categories,
-      });
+      return response
+        .status(200)
+        .json({
+          status: "SUCCESS",
+          message: "Data Kategori Aktivitas berhasil dimuat!",
+          data: categories,
+        });
     } catch (error) {
-      return response.json({
-        message: "error",
-        status: false,
-        error: error,
-      });
+      return response
+        .status(400)
+        .json({
+          status: "FAILED",
+          message: error
+        });
     }
   }
 
@@ -53,11 +56,12 @@ class ActivityCategoryController {
     const validation = await validate(request.all(), rules);
 
     if (validation.fails()) {
-      return response.json({
-        message: "error",
-        status: false,
-        error: validation.messages(),
-      });
+      return response
+        .status(400)
+        .json({
+          status: "FAILED",
+          message: validation.messages()
+        });
     } else {
       try {
         const { name } = request.all();
@@ -68,17 +72,21 @@ class ActivityCategoryController {
 
         const categories = await Category.findOrFail(category.id);
 
-        return response.json({
-          message: "success",
-          status: true,
-          data: categories,
-        });
+        return response
+          .status(201)
+          .json({
+            status: "SUCCESS",
+            message: "Data Kategori Aktivitas berhasil dibuat!",
+            data: categories,
+          });
+
       } catch (error) {
-        return response.json({
-          message: "error",
-          status: false,
-          error: error,
-        });
+        return response
+          .status(400)
+          .json({
+            status: "FAILED",
+            message: error
+          });
       }
     }
   }
@@ -97,24 +105,28 @@ class ActivityCategoryController {
       const { id } = params;
       const categories = await Category.find(id);
       if (categories) {
-        return response.json({
-          message: "success",
-          status: true,
-          data: categories,
-        });
+        return response
+          .status(200)
+          .json({
+            status: "SUCCESS",
+            message: "Data Kategori Aktivitas berhasil dimuat!",
+            data: categories,
+          });
       } else {
-        return response.json({
-          message: "error",
-          status: false,
-          error: "Tidak ada data yang ditemukan",
-        });
+        return response
+          .status(400)
+          .json({
+            status: "FAILED",
+            message: "Tidak ada data yang ditemukan"
+          });
       }
     } catch (error) {
-      return response.json({
-        message: "error",
-        status: false,
-        error: error,
-      });
+      return response
+        .status(400)
+        .json({
+          status: "FAILED",
+          message: error
+        });
     }
   }
 
@@ -141,11 +153,12 @@ class ActivityCategoryController {
       const validation = await validate(data, rules);
 
       if (validation.fails()) {
-        return response.json({
-          message: "error",
-          status: false,
-          error: validation.messages(),
-        });
+        return response
+          .status(400)
+          .json({
+            status: "FAILED",
+            message: validation.messages()
+          });
       } else {
 
         try {
@@ -155,25 +168,29 @@ class ActivityCategoryController {
 
           const categories = await Category.find(category.id);
 
-          return response.json({
-            message: "success",
-            status: true,
-            data: categories,
-          });
+          return response
+            .status(200)
+            .json({
+              status: "SUCCESS",
+              message: "Data Kategori Aktivitas berhasil diperbarui!",
+              data: categories,
+            });
         } catch (error) {
-          return response.json({
-            message: "error",
-            status: false,
-            error: error,
-          });
+          return response
+            .status(400)
+            .json({
+              status: "FAILED",
+              message: error
+            });
         }
       }
     } else {
-      return response.json({
-        message: "error",
-        status: false,
-        error: "Tidak ada data yang ditemukan",
-      });
+      return response
+        .status(400)
+        .json({
+          status: "FAILED",
+          message: "Tidak ada data yang ditemukan"
+        });
     }
   }
 
@@ -193,24 +210,28 @@ class ActivityCategoryController {
     if (category) {
       try {
         await category.delete();
-        return response.json({
-          message: "success",
-          status: true,
-          data: category,
-        });
+        return response
+          .status(200)
+          .json({
+            status: "SUCCESS",
+            message: "Data Kategori Aktivitas berhasil dihapus!",
+            data: category,
+          });
       } catch (error) {
-        return response.json({
-          message: "error",
-          status: false,
-          error: error.messages,
-        });
+        return response
+          .status(400)
+          .json({
+            status: "FAILED",
+            message: error.messages
+          });
       }
     } else {
-      return response.json({
-        message: "error",
-        status: false,
-        error: "Tidak ada data yang ditemukan",
-      });
+      return response
+        .status(400)
+        .json({
+          status: "FAILED",
+          message: "Tidak ada data yang ditemukan"
+        });
     }
   }
 }

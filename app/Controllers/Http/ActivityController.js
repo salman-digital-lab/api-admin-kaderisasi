@@ -36,8 +36,8 @@ class ActivityController {
         whereClause.category_id = data.category_id
       }
 
-      if (data.minimum_members_id) {
-        whereClause.minimum_role_id = data.minimum_members_id
+      if (data.minimum_roles_id) {
+        whereClause.minimum_role_id = data.minimum_roles_id
       }
 
       if (data.date) {
@@ -54,17 +54,20 @@ class ActivityController {
         .with("activityCategory")
         .paginate(page, 10)
 
-      return response.json({
-        message: "success",
-        status: true,
-        data: activities,
-      });
+      return response
+        .status(200)
+        .json({
+          status: "SUCCESS",
+          message: "Data Aktivitas berhasil dimuat!",
+          data: activities,
+        });
     } catch (error) {
-      return response.json({
-        message: "error",
-        status: false,
-        error: error,
-      });
+      return response
+        .status(400)
+        .json({
+          status: "FAILED",
+          message: error
+        });
     }
   }
 
@@ -79,7 +82,6 @@ class ActivityController {
   async store({ request, response }) {
 
     const data = request.all();
-
     if (data.name) {
       data.slug = sanitizor.slug(data.name);
     }
@@ -114,11 +116,12 @@ class ActivityController {
     const validation = await validate(data, rules);
 
     if (validation.fails()) {
-      return response.json({
-        message: "error",
-        status: false,
-        error: validation.messages(),
-      });
+      return response
+        .status(400)
+        .json({
+          status: "FAILED",
+          message: validation.messages()
+        });
     } else {
 
       let bannerImageName = null
@@ -135,11 +138,12 @@ class ActivityController {
         })
 
         if (!bannerImage.moved()) {
-          return response.json({
-            message: "error",
-            status: false,
-            error: bannerImage.error(),
-          });
+          return response
+            .status(400)
+            .json({
+              status: "FAILED",
+              message: bannerImage.error()
+            });
         }
 
         bannerImageName = bannerImage.fileName
@@ -167,11 +171,13 @@ class ActivityController {
         .activityCategory()
         .fetch();
 
-      return response.json({
-        message: "success",
-        status: true,
-        data: activities,
-      });
+      return response
+        .status(201)
+        .json({
+          status: "SUCCESS",
+          message: "Data Aktivitas berhasil dibuat!",
+          data: activities,
+        });
 
     }
   }
@@ -196,25 +202,28 @@ class ActivityController {
         .fetch()
 
       if (activities) {
-
-        return response.json({
-          message: "success",
-          status: true,
-          data: activities,
-        });
+        return response
+          .status(200)
+          .json({
+            status: "SUCCESS",
+            message: "Data Aktivitas berhasil dimuat!",
+            data: activities,
+          });
       } else {
-        return response.json({
-          message: "error",
-          status: false,
-          error: "Tidak ada data yang ditemukan",
-        });
+        return response
+          .status(400)
+          .json({
+            status: "FAILED",
+            message: "Tidak ada data yang ditemukan"
+          });
       }
     } catch (error) {
-      return response.json({
-        message: "error",
-        status: false,
-        error: error,
-      });
+      return response
+        .status(400)
+        .json({
+          status: "FAILED",
+          message: error
+        });
     }
   }
 
@@ -272,11 +281,12 @@ class ActivityController {
       const validation = await validate(data, rules);
 
       if (validation.fails()) {
-        return response.json({
-          message: "error",
-          status: false,
-          error: validation.messages(),
-        });
+        return response
+          .status(400)
+          .json({
+            status: "FAILED",
+            message: validation.messages()
+          });
       } else {
 
         let bannerImageName = null
@@ -293,22 +303,24 @@ class ActivityController {
           })
 
           if (!bannerImage.moved()) {
-            return response.json({
-              message: "error",
-              status: false,
-              error: bannerImage.error(),
-            });
+            return response
+              .status(400)
+              .json({
+                status: "FAILED",
+                message: bannerImage.error()
+              });
           }
 
           if (activity.banner_image) {
             try {
               await unlink(`./tmp/uploads/${activity.banner_image}`)
             } catch (error) {
-              return response.json({
-                message: "error",
-                status: false,
-                error: error.message,
-              });
+              return response
+                .status(400)
+                .json({
+                  status: "FAILED",
+                  message: error.message
+                });
             }
           }
 
@@ -340,18 +352,21 @@ class ActivityController {
           .with("activityCategory")
           .fetch()
 
-        return response.json({
-          message: "success",
-          status: true,
-          data: activities,
-        });
+        return response
+          .status(200)
+          .json({
+            status: "SUCCESS",
+            message: "Data Aktivitas berhasil diperbarui!",
+            data: activities,
+          });
       }
     } else {
-      return response.json({
-        message: "error",
-        status: false,
-        error: "Tidak ada data yang ditemukan",
-      });
+      return response
+        .status(400)
+        .json({
+          status: "FAILED",
+          message: "Tidak ada data yang ditemukan"
+        });
     }
   }
 
@@ -379,24 +394,28 @@ class ActivityController {
           .with("activityCategory")
           .fetch()
 
-        return response.json({
-          message: "success",
-          status: true,
-          data: activities,
-        });
+        return response
+          .status(200)
+          .json({
+            status: "SUCCESS",
+            message: "Data Kategori Aktivitas berhasil dihapus!",
+            data: activities,
+          });
       } catch (error) {
-        return response.json({
-          message: "error",
-          status: false,
-          error: error.messages,
-        });
+        return response
+          .status(400)
+          .json({
+            status: "FAILED",
+            message: error.messages
+          });
       }
     } else {
-      return response.json({
-        message: "error",
-        status: false,
-        error: "Tidak ada data yang ditemukan",
-      });
+      return response
+        .status(400)
+        .json({
+          status: "FAILED",
+          message: "Tidak ada data yang ditemukan"
+        });
     }
   }
 }

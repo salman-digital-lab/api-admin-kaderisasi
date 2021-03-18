@@ -19,4 +19,6 @@ const Route = use("Route");
 Route.group(() => {
   Route.resource("activity-category", "ActivityCategoryController").apiOnly();
   Route.resource("activity", "ActivityController").apiOnly();
-}).prefix("api/v1");
+  Route.resource("activity-form-template", "ActivityFormTemplateController").apiOnly();
+  Route.resource("activity-registration", "ActivityRegistrationController").apiOnly();
+}).prefix("v1");
