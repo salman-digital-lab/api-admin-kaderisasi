@@ -1,25 +1,10 @@
 "use strict";
 
-/** @typedef {import('@adonisjs/framework/src/Request')} Request */
-/** @typedef {import('@adonisjs/framework/src/Response')} Response */
-/** @typedef {import('@adonisjs/framework/src/View')} View */
-
 const { validate } = use("Validator");
 const Category = use("App/Models/ActivityCategory");
 
-/**
- * Resourceful controller for interacting with activitycategories
- */
 class ActivityCategoryController {
-  /**
-   * Show a list of all activitycategories.
-   * GET activitycategories
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
+
   async index({ response }) {
     try {
       const categories = await Category.all();
@@ -40,14 +25,6 @@ class ActivityCategoryController {
     }
   }
 
-  /**
-   * Create/save a new activitycategory.
-   * POST activitycategories
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
   async store({ request, response }) {
     const rules = {
       name: "required",
@@ -91,15 +68,6 @@ class ActivityCategoryController {
     }
   }
 
-  /**
-   * Display a single activitycategory.
-   * GET activitycategories/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
   async show({ params, response }) {
     try {
       const { id } = params;
@@ -130,14 +98,6 @@ class ActivityCategoryController {
     }
   }
 
-  /**
-   * Update activitycategory details.
-   * PUT or PATCH activitycategories/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
   async update({ params, request, response }) {
 
     const { id } = params;
@@ -194,14 +154,6 @@ class ActivityCategoryController {
     }
   }
 
-  /**
-   * Delete a activitycategory with id.
-   * DELETE activitycategories/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
   async destroy({ params, response }) {
 
     const { id } = params;

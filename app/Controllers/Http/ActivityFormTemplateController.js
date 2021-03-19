@@ -1,25 +1,10 @@
 'use strict'
 
-/** @typedef {import('@adonisjs/framework/src/Request')} Request */
-/** @typedef {import('@adonisjs/framework/src/Response')} Response */
-/** @typedef {import('@adonisjs/framework/src/View')} View */
-
 const { validate } = use("Validator");
 const ActivityFormTemplate = use("App/Models/ActivityFormTemplate");
 
-/**
- * Resourceful controller for interacting with activityformtemplates
- */
 class ActivityFormTemplateController {
-  /**
-   * Show a list of all activityformtemplates.
-   * GET activityformtemplates
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
+
   async index({ response }) {
     try {
       const form_templates = await ActivityFormTemplate.all();
@@ -41,14 +26,6 @@ class ActivityFormTemplateController {
     }
   }
 
-  /**
-   * Create/save a new activityformtemplate.
-   * POST activityformtemplates
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
   async store({ request, response }) {
 
     const rules = {
@@ -96,15 +73,6 @@ class ActivityFormTemplateController {
     }
   }
 
-  /**
-   * Display a single activityformtemplate.
-   * GET activityformtemplates/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
   async show({ params, response }) {
     try {
 
@@ -137,14 +105,6 @@ class ActivityFormTemplateController {
     }
   }
 
-  /**
-   * Update activityformtemplate details.
-   * PUT or PATCH activityformtemplates/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
   async update({ params, request, response }) {
 
     const { id } = params;
@@ -210,14 +170,6 @@ class ActivityFormTemplateController {
     }
   }
 
-  /**
-   * Delete a activityformtemplate with id.
-   * DELETE activityformtemplates/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
   async destroy({ params, response }) {
 
     const { id } = params;
