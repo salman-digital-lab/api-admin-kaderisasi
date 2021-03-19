@@ -4,6 +4,9 @@
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 
+const { validate } = use("Validator");
+const ActivityRegistration = use("App/Models/ActivityRegistration");
+
 /**
  * Resourceful controller for interacting with activityregistrations
  */
@@ -17,19 +20,36 @@ class ActivityRegistrationController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, view }) {
-  }
+  async index({ params, response }) {
+    try {
 
-  /**
-   * Render a form to be used for creating a new activityregistration.
-   * GET activityregistrations/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
+      const { activity_id } = params;
+      const activity_registrations = await ActivityFormTemplate.findBy('activity_id', activity_id);
+
+      if (activity_registrations) {
+        return response
+          .status(200)
+          .json({
+            status: "SUCCESS",
+            message: "Data Registrasi Aktivitas berhasil dimuat!",
+            data: activity_registrations,
+          });
+      } else {
+        return response
+          .status(400)
+          .json({
+            status: "FAILED",
+            message: "Tidak ada data yang ditemukan"
+          });
+      }
+    } catch (error) {
+      return response
+        .status(400)
+        .json({
+          status: "FAILED",
+          message: error
+        });
+    }
   }
 
   /**
@@ -40,7 +60,7 @@ class ActivityRegistrationController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response }) {
+  async store({ request, response }) {
   }
 
   /**
@@ -52,19 +72,7 @@ class ActivityRegistrationController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params, request, response, view }) {
-  }
-
-  /**
-   * Render a form to update an existing activityregistration.
-   * GET activityregistrations/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
+  async show({ params, request, response, view }) {
   }
 
   /**
@@ -75,7 +83,7 @@ class ActivityRegistrationController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response }) {
+  async update({ params, request, response }) {
   }
 
   /**
@@ -86,7 +94,7 @@ class ActivityRegistrationController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy ({ params, request, response }) {
+  async destroy({ params, request, response }) {
   }
 }
 
