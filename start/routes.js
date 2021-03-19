@@ -26,7 +26,5 @@ Route.group(() => {
   Route.get('/:activity_id', 'ActivityRegistrationController.index')
   Route.post('/', 'ActivityRegistrationController.store')
   Route.get('/:member_id/:activity_id', 'ActivityRegistrationController.show')
-  Route.put('/:member_id/:activity_id', 'ActivityRegistrationController.update')
-  Route.patch('/:member_id/:activity_id', 'ActivityRegistrationController.update')
   Route.delete('/:member_id/:activity_id', 'ActivityRegistrationController.destroy')
 }).prefix("v1/activity-registration");

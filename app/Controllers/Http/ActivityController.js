@@ -90,7 +90,6 @@ class ActivityController {
       }
     }
 
-
     const rules = {
       name: "required",
       slug: "required_if:name|unique:activities,slug",
@@ -116,61 +115,90 @@ class ActivityController {
         });
     } else {
 
-      let bannerImageName = null
+      let is_form_templates_used = false;
 
-      if (request.file('banner_image')) {
-        const bannerImage = request.file('banner_image', {
-          types: ['image'],
-          size: '2mb'
-        })
+      if (data.form_id) {
 
-        await bannerImage.move(Helpers.tmpPath('uploads'), {
-          name: `${new Date().getTime()}.${bannerImage.subtype}`,
-          overwrite: true
-        })
-
-        if (!bannerImage.moved()) {
-          return response
-            .status(400)
-            .json({
-              status: "FAILED",
-              message: bannerImage.error()
-            });
-        }
-
-        bannerImageName = bannerImage.fileName
-      }
-
-      const activity = new Activity();
-      activity.name = data.name;
-      activity.slug = data.slug;
-      activity.begin_date = data.begin_date;
-      activity.end_date = data.end_date;
-      activity.register_begin_date = data.register_begin_date;
-      activity.register_end_date = data.register_end_date;
-      activity.category_id = data.category_id;
-      activity.description = data.description;
-      activity.status = data.status;
-      activity.minimum_role_id = data.minimum_role_id;
-      activity.banner_image = bannerImageName;
-      activity.form_id = data.form_id;
-      activity.is_published = data.is_published;
-
-      await activity.save();
-
-      let activities = await Activity.find(activity.id);
-      activities.activityCategory = await activities
-        .activityCategory()
-        .fetch();
-
-      return response
-        .status(201)
-        .json({
-          status: "SUCCESS",
-          message: "Data Aktivitas berhasil dibuat!",
-          data: activities,
+        const form_templates_used_check = await ActivityFormTemplate.findBy({
+          'id': data.form_id,
+          'is_used': 1
         });
 
+        if (form_templates_used_check) {
+          is_form_templates_used = true;
+        }
+      }
+
+      if (is_form_templates_used) {
+        return response
+          .status(400)
+          .json({
+            status: "FAILED",
+            message: "Form Template sudah digunakan"
+          });
+      } else {
+
+        let bannerImageName = null
+
+        if (request.file('banner_image')) {
+          const bannerImage = request.file('banner_image', {
+            types: ['image'],
+            size: '2mb'
+          })
+
+          await bannerImage.move(Helpers.tmpPath('uploads'), {
+            name: `${new Date().getTime()}.${bannerImage.subtype}`,
+            overwrite: true
+          })
+
+          if (!bannerImage.moved()) {
+            return response
+              .status(400)
+              .json({
+                status: "FAILED",
+                message: bannerImage.error()
+              });
+          }
+
+          bannerImageName = bannerImage.fileName
+        }
+
+        const activity = new Activity();
+        activity.name = data.name;
+        activity.slug = data.slug;
+        activity.begin_date = data.begin_date;
+        activity.end_date = data.end_date;
+        activity.register_begin_date = data.register_begin_date;
+        activity.register_end_date = data.register_end_date;
+        activity.category_id = data.category_id;
+        activity.description = data.description;
+        activity.status = data.status;
+        activity.minimum_role_id = data.minimum_role_id;
+        activity.banner_image = bannerImageName;
+        activity.form_id = data.form_id;
+        activity.is_published = data.is_published;
+
+        await activity.save();
+
+        if (data.form_id) {
+          const form_template = await ActivityFormTemplate.find(activity.form_id);
+          form_template.is_used = 1;
+          await form_template.save();
+        }
+
+        let activities = await Activity.find(activity.id);
+        activities.activityCategory = await activities
+          .activityCategory()
+          .fetch();
+
+        return response
+          .status(201)
+          .json({
+            status: "SUCCESS",
+            message: "Data Aktivitas berhasil dibuat!",
+            data: activities,
+          });
+      }
     }
   }
 
@@ -277,76 +305,122 @@ class ActivityController {
           });
       } else {
 
-        let bannerImageName = null
+        let is_form_templates_used = false;
+        const old_form_id = activity.form_id;
+        let new_form_id = null;
 
-        if (request.file('banner_image')) {
-          const bannerImage = request.file('banner_image', {
-            types: ['image'],
-            size: '2mb'
-          })
+        if (data.form_id) {
 
-          await bannerImage.move(Helpers.tmpPath('uploads'), {
-            name: `${new Date().getTime()}.${bannerImage.subtype}`,
-            overwrite: true
-          })
+          new_form_id = data.form_id;
 
-          if (!bannerImage.moved()) {
-            return response
-              .status(400)
-              .json({
-                status: "FAILED",
-                message: bannerImage.error()
-              });
+          if (old_form_id != new_form_id) {
+            const form_templates_used_check = await ActivityFormTemplate.findBy({
+              'id': new_form_id,
+              'is_used': 1
+            });
+
+            if (form_templates_used_check) {
+              is_form_templates_used = true;
+            }
           }
+        }
 
-          if (activity.banner_image) {
-            try {
-              await unlink(`./tmp/uploads/${activity.banner_image}`)
-            } catch (error) {
+        if (is_form_templates_used) {
+          return response
+            .status(400)
+            .json({
+              status: "FAILED",
+              message: "Form Template sudah digunakan"
+            });
+        } else {
+          let bannerImageName = null
+
+          if (request.file('banner_image')) {
+            const bannerImage = request.file('banner_image', {
+              types: ['image'],
+              size: '2mb'
+            })
+
+            await bannerImage.move(Helpers.tmpPath('uploads'), {
+              name: `${new Date().getTime()}.${bannerImage.subtype}`,
+              overwrite: true
+            })
+
+            if (!bannerImage.moved()) {
               return response
                 .status(400)
                 .json({
                   status: "FAILED",
-                  message: error.message
+                  message: bannerImage.error()
                 });
+            }
+
+            if (activity.banner_image) {
+              try {
+                await unlink(`./tmp/uploads/${activity.banner_image}`)
+              } catch (error) {
+                return response
+                  .status(400)
+                  .json({
+                    status: "FAILED",
+                    message: error.message
+                  });
+              }
+            }
+
+            bannerImageName = bannerImage.fileName
+          }
+
+          activity.name = data.name;
+          activity.slug = data.slug;
+          activity.begin_date = data.begin_date;
+          activity.end_date = data.end_date;
+          activity.register_begin_date = data.register_begin_date;
+          activity.register_end_date = data.register_end_date;
+          if (data.category_id) {
+            activity.category_id = data.category_id;
+          }
+          activity.description = data.description;
+          activity.status = data.status;
+          activity.minimum_role_id = data.minimum_role_id;
+          if (bannerImageName) {
+            activity.banner_image = bannerImageName;
+          }
+          if (data.form_id) {
+            activity.form_id = data.form_id;
+          }
+          activity.is_published = data.is_published;
+
+          await activity.save();
+
+          if (data.form_id) {
+            if (old_form_id != new_form_id) {
+
+              if (old_form_id != null) {
+                const old_form_template = await ActivityFormTemplate.find(old_form_id);
+                old_form_template.is_used = 0;
+                await old_form_template.save();
+              }
+
+              const new_form_template = await ActivityFormTemplate.find(new_form_id);
+              new_form_template.is_used = 1;
+              await new_form_template.save();
             }
           }
 
-          bannerImageName = bannerImage.fileName
+          const activities = await Activity.query()
+            .where({ id: activity.id, is_deleted: 0 })
+            .with("activityCategory")
+            .fetch()
+
+          return response
+            .status(200)
+            .json({
+              status: "SUCCESS",
+              message: "Data Aktivitas berhasil diperbarui!",
+              data: activities,
+            });
         }
-
-        activity.name = data.name;
-        activity.slug = data.slug;
-        activity.begin_date = data.begin_date;
-        activity.end_date = data.end_date;
-        activity.register_begin_date = data.register_begin_date;
-        activity.register_end_date = data.register_end_date;
-        if (data.category_id) {
-          activity.category_id = data.category_id;
-        }
-        activity.description = data.description;
-        activity.status = data.status;
-        activity.minimum_role_id = data.minimum_role_id;
-        if (bannerImageName) {
-          activity.banner_image = bannerImageName;
-        }
-        activity.form_id = data.form_id;
-        activity.is_published = data.is_published;
-
-        await activity.save();
-
-        const activities = await Activity.query()
-          .where({ id: activity.id, is_deleted: 0 })
-          .with("activityCategory")
-          .fetch()
-
-        return response
-          .status(200)
-          .json({
-            status: "SUCCESS",
-            message: "Data Aktivitas berhasil diperbarui!",
-            data: activities,
-          });
       }
     } else {
       return response
@@ -368,6 +442,12 @@ class ActivityController {
 
         activity.is_deleted = 1
         activity.save()
+
+        if (activity.form_id != null) {
+          const form_template = await ActivityFormTemplate.find(activity.form_id);
+          form_template.is_used = 0;
+          await form_template.save();
+        }
 
         return response
           .status(200)
