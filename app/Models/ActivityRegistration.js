@@ -4,7 +4,7 @@ const Model = use('Model')
 
 class ActivityRegistration extends Model {
     static get createdAtColumn() {
-        return null;
+        return 'created_at'
     }
 
     static get updatedAtColumn() {

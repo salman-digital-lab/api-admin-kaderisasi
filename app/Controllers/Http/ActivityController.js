@@ -117,17 +117,20 @@ class ActivityController {
 
       let is_form_templates_used = false;
 
-      if (data.form_id) {
+      // Logika untuk validasi bahwa form template sudah digunakan
+      // Sementara ini tidak digunakan
 
-        const form_templates_used_check = await ActivityFormTemplate.findBy({
-          'id': data.form_id,
-          'is_used': 1
-        });
+      // if (data.form_id) {
 
-        if (form_templates_used_check) {
-          is_form_templates_used = true;
-        }
-      }
+      //   const form_templates_used_check = await ActivityFormTemplate.findBy({
+      //     'id': data.form_id,
+      //     'is_used': 1
+      //   });
+
+      //   if (form_templates_used_check) {
+      //     is_form_templates_used = true;
+      //   }
+      // }
 
       if (is_form_templates_used) {
         return response
@@ -175,15 +178,20 @@ class ActivityController {
         activity.status = data.status;
         activity.minimum_role_id = data.minimum_role_id;
         activity.banner_image = bannerImageName;
-        activity.form_id = data.form_id;
+
+        if (data.form_id) {
+          const form_template = await ActivityFormTemplate.find(data.form_id);
+          activity.form_data = form_template.data;
+        }
+
         activity.is_published = data.is_published;
 
         await activity.save();
 
         if (data.form_id) {
-          const form_template = await ActivityFormTemplate.find(activity.form_id);
-          form_template.is_used = 1;
-          await form_template.save();
+          const form_templates = await ActivityFormTemplate.find(data.form_id);
+          form_templates.is_used = 1;
+          await form_templates.save();
         }
 
         let activities = await Activity.find(activity.id);
@@ -306,24 +314,28 @@ class ActivityController {
       } else {
 
         let is_form_templates_used = false;
-        const old_form_id = activity.form_id;
-        let new_form_id = null;
 
-        if (data.form_id) {
+        // Logika untuk validasi bahwa form template sudah digunakan
+        // Sementara ini tidak digunakan
 
-          new_form_id = data.form_id;
+        // const old_form_id = activity.form_id;
+        // let new_form_id = null;
 
-          if (old_form_id != new_form_id) {
-            const form_templates_used_check = await ActivityFormTemplate.findBy({
-              'id': new_form_id,
-              'is_used': 1
-            });
+        // if (data.form_id) {
 
-            if (form_templates_used_check) {
-              is_form_templates_used = true;
-            }
-          }
-        }
+        //   new_form_id = data.form_id;
+
+        //   if (old_form_id != new_form_id) {
+        //     const form_templates_used_check = await ActivityFormTemplate.findBy({
+        //       'id': new_form_id,
+        //       'is_used': 1
+        //     });
+
+        //     if (form_templates_used_check) {
+        //       is_form_templates_used = true;
+        //     }
+        //   }
+        // }
 
         if (is_form_templates_used) {
           return response
@@ -377,35 +389,50 @@ class ActivityController {
           activity.end_date = data.end_date;
           activity.register_begin_date = data.register_begin_date;
           activity.register_end_date = data.register_end_date;
+
           if (data.category_id) {
             activity.category_id = data.category_id;
           }
+
           activity.description = data.description;
           activity.status = data.status;
           activity.minimum_role_id = data.minimum_role_id;
+
           if (bannerImageName) {
             activity.banner_image = bannerImageName;
           }
+
           if (data.form_id) {
-            activity.form_id = data.form_id;
+            const form_template = await ActivityFormTemplate.find(data.form_id);
+            activity.form_data = form_template.data;
           }
+
           activity.is_published = data.is_published;
 
           await activity.save();
 
+          // Fitur Pergantian status is_used
+          // Sementara ini tidak digunakan
+
+          // if (data.form_id) {
+          //   if (old_form_id != new_form_id) {
+
+          //     if (old_form_id != null) {
+          //       const old_form_template = await ActivityFormTemplate.find(old_form_id);
+          //       old_form_template.is_used = 0;
+          //       await old_form_template.save();
+          //     }
+
+          //     const new_form_template = await ActivityFormTemplate.find(new_form_id);
+          //     new_form_template.is_used = 1;
+          //     await new_form_template.save();
+          //   }
+          // }
+
           if (data.form_id) {
-            if (old_form_id != new_form_id) {
-
-              if (old_form_id != null) {
-                const old_form_template = await ActivityFormTemplate.find(old_form_id);
-                old_form_template.is_used = 0;
-                await old_form_template.save();
-              }
-
-              const new_form_template = await ActivityFormTemplate.find(new_form_id);
-              new_form_template.is_used = 1;
-              await new_form_template.save();
-            }
+            const form_templates = await ActivityFormTemplate.find(data.form_id);
+            form_templates.is_used = 1;
+            await form_templates.save();
           }
 
           const activities = await Activity.query()

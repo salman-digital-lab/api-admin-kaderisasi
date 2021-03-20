@@ -19,8 +19,7 @@ class ActivitiesSchema extends Schema {
       table.foreign('category_id').references('activity_categories.id').onDelete('SET NULL').onUpdate('CASCADE')
       table.timestamp('created_at').defaultTo(this.fn.now())
       table.string('banner_image', 100).default(null)
-      table.integer('form_id', 11).unsigned().nullable().default(null)
-      table.foreign('form_id').references('activity_form_templates.id').onDelete('SET NULL').onUpdate('CASCADE')
+      table.text('form_data', 'longtext').nullable()
       table.integer('is_published', 1).default(1)
       table.integer('is_deleted', 1).default(0)
     })
@@ -30,7 +29,6 @@ class ActivitiesSchema extends Schema {
     this.table('activities', (table) => {
       table.dropIndex('slug', 'activities_slug_unique')
       table.dropForeign('category_id', 'activities_category_id_foreign')
-      table.dropForeign('form_id', 'activities_form_id_foreign')
     })
     this.drop('activities')
   }
