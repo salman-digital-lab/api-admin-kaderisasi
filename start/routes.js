@@ -28,3 +28,10 @@ Route.group(() => {
   Route.get('/:member_id/:activity_id', 'ActivityRegistrationController.show')
   Route.delete('/:member_id/:activity_id', 'ActivityRegistrationController.destroy')
 }).prefix("v1/activity-registration");
+
+Route.group(() => {
+  Route.get('/:member_id/:activity_id', 'ActivityParticipanController.show_questionnaire')
+  Route.get('/:activity_id/:status', 'ActivityParticipanController.show_registrations')
+  Route.get('/:member_id/:activity_id/:status', 'ActivityParticipanController.update_registration_status')
+  Route.put('/:activity_id', 'ActivityParticipanController.show_activity_statistics')
+}).prefix("v1/activity-participan");
