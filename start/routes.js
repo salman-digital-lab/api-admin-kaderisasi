@@ -13,11 +13,14 @@
 |
 */
 
+
+
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use("Route");
 
 
 require('./routes/RegionRoutes')
+require('./routes/UniversityRoutes');
 
 Route.group(() => {
   Route.resource("activity-category", "ActivityCategoryController").apiOnly();
