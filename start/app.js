@@ -19,7 +19,6 @@ const providers = [
   '@adonisjs/framework/providers/ViewProvider',
   '@adonisjs/validator/providers/ValidatorProvider'
 ];
-
 /*
 |--------------------------------------------------------------------------
 | Ace Providers
