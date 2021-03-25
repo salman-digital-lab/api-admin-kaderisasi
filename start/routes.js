@@ -16,6 +16,9 @@
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use("Route");
 
+
+require('./routes/RegionRoutes')
+
 Route.group(() => {
   Route.resource("activity-category", "ActivityCategoryController").apiOnly();
   Route.resource("activity", "ActivityController").apiOnly();
