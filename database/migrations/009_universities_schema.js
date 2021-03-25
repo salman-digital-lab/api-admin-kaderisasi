@@ -8,7 +8,6 @@ class UniversitiesSchema extends Schema {
     this.create('universities', (table) => {
       table.increments("id")
       table.string("name", 100)
-      table.timestamp('created_date').defaultTo(this.fn.now())
     })
   }
 

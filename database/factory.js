@@ -15,18 +15,24 @@
 const Factory = use("Factory");
 const Category = use("App/Models/ActivityCategory");
 
-Factory.blueprint("activity_categories", (faker) => {
+Factory.blueprint("App/Models/ActivityCategory", (faker) => {
   const name = faker.username();
   return {
     name: name.charAt(0).toUpperCase() + name.slice(1),
   };
 });
 
-Factory.blueprint("activities", async (faker) => {
+Factory.blueprint('App/Models/University', (faker) => {
+  return {
+    name : "University of ".concat(faker.city())
+  }
+})
+
+Factory.blueprint("App/Models/Activity", async (faker) => {
 
   const categories = await Category.all();
-
   const name = faker.sentence();
+
   return {
     name: name,
     slug: name.toLowerCase().split(" ").join("-"),

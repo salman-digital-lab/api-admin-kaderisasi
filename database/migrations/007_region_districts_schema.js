@@ -9,7 +9,6 @@ class RegionDistrictsSchema extends Schema {
       table.string('id', 7)
       table.string('regency_id', 4).references('id').inTable('region_regencies').onDelete('CASCADE')
       table.string('name')
-      table.timestamp('created_date').defaultTo(this.fn.now())
       table.primary(['id'])
     })
   }
