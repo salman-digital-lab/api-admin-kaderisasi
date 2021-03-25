@@ -8,7 +8,6 @@ class RegionProvinceSchema extends Schema {
     this.create('region_provinces', (table) => {
       table.string('id', 2)
       table.string('name')
-      table.timestamp('created_date').defaultTo(this.fn.now())
       table.primary(['id'])
     })
   }

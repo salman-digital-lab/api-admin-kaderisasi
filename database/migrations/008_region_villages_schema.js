@@ -9,7 +9,6 @@ class RegionVillagesSchema extends Schema {
       table.string('id', 10)
       table.string('district_id', 7).references('id').inTable('region_districts').onDelete('CASCADE')
       table.string('name')
-      table.timestamp('created_date').defaultTo(this.fn.now())
       table.primary(['id'])
     })
   }
