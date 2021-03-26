@@ -45,8 +45,8 @@ class DasbordAdminController {
         }
         else {
             return response.status(400).json({
-                message: "pilihan yang anda masukan salah ",
                 status: "FAILED", 
+                message: "pilihan yang anda masukan salah ",
             })
         }
     }
