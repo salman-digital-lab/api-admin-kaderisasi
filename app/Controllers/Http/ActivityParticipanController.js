@@ -2,6 +2,7 @@
 
 const { validate, rule } = use("Validator");
 const ActivityRegistration = use("App/Models/ActivityRegistration");
+const Excel = require('exceljs')
 
 class ActivityParticipanController {
 
@@ -263,6 +264,73 @@ class ActivityParticipanController {
                             message: error
                         });
                 }
+            }
+        } else {
+            return response
+                .status(400)
+                .json({
+                    status: "FAILED",
+                    message: "Tidak ada data yang ditemukan"
+                });
+        }
+    }
+
+    async export({ params, response }) {
+
+        const { activity_id } = params
+        let workbook = new Excel.Workbook();
+        let worksheet = workbook.addWorksheet("Sheet 1");
+        let font = { name: 'Times New Roman', size: 12 };
+
+        worksheet.columns = [
+            { header: "No", key: "no", width: 10, style: { font: font } },
+            { header: "Member ID", key: "member_id", width: 15, style: { font: font } },
+            { header: "Created At", key: "created_at", width: 30, style: { font: font } },
+            { header: "Status", key: "status", width: 20, style: { font: font } },
+            { header: "Questionnaire", key: "questionnaire", width: 50, style: { font: font } },
+        ];
+
+        const activity_registrations = await ActivityRegistration.query()
+            .where('activity_id', activity_id)
+            .fetch()
+
+        if (activity_registrations.rows.length > 0) {
+
+            let no = 1
+            let row = activity_registrations.toJSON().map(async item => {
+                worksheet.addRow({
+                    no: no++,
+                    member_id: item.member_id,
+                    created_at: item.created_at,
+                    status: item.status,
+                    questionnaire: item.questionnaire
+                })
+            })
+
+            try {
+
+                const formatted = Date.now()
+
+                row = await Promise.all(row)
+                await workbook.xlsx.writeFile(`./tmp/uploads/export-participants-${activity_id}-${formatted}.xlsx`)
+
+                return response
+                    .status(200)
+                    .json({
+                        status: "SUCCESS",
+                        message: "Data Partisipan berhasil diexport!",
+                        data: {
+                            'file_location': 'tmp/uploads',
+                            'file_name': `export-participants-${activity_id}-${formatted}.xlsx`
+                        },
+                    });
+            } catch (error) {
+                return response
+                    .status(400)
+                    .json({
+                        status: "FAILED",
+                        message: error
+                    });
             }
         } else {
             return response
