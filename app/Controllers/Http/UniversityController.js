@@ -1,15 +1,13 @@
 'use strict'
 
-const Database = use('Database');
+const University = use('App/Models/University')
 const { validate } = use('Validator');
 
 class UniversityController {
 
     async getUniversities({ response }) {
         try {
-            const universities = await Database
-                .select('*')
-                .from('universities')
+            const universities = await University.all();
 
             response.status(200).json({
                 status: "SUCCESS",
@@ -38,21 +36,9 @@ class UniversityController {
             })
         }
         
-        const body = validation._data;
-        
         try {
-            const id = await Database
-                .table('universities')
-                .insert({
-                    name: body.name
-                })
-
-            const university = await Database
-                .table('universities')
-                .where({
-                    id
-                })
-            
+            const data = request.only(['name']);
+            const university = await University.create(data);
             response.status(201).json({
                 status: "SUCCESS",
                 message: "Berhasil menambahkan universitas",
@@ -83,21 +69,9 @@ class UniversityController {
         const body = validation._data;
         
         try {
-            await Database
-                .table('universities')
-                .where({
-                    id: params.id
-                })
-                .update({
-                    name: body.name
-                })
-
-            const university = await Database
-                .table('universities')
-                .where({
-                    id: params.id
-                })
-            
+            const university = await University.find(params.id);
+            university.name = body.name
+            await university.save()
             response.status(200).json({
                 status: "SUCCESS",
                 message: "Berhasil mengubah data universitas",
@@ -113,19 +87,8 @@ class UniversityController {
 
     async deleteUniversity({ params, response }) {
         try {
-            const university = await Database
-                .table('universities')
-                .where({
-                    id: params.id
-                })
-
-            await Database
-                .table('universities')
-                .where({
-                    id: params.id
-                })
-                .delete()
-            
+            const university = await University.find(params.id)
+            await university.delete()
             response.status(200).json({
                 status: "SUCCESS",
                 message: "Berhasil menghapus universitas",
