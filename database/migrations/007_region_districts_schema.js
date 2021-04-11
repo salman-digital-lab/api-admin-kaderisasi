@@ -6,10 +6,10 @@ const Schema = use('Schema')
 class RegionDistrictsSchema extends Schema {
   up () {
     this.create('region_districts', (table) => {
-      table.increments('id').primary()
-      table.integer('regency_id',11).unsigned().references('id').inTable('region_regencies')
-      //table.foreign('regency_id').references('region_regencies.id').onDelete('SET NULL').onUpdate('CASCADE')
-      table.string('name',255).notNullable()
+      table.string('id', 7)
+      table.string('regency_id', 4).references('id').inTable('region_regencies').onDelete('CASCADE')
+      table.string('name')
+      table.primary(['id'])
     })
   }
 

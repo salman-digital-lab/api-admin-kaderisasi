@@ -3,11 +3,12 @@
 /** @type {import('@adonisjs/lucid/src/Schema')} */
 const Schema = use('Schema')
 
-class RegionProvincesSchema extends Schema {
+class RegionProvinceSchema extends Schema {
   up () {
     this.create('region_provinces', (table) => {
-        table.increments('id').primary()
-        table.string('name', 200).notNullable()
+      table.string('id', 2)
+      table.string('name')
+      table.primary(['id'])
     })
   }
 
@@ -16,4 +17,4 @@ class RegionProvincesSchema extends Schema {
   }
 }
 
-module.exports = RegionProvincesSchema
+module.exports = RegionProvinceSchema

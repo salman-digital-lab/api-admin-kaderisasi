@@ -1,4 +1,4 @@
-'use strict'
+"use strict";
 
 /*
 |--------------------------------------------------------------------------
@@ -13,13 +13,37 @@
 |
 */
 
+
+
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
-const Route = use('Route')
+const Route = use("Route");
+
+
+require('./routes/RegionRoutes')
+require('./routes/UniversityRoutes');
 
 Route.group(() => {
-  Route.get('member', 'DasbordAdminController.CountMembers')
-  Route.get('provinces/:id?', 'DasbordAdminController.CountMemberProvinces')
-  Route.get('universities', 'DasbordAdminController.CountMembersUniversities')
-  Route.get('years', 'DasbordAdminController.CountMembersYears')
-  Route.get('gender', 'DasbordAdminController.CountMembersGender')
-}).prefix('v1/members/get/all')
+  Route.resource("activity-category", "ActivityCategoryController").apiOnly();
+  Route.resource("activity", "ActivityController").apiOnly();
+  Route.resource("activity-form-template", "ActivityFormTemplateController").apiOnly();
+}).prefix("v1");
+
+
+
+
+Route.group(() => {
+  Route.get('member', 'DashboardAdminController.CountMembers')
+  Route.get('provinces/:id?', 'DashboardAdminController.CountMemberProvinces')
+  Route.get('universities', 'DashboardAdminController.CountMembersUniversities')
+  Route.get('years', 'DashboardAdminController.CountMembersYears')
+  Route.get('gender', 'DashboardAdminController.CountMembersGender')
+}).prefix('v1/dashboard/get/all')
+
+
+
+Route.group(() => {
+  Route.get('/:activity_id', 'ActivityRegistrationController.index')
+  Route.post('/', 'ActivityRegistrationController.store')
+  Route.get('/:member_id/:activity_id', 'ActivityRegistrationController.show')
+  Route.delete('/:member_id/:activity_id', 'ActivityRegistrationController.destroy')
+}).prefix("v1/activity-registration");

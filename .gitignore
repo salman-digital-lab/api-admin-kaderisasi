@@ -8,5 +8,6 @@ tmp
 .env
 .env.example
 .editorconfig
+
 # The development sqlite file
 database/*.sqlite

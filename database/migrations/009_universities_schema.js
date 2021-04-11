@@ -6,8 +6,8 @@ const Schema = use('Schema')
 class UniversitiesSchema extends Schema {
   up () {
     this.create('universities', (table) => {
-      table.increments('id',11).primary()
-      table.string('name', 200).notNullable()
+      table.increments('id')
+      table.string("name", 100)
     })
   }
 

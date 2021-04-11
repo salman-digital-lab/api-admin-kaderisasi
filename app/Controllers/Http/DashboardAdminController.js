@@ -20,6 +20,11 @@ class DasbordAdminController {
     }
     
     async CountMemberProvinces ({request, response}){
+        /** const id untuk mendapatkan id dari role_member dan responya itu akan menampilkan jumlah member
+         * perprovinsi dengan hanya 1 jenis role misalnya memberikan nilai id dengan 1 maka hanya akan menampilkan 
+         * jumlah menber perprovinsi dengan role kader saja dan untuk menampilkan semua role maka harus memberikan id
+         * dengan nilai 0 id=0
+         */
         const id = request.all()
         if(id.id == 0){
             const count_all = await Database.raw(`SELECT DISTINCT(region_provinces.name) AS nama_provinsi,
@@ -45,8 +50,8 @@ class DasbordAdminController {
         }
         else {
             return response.status(400).json({
-                status: "FAILED", 
-                message: "pilihan yang anda masukan salah ",
+                status: "FAILED",
+                message: "pilihan yang anda masukan salah ", 
             })
         }
     }
