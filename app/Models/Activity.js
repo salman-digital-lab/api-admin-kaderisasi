@@ -37,6 +37,10 @@ class Activity extends Model {
   activityCategory() {
     return this.hasOne("App/Models/ActivityCategory", "category_id", "id");
   }
+
+  memberRole() {
+    return this.hasOne("App/Models/MemberRole", "minimum_role_id", "id");
+  }
 }
 
 module.exports = Activity;

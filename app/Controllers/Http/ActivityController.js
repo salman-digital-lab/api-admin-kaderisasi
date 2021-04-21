@@ -4,8 +4,9 @@ const { validate, sanitizor } = use("Validator");
 const Category = use("App/Models/ActivityCategory");
 const ActivityFormTemplate = use("App/Models/ActivityFormTemplate");
 const Activity = use("App/Models/Activity");
+const MemberRole = use('App/Models/MemberRole');
 const Helpers = use('Helpers')
-const { unlink } = use('fs/promises')
+const { unlink } = use('fs').promises
 
 class ActivityController {
 
@@ -16,6 +17,8 @@ class ActivityController {
     try {
 
       const whereClause = {}
+
+      whereClause.is_deleted = 0
 
       if (data.category_id) {
         whereClause.category_id = data.category_id
@@ -30,14 +33,16 @@ class ActivityController {
       }
 
       const search = (data.search) ? data.search : ""
-      const page = (data.page) ? data.page : 1;
+      const page = (data.page) ? data.page : 1
+      const perPage = (data.perPage) ? data.perPage : 10
 
-      const activities = await Activity.query()
+      let activities = await Activity.query()
         .where(whereClause)
         .where('name', 'LIKE', '%' + search + '%')
         .where('is_deleted', 0)
         .with("activityCategory")
-        .paginate(page, 10)
+        .with("memberRole")
+        .paginate(page, perPage)
 
       return response
         .status(200)
@@ -65,6 +70,7 @@ class ActivityController {
 
     let categories_id = "";
     let form_id = "";
+    let minimum_role_id = "";
 
     if (data.category_id) {
       const categories = await Category.all();
@@ -90,6 +96,19 @@ class ActivityController {
       }
     }
 
+    if (data.minimum_role_id) {
+
+      const member_roles = await MemberRole.all();
+
+      for (let index = 0; index < member_roles.toJSON().length; index++) {
+        if (index === member_roles.toJSON().length - 1) {
+          minimum_role_id += member_roles.toJSON()[index].id;
+        } else {
+          minimum_role_id += member_roles.toJSON()[index].id + ",";
+        }
+      }
+    }
+
     const rules = {
       name: "required",
       slug: "required_if:name|unique:activities,slug",
@@ -99,7 +118,7 @@ class ActivityController {
       register_end_date: `required_if:register_begin_date|date|after:${data.register_begin_date}`,
       category_id: `required|number|in:${categories_id}`,
       form_id: `required_if:form_id|number|in:${form_id}`,
-      minimum_role_id: "required_if:minimum_role_id|number",
+      minimum_role_id: `required|number|in:${minimum_role_id}`,
       status: "required_if:status|in:OPENED,CLOSED",
       is_published: "required_if:is_published|in:0,1",
     };
@@ -216,6 +235,7 @@ class ActivityController {
     const activities = await Activity.query()
       .where({ id: id, is_deleted: 0 })
       .with("activityCategory")
+      .with("memberRole")
       .fetch()
 
     try {
@@ -260,6 +280,7 @@ class ActivityController {
 
       let categories_id = "";
       let form_id = "";
+      let minimum_role_id = "";
 
       if (data.category_id) {
         const categories = await Category.all();
@@ -285,6 +306,19 @@ class ActivityController {
         }
       }
 
+      if (data.minimum_role_id) {
+
+        const member_roles = await MemberRole.all();
+
+        for (let index = 0; index < member_roles.toJSON().length; index++) {
+          if (index === member_roles.toJSON().length - 1) {
+            minimum_role_id += member_roles.toJSON()[index].id;
+          } else {
+            minimum_role_id += member_roles.toJSON()[index].id + ",";
+          }
+        }
+      }
+
       const begin_date = (data.begin_date) ? data.begin_date : activity.begin_date
       const register_begin_date = (data.register_begin_date) ? data.register_begin_date : activity.register_begin_date
 
@@ -297,7 +331,7 @@ class ActivityController {
         register_end_date: `required_if:register_end_date|date|after:${register_begin_date}`,
         category_id: `required_if:category_id|number|in:${categories_id}`,
         form_id: `required_if:form_id|number|in:${form_id}`,
-        minimum_role_id: "required_if:minimum_role_id|number",
+        minimum_role_id: `required_if:category_id|number|in:${minimum_role_id}`,
         status: "required_if:status|in:OPENED,CLOSED",
         is_published: "required_if:is_published|in:0,1",
       };
@@ -396,7 +430,10 @@ class ActivityController {
 
           activity.description = data.description;
           activity.status = data.status;
-          activity.minimum_role_id = data.minimum_role_id;
+
+          if (data.minimum_role_id) {
+            activity.minimum_role_id = data.minimum_role_id;
+          }
 
           if (bannerImageName) {
             activity.banner_image = bannerImageName;

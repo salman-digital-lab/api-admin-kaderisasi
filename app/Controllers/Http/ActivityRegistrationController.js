@@ -3,6 +3,7 @@
 const { validate } = use("Validator");
 const ActivityRegistration = use("App/Models/ActivityRegistration");
 const Activity = use("App/Models/Activity");
+const Member = use("App/Models/Member");
 const Database = use('Database')
 
 class ActivityRegistrationController {
@@ -12,23 +13,32 @@ class ActivityRegistrationController {
     try {
 
       const { activity_id } = params;
-      const activity_registrations = await Database.from('activity_registrations').where('activity_id', activity_id);
+      const activity = await Activity.findBy({ id: activity_id, is_deleted: 0 })
 
-      if (activity_registrations) {
-        return response
-          .status(200)
-          .json({
-            status: "SUCCESS",
-            message: "Data Registrasi Aktivitas berhasil dimuat!",
-            data: activity_registrations,
-          });
-      } else {
+      if (!activity) {
         return response
           .status(400)
           .json({
             status: "FAILED",
-            message: "Tidak ada data yang ditemukan"
+            message: "Aktivitas tidak ditemukan"
           });
+      } else {
+
+        const activity_registrations = await Database
+          .raw(`select ar.*, m.name, m.gender, m.email, m.phone, m.role_id 
+                from activity_registrations ar 
+                left join members m on m.id = ar.member_id 
+                where activity_id = ?`, [activity_id]);
+        Database.close();
+
+        return response
+          .status(200)
+          .json({
+            status: "SUCCESS",
+            message: "Data Registrasi Aktivitas berhasil dimuat",
+            data: activity_registrations[0],
+          });
+
       }
     } catch (error) {
       return response
@@ -63,80 +73,84 @@ class ActivityRegistrationController {
     } else {
 
       const activity = await Activity.findBy({ id: data.activity_id, is_deleted: 0 })
+      const member = await Member.findBy({ id: data.member_id })
 
-      if (activity) {
-
-        // Role ID adalah field yang terdapat pada tabel members
-        //   Ini tentukan manual karena belum diintegrasikan dengan services members
-        //   Role ID akan digunakan untuk mengecek "minimal role ID" pada tabel activity
-        //   Sebagai ketentuan yang harus dipenuhi ketika akan mendaftar suatu aktivity  
-
-        const role_id = 1;
-
-        if (role_id >= activity.minimum_role_id) {
-
-          const is_already_register = await ActivityRegistration.findBy({
-            'member_id': data.member_id,
-            'activity_id': data.activity_id
+      if (!activity) {
+        return response
+          .status(400)
+          .json({
+            status: "FAILED",
+            message: "Aktivitas tidak ditemukan"
           });
+      }
 
-          if (is_already_register) {
-            return response
-              .status(400)
-              .json({
-                status: "FAILED",
-                message: "Anda sudah pernah mendaftar pada aktivitas atau kegiatan ini"
-              });
-          } else {
-            try {
+      if (!member) {
+        return response
+          .status(400)
+          .json({
+            status: "FAILED",
+            message: "Member tidak ditemukan"
+          });
+      }
 
-              const activity_registration = new ActivityRegistration();
+      if (member.role_id >= activity.minimum_role_id) {
 
-              activity_registration.member_id = data.member_id;
-              activity_registration.activity_id = data.activity_id;
-              if (data.questionnaire) {
-                activity_registration.questionnaire = data.questionnaire;
-              }
-              await activity_registration.save();
+        const is_already_register = await ActivityRegistration.findBy({
+          'member_id': data.member_id,
+          'activity_id': data.activity_id
+        });
 
-              const activity_registrations = await ActivityRegistration.findBy({
-                'member_id': activity_registration.member_id,
-                'activity_id': activity_registration.activity_id
-              });
-
-              return response
-                .status(201)
-                .json({
-                  status: "SUCCESS",
-                  message: `Anda berhasil mendaftar pada kegiatan ${activity.name}!`,
-                  data: {
-                    "activity_registrations": activity_registrations,
-                    "activity": activity
-                  }
-                });
-            } catch (error) {
-              return response
-                .status(400)
-                .json({
-                  status: "FAILED",
-                  message: error
-                });
-            }
-          }
-        } else {
+        if (is_already_register) {
           return response
             .status(400)
             .json({
               status: "FAILED",
-              message: "Anda tidak dapat mendaftar pada aktivitas atau kegiatan ini karena tidak memenuhi Role yang ditentukan"
+              message: "Anda sudah pernah mendaftar pada aktivitas atau kegiatan ini"
             });
+        } else {
+          try {
+
+            const activity_registration = new ActivityRegistration();
+
+            activity_registration.member_id = data.member_id;
+            activity_registration.activity_id = data.activity_id;
+
+            if (data.questionnaire) {
+              activity_registration.questionnaire = data.questionnaire;
+            }
+
+            await activity_registration.save();
+
+            const activity_registrations = await ActivityRegistration.findBy({
+              'member_id': activity_registration.member_id,
+              'activity_id': activity_registration.activity_id
+            });
+
+            return response
+              .status(201)
+              .json({
+                status: "SUCCESS",
+                message: `Anda berhasil mendaftar pada kegiatan ${activity.name}!`,
+                data: {
+                  "activity_registrations": activity_registrations,
+                  "activity": activity
+                }
+              });
+          } catch (error) {
+            return response
+              .status(400)
+              .json({
+                status: "FAILED",
+                message: error
+              });
+          }
         }
       } else {
         return response
           .status(400)
           .json({
             status: "FAILED",
-            message: "Tidak ada data Aktivitas yang ditemukan"
+            message: "Anda tidak dapat mendaftar pada aktivitas atau kegiatan ini karena tidak memenuhi role atau level member yang ditentukan"
           });
       }
     }
@@ -144,33 +158,42 @@ class ActivityRegistrationController {
 
   async show({ params, response }) {
 
-    try {
+    const { member_id, activity_id } = params;
 
-      const { member_id, activity_id } = params;
-      const activity_registrations = await ActivityRegistration.findBy({
-        'member_id': member_id,
-        'activity_id': activity_id
-      });
+    const activity_registrations = await ActivityRegistration.findBy({
+      activity_id: activity_id,
+      member_id: member_id
+    })
 
-      if (activity_registrations) {
-        return response
-          .status(200)
-          .json({
-            status: "SUCCESS",
-            message: "Data Registrasi Aktivitas berhasil dimuat!",
-            data: activity_registrations,
-          });
-      } else {
-        return response
-          .status(400)
-          .json({
-            status: "FAILED",
-            message: "Tidak ada data yang ditemukan"
-          });
-      }
-    } catch (error) {
+    if (!activity_registrations) {
       return response
         .status(400)
+        .json({
+          status: "FAILED",
+          message: "Tidak ada data yang ditemukan"
+        });
+    }
+
+    try {
+
+      const activity_registration = await Database
+        .raw(`select ar.*, m.name, m.gender, m.email, m.phone, m.role_id 
+                from activity_registrations ar 
+                left join members m on m.id = ar.member_id 
+                where activity_id = ? AND member_id = ?`, [activity_id, member_id]);
+      Database.close();
+
+      return response
+        .status(200)
+        .json({
+          status: "SUCCESS",
+          message: "Data Registrasi Aktivitas berhasil dimuat!",
+          data: activity_registration[0],
+        });
+
+    } catch (error) {
+      return response
+        .status(500)
         .json({
           status: "FAILED",
           message: error
@@ -221,6 +244,7 @@ class ActivityRegistrationController {
         });
     }
   }
+
 }
 
 module.exports = ActivityRegistrationController

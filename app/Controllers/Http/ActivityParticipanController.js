@@ -1,8 +1,11 @@
 'use strict'
 
-const { validate, rule } = use("Validator");
+const { validate, rule, sanitizor } = use("Validator");
 const ActivityRegistration = use("App/Models/ActivityRegistration");
+const Activity = use("App/Models/Activity");
 const Excel = require('exceljs')
+const Database = use('Database')
+const { unlink } = use('fs').promises
 
 class ActivityParticipanController {
 
@@ -68,34 +71,27 @@ class ActivityParticipanController {
                 });
         } else {
 
-            const activity_registrations = await ActivityRegistration.query()
-                .where('activity_id', activity_id)
-                .where('status', status)
-                .fetch()
+            const activity_registrations = await Database
+                .raw(`select ar.*, m.name, m.gender, m.email, m.phone, m.role_id 
+                      from activity_registrations ar 
+                      left join members m on m.id = ar.member_id 
+                      where activity_id = ? AND status = ?`, [activity_id, status]);
+            Database.close();
 
-            if (activity_registrations.rows.length > 0) {
-                try {
-                    return response
-                        .status(200)
-                        .json({
-                            status: "SUCCESS",
-                            message: "Data Partisipan berhasil dimuat!",
-                            data: activity_registrations,
-                        });
-                } catch (error) {
-                    return response
-                        .status(400)
-                        .json({
-                            status: "FAILED",
-                            message: error
-                        });
-                }
-            } else {
+            try {
+                return response
+                    .status(200)
+                    .json({
+                        status: "SUCCESS",
+                        message: "Data Partisipan berhasil dimuat!",
+                        data: activity_registrations[0],
+                    });
+            } catch (error) {
                 return response
                     .status(400)
                     .json({
                         status: "FAILED",
-                        message: "Tidak ada data yang ditemukan"
+                        message: error
                     });
             }
         }
@@ -104,26 +100,27 @@ class ActivityParticipanController {
     async show_statistics({ params, response }) {
 
         const { activity_id } = params;
-        const activity_registrations = await ActivityRegistration.query()
-            .where('activity_id', activity_id)
-            .fetch()
+        const activity = await Activity.findBy({ id: activity_id, is_deleted: 0 });
 
-        if (activity_registrations.rows.length > 0) {
+        if (activity) {
 
             let data = {}
             const regexStatus = await ActivityRegistration.regexStatus();
 
-            data.total_participants = activity_registrations.rows.length
+            const activity_registrations = await Database
+                .raw(`select ar.status, m.gender 
+                      from activity_registrations ar 
+                      left join members m on m.id = ar.member_id 
+                      where activity_id = ?`, [activity_id]);
+            Database.close();
 
-            // Untuk Total Males dan Total females
-            // Hard Code karena harus mengambil dan difilter dari services member (field gender)
-
-            data.total_males = Math.floor(activity_registrations.rows.length / 2)
-            data.total_females = Math.round(activity_registrations.rows.length / 2)
+            data.total_participants = activity_registrations[0].length
+            data.total_males = activity_registrations[0].filter((participant) => participant.gender === 'M').length
+            data.total_females = activity_registrations[0].filter((participant) => participant.gender === 'F').length
 
             regexStatus.forEach(status => {
 
-                const data_temp = activity_registrations.rows.filter((participant) => {
+                const data_temp = activity_registrations[0].filter((participant) => {
                     return participant.status === status
                 });
 
@@ -135,7 +132,7 @@ class ActivityParticipanController {
                     .status(200)
                     .json({
                         status: "SUCCESS",
-                        message: "Data Partisipan berhasil dimuat!",
+                        message: "Data Statistik Partisipan berhasil dimuat!",
                         data: data,
                     });
             } catch (error) {
@@ -151,7 +148,7 @@ class ActivityParticipanController {
                 .status(400)
                 .json({
                     status: "FAILED",
-                    message: "Tidak ada data yang ditemukan"
+                    message: "Tidak ada data aktivitas yang ditemukan"
                 });
         }
     }
@@ -222,39 +219,79 @@ class ActivityParticipanController {
                     });
             }
         }
+    }
 
+    async export({ params, response }) {
 
-        if (category) {
+        const { activity_id } = params
+        const activity = await Activity.findBy({ id: activity_id, is_deleted: 0 });
 
-            const rules = {
-                name: "required",
-            };
+        if (activity) {
 
-            const data = request.all();
-            const validation = await validate(data, rules);
+            const activity_registrations = await Database
+                .raw(`select ar.*, m.name, m.gender, m.email, m.phone, mr.name as role_name 
+                      from activity_registrations ar 
+                      left join members m on m.id = ar.member_id 
+                      left join member_roles mr on mr.id = m.role_id 
+                      where activity_id = ?`, [activity_id]);
+            Database.close();
 
-            if (validation.fails()) {
-                return response
-                    .status(400)
-                    .json({
-                        status: "FAILED",
-                        message: validation.messages()
-                    });
-            } else {
+            if (activity_registrations[0].length > 0) {
 
                 try {
 
-                    category.name = data.name;
-                    await category.save();
+                    let workbook = new Excel.Workbook();
+                    let worksheet = workbook.addWorksheet("Sheet 1");
+                    let font = { name: 'Times New Roman', size: 12 };
 
-                    const categories = await Category.find(category.id);
+                    worksheet.columns = [
+                        { header: "No", key: "no", width: 5, style: { font: font } },
+                        { header: "Name", key: "name", width: 40, style: { font: font } },
+                        { header: "Gender", key: "gender", width: 7, style: { font: font } },
+                        { header: "Email", key: "email", width: 30, style: { font: font } },
+                        { header: "Phone", key: "phone", width: 20, style: { font: font } },
+                        { header: "Line ID", key: "line_id", width: 15, style: { font: font } },
+                        { header: "Role", key: "role", width: 15, style: { font: font } },
+                        { header: "Created At", key: "created_at", width: 15, style: { font: font } },
+                        { header: "Status", key: "status", width: 20, style: { font: font } },
+                        { header: "Questionnaire", key: "questionnaire", width: 50, style: { font: font } },
+                    ];
+
+                    let no = 1
+                    let row = await activity_registrations[0].map(async item => {
+                        worksheet.addRow({
+                            no: no++,
+                            name: item.name,
+                            gender: item.gender,
+                            email: item.email,
+                            phone: item.phone,
+                            line_id: item.line_id,
+                            role: item.role_name,
+                            created_at: item.created_at,
+                            status: item.status,
+                            questionnaire: item.questionnaire
+                        })
+                    })
+
+                    const formatted = Date.now()
+
+                    // Catatan
+                    // File Export akan menumpuk di folder tmp/uploads/exports
+                    // Karena tidak dihapus
+                    // Mohon saran untuk solusi alternatifnya
+
+                    row = await Promise.all(row)
+                    await workbook.xlsx.writeFile(`./tmp/uploads/exports/export-participants-${sanitizor.slug(activity.name)}-${formatted}.xlsx`)
 
                     return response
                         .status(200)
                         .json({
                             status: "SUCCESS",
-                            message: "Data Kategori Aktivitas berhasil diperbarui!",
-                            data: categories,
+                            message: "Data Partisipan berhasil diexport!",
+                            data: {
+                                'file_location': 'tmp/uploads/exports/',
+                                'file_name': `export-participants-${activity_id}-${formatted}.xlsx`
+                            },
                         });
                 } catch (error) {
                     return response
@@ -264,72 +301,12 @@ class ActivityParticipanController {
                             message: error
                         });
                 }
-            }
-        } else {
-            return response
-                .status(400)
-                .json({
-                    status: "FAILED",
-                    message: "Tidak ada data yang ditemukan"
-                });
-        }
-    }
-
-    async export({ params, response }) {
-
-        const { activity_id } = params
-        let workbook = new Excel.Workbook();
-        let worksheet = workbook.addWorksheet("Sheet 1");
-        let font = { name: 'Times New Roman', size: 12 };
-
-        worksheet.columns = [
-            { header: "No", key: "no", width: 10, style: { font: font } },
-            { header: "Member ID", key: "member_id", width: 15, style: { font: font } },
-            { header: "Created At", key: "created_at", width: 30, style: { font: font } },
-            { header: "Status", key: "status", width: 20, style: { font: font } },
-            { header: "Questionnaire", key: "questionnaire", width: 50, style: { font: font } },
-        ];
-
-        const activity_registrations = await ActivityRegistration.query()
-            .where('activity_id', activity_id)
-            .fetch()
-
-        if (activity_registrations.rows.length > 0) {
-
-            let no = 1
-            let row = activity_registrations.toJSON().map(async item => {
-                worksheet.addRow({
-                    no: no++,
-                    member_id: item.member_id,
-                    created_at: item.created_at,
-                    status: item.status,
-                    questionnaire: item.questionnaire
-                })
-            })
-
-            try {
-
-                const formatted = Date.now()
-
-                row = await Promise.all(row)
-                await workbook.xlsx.writeFile(`./tmp/uploads/export-participants-${activity_id}-${formatted}.xlsx`)
-
-                return response
-                    .status(200)
-                    .json({
-                        status: "SUCCESS",
-                        message: "Data Partisipan berhasil diexport!",
-                        data: {
-                            'file_location': 'tmp/uploads',
-                            'file_name': `export-participants-${activity_id}-${formatted}.xlsx`
-                        },
-                    });
-            } catch (error) {
+            } else {
                 return response
                     .status(400)
                     .json({
                         status: "FAILED",
-                        message: error
+                        message: "Belum terdapat member yang mendaftar pada aktivitas ini"
                     });
             }
         } else {
@@ -337,7 +314,7 @@ class ActivityParticipanController {
                 .status(400)
                 .json({
                     status: "FAILED",
-                    message: "Tidak ada data yang ditemukan"
+                    message: "Tidak ada data aktivitas yang ditemukan"
                 });
         }
     }
