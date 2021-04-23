@@ -36,6 +36,7 @@ Route.group(() => {
 
 Route.group(() => {
   Route.get('member', 'DashboardAdminController.CountMembers')
+  Route.get('autocomplete/:universities?', 'DashboardAdminController.AutocompleteUniversities')
   Route.get('provinces/:id?', 'DashboardAdminController.CountMemberProvinces')
   Route.get('universities', 'DashboardAdminController.CountMembersUniversities')
   Route.get('years', 'DashboardAdminController.CountMembersYears')

@@ -18,6 +18,16 @@ class DasbordAdminController {
         })
 
     }
+
+    async AutocompleteUniversities ({request, response}){
+        const universities = request.all()
+        const listuniversities = await Database.raw(`SELECT * FROM universities WHERE name LIKE '%${universities.universities[0]}%'`)
+        return response.status(200).json({
+            status: "SUCCESS",
+            message: "nama universitas",
+            data:listuniversities[0]
+        })
+    }
    
     async CountMemberProvinces ({request, response}){
         /** const id untuk mendapatkan id dari role_member dan responya itu akan menampilkan jumlah member
