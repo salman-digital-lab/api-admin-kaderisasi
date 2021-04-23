@@ -25,9 +25,10 @@ class ActivityRegistrationController {
       } else {
 
         const activity_registrations = await Database
-          .raw(`select ar.*, m.name, m.gender, m.email, m.phone, m.role_id 
+          .raw(`select ar.*, m.name, m.gender, m.email, m.phone, m.role_id, mr.name as role_name
                 from activity_registrations ar 
                 left join members m on m.id = ar.member_id 
+                left join member_roles mr on mr.id = m.role_id 
                 where activity_id = ?`, [activity_id]);
         Database.close();
 
@@ -177,9 +178,10 @@ class ActivityRegistrationController {
     try {
 
       const activity_registration = await Database
-        .raw(`select ar.*, m.name, m.gender, m.email, m.phone, m.role_id 
+        .raw(`select ar.*, m.name, m.gender, m.email, m.phone, m.role_id , mr.name as role_name 
                 from activity_registrations ar 
                 left join members m on m.id = ar.member_id 
+                left join member_roles mr on mr.id = m.role_id 
                 where activity_id = ? AND member_id = ?`, [activity_id, member_id]);
       Database.close();
 

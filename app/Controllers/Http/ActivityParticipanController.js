@@ -72,9 +72,10 @@ class ActivityParticipanController {
         } else {
 
             const activity_registrations = await Database
-                .raw(`select ar.*, m.name, m.gender, m.email, m.phone, m.role_id 
+                .raw(`select ar.*, m.name, m.gender, m.email, m.phone, m.role_id , mr.name as role_name 
                       from activity_registrations ar 
                       left join members m on m.id = ar.member_id 
+                left join member_roles mr on mr.id = m.role_id 
                       where activity_id = ? AND status = ?`, [activity_id, status]);
             Database.close();
 
