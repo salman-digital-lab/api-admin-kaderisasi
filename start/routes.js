@@ -14,7 +14,6 @@
 */
 
 
-
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use("Route");
 
@@ -28,8 +27,12 @@ Route.group(() => {
   Route.resource("activity-form-template", "ActivityFormTemplateController").apiOnly();
 }).prefix("v1");
 
-
-
+Route.group(() => {
+  Route.get('/:activity_id', 'ActivityRegistrationController.index')
+  Route.post('/', 'ActivityRegistrationController.store')
+  Route.get('/:member_id/:activity_id', 'ActivityRegistrationController.show')
+  Route.delete('/:member_id/:activity_id', 'ActivityRegistrationController.destroy')
+}).prefix("v1/activity-registration");
 
 Route.group(() => {
   Route.get('member', 'DashboardAdminController.CountMembers')
@@ -38,12 +41,3 @@ Route.group(() => {
   Route.get('years', 'DashboardAdminController.CountMembersYears')
   Route.get('gender', 'DashboardAdminController.CountMembersGender')
 }).prefix('v1/dashboard/get/all')
-
-
-
-Route.group(() => {
-  Route.get('/:activity_id', 'ActivityRegistrationController.index')
-  Route.post('/', 'ActivityRegistrationController.store')
-  Route.get('/:member_id/:activity_id', 'ActivityRegistrationController.show')
-  Route.delete('/:member_id/:activity_id', 'ActivityRegistrationController.destroy')
-}).prefix("v1/activity-registration");

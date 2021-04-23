@@ -18,7 +18,7 @@ class DasbordAdminController {
         })
 
     }
-    
+   
     async CountMemberProvinces ({request, response}){
         /** const id untuk mendapatkan id dari role_member dan responya itu akan menampilkan jumlah member
          * perprovinsi dengan hanya 1 jenis role misalnya memberikan nilai id dengan 1 maka hanya akan menampilkan 
@@ -83,7 +83,7 @@ class DasbordAdminController {
         return response.status(200).json({
             status: "SUCCESS",
             message: "succes jumlah memmber  per gender",
-            data:count_gender[0]
+            data:count_gender[0] 
         })
     }
 }

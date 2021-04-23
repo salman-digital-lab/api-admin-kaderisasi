@@ -5,7 +5,7 @@ const Category = use("App/Models/ActivityCategory");
 const ActivityFormTemplate = use("App/Models/ActivityFormTemplate");
 const Activity = use("App/Models/Activity");
 const Helpers = use('Helpers')
-const { unlink } = use('fs/promises')
+const { unlink } = use('fs').promises
 
 class ActivityController {
 
