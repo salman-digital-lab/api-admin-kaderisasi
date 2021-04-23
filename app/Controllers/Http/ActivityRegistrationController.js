@@ -244,7 +244,6 @@ class ActivityRegistrationController {
         });
     }
   }
-
 }
 
 module.exports = ActivityRegistrationController
