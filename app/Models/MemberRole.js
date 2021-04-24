@@ -10,10 +10,6 @@ class MemberRole extends Model {
     static get updatedAtColumn() {
         return null;
     }
-
-    static get hidden() {
-        return ['shortname', 'description']
-    }
 }
 
 module.exports = MemberRole
