@@ -5,34 +5,20 @@ const Database = use('Database')
 
 class RegionSeeder {
   	async run () {
-  		this.generateProvince().then(
-  			this.generateRegencies().then(
-  				this.generateDistricts().then(
-  					this.generateVillages()
-  				)
-  			)
-  		)
-  	}
 
-  async generateProvince () {
-  	await Database.insert([
+	  	await Database.insert([
   			{id: '11', name: 'ACEH'},
   			{id: '12', name: 'SUMATERA UTARA'}
 		]).into('region_provinces')
-  }
 
-
-  async generateRegencies () {
-  	await Database.insert([
+		await Database.insert([
 			{id: '1101', province_id: '11', name: 'KABUPATEN SIMEULUE'},
 			{id: '1102', province_id: '11', name: 'KABUPATEN ACEH SINGKIL'},
 			{id: '1201', province_id: '12', name: 'KABUPATEN NIAS'},
 			{id: '1202', province_id: '12', name: 'KABUPATEN MANDAILING NATAL'}
-	]).into('region_regencies')
-  }
+		]).into('region_regencies')
 
-  async generateDistricts () {
-	await Database.insert([
+		await Database.insert([
 			{id: '1101010', regency_id: '1101', name: 'TEUPAH SELATAN'},
 			{id: '1101020', regency_id: '1101', name: 'SIMEULUE TIMUR'},
 			{id: '1102010', regency_id: '1102', name: 'PULAU BANYAK'},
@@ -41,11 +27,9 @@ class RegionSeeder {
 			{id: '1201061', regency_id: '1201', name: 'BAWOLATO'},
 			{id: '1202010', regency_id: '1202', name: 'BATAHAN'},
 			{id: '1202011', regency_id: '1202', name: 'SINUNUKAN'}
-	]).into('region_districts')
-  }
+		]).into('region_districts')
 
-  async generateVillages () {
-	await Database.insert([
+		await Database.insert([
 			{id: '1101010001', district_id: '1101010', name: 'LATIUNG'},
 			{id: '1101010002', district_id: '1101010', name: 'LABUHAN BAJAU'},
 			{id: '1101020022', district_id: '1101020', name: 'AIR PINANG'},
@@ -62,8 +46,8 @@ class RegionSeeder {
 			{id: '1202010002', district_id: '1202010', name: 'PASAR BATAHAN'},
 			{id: '1202011001', district_id: '1202011', name: 'SINUNUKAN IV'},
 			{id: '1202011002', district_id: '1202011', name: 'SINUNUKAN II'}
-	]).into('region_villages')
-  }
+		]).into('region_villages')
+  	}
 }
 
 module.exports = RegionSeeder
