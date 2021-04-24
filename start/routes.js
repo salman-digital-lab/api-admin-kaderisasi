@@ -27,6 +27,17 @@ Route.group(() => {
   Route.resource("activity-form-template", "ActivityFormTemplateController").apiOnly();
 }).prefix("v1");
 
+Route.get('/', ({ view }) => {
+  return view.render('welcome');
+})
+
+Route.group(() => {
+  Route.resource('user', 'UserController').apiOnly()
+  Route.post('/user/login', 'UserController.login')
+  Route.put('/user/:id/reset-password', 'UserController.reset_password')
+  Route.post('user/:id/upload', 'UserController.upload')
+  Route.resource('group', 'GroupController').apiOnly().middleware('auth')
+}).prefix('/v1')
 Route.group(() => {
   Route.get('/:activity_id', 'ActivityRegistrationController.index')
   Route.post('/', 'ActivityRegistrationController.store')
