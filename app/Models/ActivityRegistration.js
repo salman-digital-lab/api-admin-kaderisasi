@@ -4,7 +4,7 @@ const Model = use('Model')
 
 class ActivityRegistration extends Model {
 
-    static regexStatus() {
+    static registrationStatus() {
         return ['REGISTERED', 'JOINED', 'PASSED', 'FAILED', 'REJECTED'];
     }
 

@@ -5,7 +5,6 @@ const ActivityRegistration = use("App/Models/ActivityRegistration");
 const Activity = use("App/Models/Activity");
 const Excel = require('exceljs')
 const Database = use('Database')
-const { unlink } = use('fs').promises
 
 class ActivityParticipanController {
 
@@ -50,11 +49,11 @@ class ActivityParticipanController {
     async show_participants({ params, response }) {
 
         const { activity_id, status } = params;
-        const regexStatus = await ActivityRegistration.regexStatus();
+        const registrationStatus = await ActivityRegistration.registrationStatus();
 
         const rules = {
             activity_id: 'number',
-            status: [rule('in', regexStatus)]
+            status: [rule('in', registrationStatus)]
         }
 
         const validation = await validate({
@@ -106,7 +105,7 @@ class ActivityParticipanController {
         if (activity) {
 
             let data = {}
-            const regexStatus = await ActivityRegistration.regexStatus();
+            const registrationStatus = await ActivityRegistration.registrationStatus();
 
             const activity_registrations = await Database
                 .raw(`select ar.status, m.gender 
@@ -119,7 +118,7 @@ class ActivityParticipanController {
             data.total_males = activity_registrations[0].filter((participant) => participant.gender === 'M').length
             data.total_females = activity_registrations[0].filter((participant) => participant.gender === 'F').length
 
-            regexStatus.forEach(status => {
+            registrationStatus.forEach(status => {
 
                 const data_temp = activity_registrations[0].filter((participant) => {
                     return participant.status === status
@@ -154,15 +153,15 @@ class ActivityParticipanController {
         }
     }
 
-    async update_registration_status({ params, request, response }) {
+    async update_registration_status({ params, response }) {
 
         const data = params;
-        const regexStatus = await ActivityRegistration.regexStatus();
+        const registrationStatus = await ActivityRegistration.registrationStatus();
 
         const rules = {
             member_id: 'required|number',
             activity_id: 'required|number',
-            status: [rule('in', regexStatus)]
+            status: [rule('in', registrationStatus)]
         }
 
         const validation = await validate(data, rules);

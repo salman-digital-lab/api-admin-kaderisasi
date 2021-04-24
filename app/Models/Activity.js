@@ -38,7 +38,7 @@ class Activity extends Model {
     return this.hasOne("App/Models/ActivityCategory", "category_id", "id");
   }
 
-  memberRole() {
+  minimumRole() {
     return this.hasOne("App/Models/MemberRole", "minimum_role_id", "id");
   }
 }
