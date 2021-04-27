@@ -35,6 +35,7 @@ class MembersSchema extends Schema {
       table.integer('komprof', 4).notNullable()
       table.string('is_subscribing',1).notNullable()
       table.string('file_image', 100).notNullable()
+      table.timestamps()
     })
   }
 
