@@ -19,7 +19,7 @@ class ActivitiesSchema extends Schema {
       table.foreign('category_id').references('activity_categories.id').onDelete('SET NULL').onUpdate('CASCADE')
       table.timestamp('created_at').defaultTo(this.fn.now())
       table.string('banner_image', 100).default(null)
-      table.text('form_data', 'longtext').nullable()
+      table.text('form_data', 'longtext').nullable().default('[]')
       table.integer('is_published', 1).default(1)
       table.integer('is_deleted', 1).default(0)
     })
