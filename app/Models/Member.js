@@ -20,6 +20,14 @@ class Member extends Model {
       }
     })
   }
+
+  static get hidden() {
+    return ['salt', 'password', 'is_active', 'created_at', 'updated_at']
+  }
+
+  member_role() {
+    return this.hasOne("App/Models/MemberRole", "role_id", "id");
+  }
 }
 
 module.exports = Member

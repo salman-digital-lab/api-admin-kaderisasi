@@ -70,13 +70,11 @@ class ActivityParticipanController {
                 });
         } else {
 
-            const activity_registrations = await Database
-                .raw(`select ar.*, m.name, m.gender, m.email, m.phone, m.role_id , mr.name as role_name 
-                      from activity_registrations ar 
-                      left join members m on m.id = ar.member_id 
-                left join member_roles mr on mr.id = m.role_id 
-                      where activity_id = ? AND status = ?`, [activity_id, status]);
-            Database.close();
+            const activity_registrations = await ActivityRegistration.query()
+                .where({ activity_id: activity_id, status: status })
+                .with("member")
+                .with('member.member_role')
+                .fetch()
 
             try {
                 return response
@@ -84,7 +82,7 @@ class ActivityParticipanController {
                     .json({
                         status: "SUCCESS",
                         message: "Data Partisipan berhasil dimuat!",
-                        data: activity_registrations[0],
+                        data: activity_registrations,
                     });
             } catch (error) {
                 return response
@@ -104,30 +102,29 @@ class ActivityParticipanController {
 
         if (activity) {
 
-            let data = {}
-            const registrationStatus = await ActivityRegistration.registrationStatus();
+            try {
 
-            const activity_registrations = await Database
-                .raw(`select ar.status, m.gender 
-                      from activity_registrations ar 
-                      left join members m on m.id = ar.member_id 
-                      where activity_id = ?`, [activity_id]);
-            Database.close();
+                let data = {}
+                const registrationStatus = await ActivityRegistration.registrationStatus();
 
-            data.total_participants = activity_registrations[0].length
-            data.total_males = activity_registrations[0].filter((participant) => participant.gender === 'M').length
-            data.total_females = activity_registrations[0].filter((participant) => participant.gender === 'F').length
+                const activity_registrations = await ActivityRegistration.query()
+                    .where({ activity_id: activity_id })
+                    .with("member")
+                    .fetch()
 
-            registrationStatus.forEach(status => {
+                data.total_participants = activity_registrations.toJSON().length
+                data.total_males = activity_registrations.toJSON().filter((participant) => participant.member.gender === 'M').length
+                data.total_females = activity_registrations.toJSON().filter((participant) => participant.member.gender === 'F').length
 
-                const data_temp = activity_registrations[0].filter((participant) => {
-                    return participant.status === status
+                registrationStatus.forEach(status => {
+
+                    const data_temp = activity_registrations.toJSON().filter((participant) => {
+                        return participant.status === status
+                    });
+
+                    data[status] = data_temp.length
                 });
 
-                data[status] = data_temp.length
-            });
-
-            try {
                 return response
                     .status(200)
                     .json({
@@ -228,15 +225,13 @@ class ActivityParticipanController {
 
         if (activity) {
 
-            const activity_registrations = await Database
-                .raw(`select ar.*, m.name, m.gender, m.email, m.phone, mr.name as role_name 
-                      from activity_registrations ar 
-                      left join members m on m.id = ar.member_id 
-                      left join member_roles mr on mr.id = m.role_id 
-                      where activity_id = ?`, [activity_id]);
-            Database.close();
+            const activity_registrations = await ActivityRegistration.query()
+                .where({ activity_id: activity_id })
+                .with("member")
+                .with('member.member_role')
+                .fetch()
 
-            if (activity_registrations[0].length > 0) {
+            if (activity_registrations.toJSON()) {
 
                 try {
 
@@ -258,15 +253,15 @@ class ActivityParticipanController {
                     ];
 
                     let no = 1
-                    let row = await activity_registrations[0].map(async item => {
+                    let row = await activity_registrations.toJSON().map(item => {
                         worksheet.addRow({
                             no: no++,
-                            name: item.name,
-                            gender: item.gender,
-                            email: item.email,
-                            phone: item.phone,
-                            line_id: item.line_id,
-                            role: item.role_name,
+                            name: item.member.name,
+                            gender: item.member.gender,
+                            email: item.member.email,
+                            phone: item.member.phone,
+                            line_id: item.member.line_id,
+                            role: item.member.member_role.name,
                             created_at: item.created_at,
                             status: item.status,
                             questionnaire: item.questionnaire

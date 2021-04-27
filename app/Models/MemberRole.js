@@ -3,13 +3,14 @@
 const Model = use('Model')
 
 class MemberRole extends Model {
-    static get createdAtColumn() {
-        return null;
-    }
+  static boot() {
+    super.boot()
+    this.addTrait('NoTimestamp')
+  }
 
-    static get updatedAtColumn() {
-        return null;
-    }
+  static get table() {
+    return 'member_roles'
+  }
 }
 
 module.exports = MemberRole

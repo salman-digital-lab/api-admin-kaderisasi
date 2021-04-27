@@ -24,20 +24,18 @@ class ActivityRegistrationController {
           });
       } else {
 
-        const activity_registrations = await Database
-          .raw(`select ar.*, m.name, m.gender, m.email, m.phone, m.role_id, mr.name as role_name
-                from activity_registrations ar 
-                left join members m on m.id = ar.member_id 
-                left join member_roles mr on mr.id = m.role_id 
-                where activity_id = ?`, [activity_id]);
-        Database.close();
+        const activity_registrations = await ActivityRegistration.query()
+          .where({ activity_id: activity_id })
+          .with("member")
+          .with('member.member_role')
+          .fetch()
 
         return response
           .status(200)
           .json({
             status: "SUCCESS",
             message: "Data Registrasi Aktivitas berhasil dimuat",
-            data: activity_registrations[0],
+            data: activity_registrations,
           });
 
       }
@@ -177,20 +175,18 @@ class ActivityRegistrationController {
 
     try {
 
-      const activity_registration = await Database
-        .raw(`select ar.*, m.name, m.gender, m.email, m.phone, m.role_id , mr.name as role_name 
-                from activity_registrations ar 
-                left join members m on m.id = ar.member_id 
-                left join member_roles mr on mr.id = m.role_id 
-                where activity_id = ? AND member_id = ?`, [activity_id, member_id]);
-      Database.close();
+      const activity_registration = await ActivityRegistration.query()
+        .where({ activity_id: activity_id, member_id: member_id })
+        .with("member")
+        .with('member.member_role')
+        .fetch()
 
       return response
         .status(200)
         .json({
           status: "SUCCESS",
           message: "Data Registrasi Aktivitas berhasil dimuat!",
-          data: activity_registration[0],
+          data: activity_registration,
         });
 
     } catch (error) {

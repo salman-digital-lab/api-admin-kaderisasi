@@ -15,6 +15,10 @@ class ActivityRegistration extends Model {
     static get updatedAtColumn() {
         return null;
     }
+
+    member() {
+        return this.hasOne("App/Models/Member", "member_id", "id");
+    }
 }
 
 module.exports = ActivityRegistration
