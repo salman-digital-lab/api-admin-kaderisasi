@@ -3,12 +3,21 @@
 const Model = use('Model')
 
 class ActivityRegistration extends Model {
+
+    static registrationStatus() {
+        return ['REGISTERED', 'JOINED', 'PASSED', 'FAILED', 'REJECTED'];
+    }
+
     static get createdAtColumn() {
         return 'created_at'
     }
 
     static get updatedAtColumn() {
         return null;
+    }
+
+    member() {
+        return this.hasOne("App/Models/Member", "member_id", "id");
     }
 }
 
