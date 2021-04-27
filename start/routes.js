@@ -14,7 +14,6 @@
 */
 
 
-
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use("Route");
 
@@ -45,3 +44,12 @@ Route.group(() => {
   Route.get('/:member_id/:activity_id', 'ActivityRegistrationController.show')
   Route.delete('/:member_id/:activity_id', 'ActivityRegistrationController.destroy')
 }).prefix("v1/activity-registration");
+
+Route.group(() => {
+  Route.get('member', 'DashboardAdminController.CountMembers')
+  Route.get('autocomplete/:universities?', 'DashboardAdminController.AutocompleteUniversities')
+  Route.get('provinces/:id?', 'DashboardAdminController.CountMemberProvinces')
+  Route.get('universities', 'DashboardAdminController.CountMembersUniversities')
+  Route.get('years', 'DashboardAdminController.CountMembersYears')
+  Route.get('gender', 'DashboardAdminController.CountMembersGender')
+}).prefix('v1/dashboard/get/all')
