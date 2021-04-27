@@ -67,6 +67,7 @@ Factory.blueprint('App/Models/Member', (faker, index, data) => {
   const birthday_day = faker.integer({min: 1, max: 20})
   const university  = faker.pickone(data.universities.rows)
   const village = faker.pickone(data.villages.rows)
+  const role = faker.pickone(data.roles.rows)
 
   // Note : Very LUCKILY we can infer the province, regency, district id solely from village id
   // We need to fix this
@@ -74,6 +75,7 @@ Factory.blueprint('App/Models/Member', (faker, index, data) => {
     name: faker.name(),
     gender: faker.pickone(['M', 'F']),
     email: faker.email(),
+    phone: faker.phone(),
     line_id: "@" + faker.string({alpha: true, numeric: true}),
     date_of_birthday: birthday_year + "-" + birthday_month + "-" + birthday_day,
     city_of_birth: faker.city(),
@@ -83,13 +85,14 @@ Factory.blueprint('App/Models/Member', (faker, index, data) => {
     major: faker.pickone(["Mathematics, Politics, Law"]),
     student_id: faker.string({numeric: true, length: 12}),
     intake_year: faker.pickone([2016, 2017, 2018, 2019, 2020]),
-    role_id: faker.pickone([4,5,6,7]),
+    role_id: role.id,
     password: "example",
     university_id: university.id,
     province_id: village.id.substring(0,2),
     regency_id: village.id.substring(0,4),
     district_id: village.id.substring(0,7),
-    village_id: village.id
+    village_id: village.id,
+    salt: faker.string({length: 12})
   }
 })
 
