@@ -47,7 +47,8 @@ class DasbordAdminController {
                 data:count_all[0],
             })
         }
-        else if(id.id == 1 || id.id == 2 || id.id == 3){
+        
+        else {
             const count_role = await Database.raw(`SELECT DISTINCT(region_provinces.name) AS nama_provinsi,
             member_roles.name AS jenis_member,  COUNT(member_roles.name) AS jumlah_permember
             FROM region_provinces INNER JOIN members ON region_provinces.id = members.province_id INNER JOIN member_roles
@@ -56,12 +57,6 @@ class DasbordAdminController {
                 status: "SUCCESS",
                 message: "jumlah member per provinsi dengan 1 jenis role",
                 data:count_role[0],
-            })
-        }
-        else {
-            return response.status(400).json({
-                status: "FAILED",
-                message: "pilihan yang anda masukan salah ", 
             })
         }
     }
@@ -88,7 +83,8 @@ class DasbordAdminController {
             data:count_years[0]
         })
     }
- async CountMembersGender ({response}){
+    
+    async CountMembersGender ({response}){
         const count_gender = await Database.raw(`SELECT gender, COUNT(gender) AS jumlah FROM members GROUP BY gender`)
         return response.status(200).json({
             status: "SUCCESS",
