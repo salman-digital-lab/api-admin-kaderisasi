@@ -7,7 +7,7 @@ const Model = use('Model')
 const Hash = use('Hash')
 
 class Member extends Model {
-  static boot() {
+  static boot () {
     super.boot()
 
     /**

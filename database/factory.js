@@ -24,7 +24,7 @@ Factory.blueprint("App/Models/ActivityCategory", (faker) => {
 
 Factory.blueprint('App/Models/University', (faker) => {
   return {
-    name: "University of ".concat(faker.city())
+    name : "University of ".concat(faker.city())
   }
 })
 

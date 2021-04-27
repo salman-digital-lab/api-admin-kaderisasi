@@ -3,12 +3,12 @@
 const Model = use('Model')
 
 class MemberRole extends Model {
-  static boot() {
+  static boot () {
     super.boot()
     this.addTrait('NoTimestamp')
   }
 
-  static get table() {
+  static get table () {
     return 'member_roles'
   }
 }
