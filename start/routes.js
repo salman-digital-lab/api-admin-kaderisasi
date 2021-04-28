@@ -20,6 +20,7 @@ const Route = use("Route");
 require('./routes/RegionRoutes')
 require('./routes/UniversityRoutes');
 require('./routes/ActivityParticipantRoutes');
+require('./routes/MemberRoutes');
 
 Route.group(() => {
   Route.resource("activity-category", "ActivityCategoryController").apiOnly();
