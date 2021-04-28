@@ -117,7 +117,8 @@ class DasbordAdminController {
             data:count_years[0]
         })
     }
- async CountMembersGender ({response}){
+    
+    async CountMembersGender ({response}){
         const count_gender = await Database.raw(`SELECT gender, COUNT(gender) AS jumlah FROM members GROUP BY gender`)
         return response.status(200).json({
             status: "SUCCESS",
