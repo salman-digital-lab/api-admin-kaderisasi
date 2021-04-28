@@ -25,6 +25,10 @@ class Member extends Model {
     return ['salt', 'password', 'is_active', 'created_at', 'updated_at']
   }
 
+  registered_activities() {
+    return this.hasMany('App/Models/ActivityRegistration')
+  }
+
   member_role() {
     return this.hasOne("App/Models/MemberRole", "role_id", "id");
   }
