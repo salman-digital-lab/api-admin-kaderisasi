@@ -1,5 +1,6 @@
 'use strict'
 
+const { rule, validate } = use("Validator")
 const { ModelNotFoundException } = require("@adonisjs/lucid/src/Exceptions");
 
 const Member = use('App/Models/Member');
@@ -8,6 +9,30 @@ class MemberController {
     async getMembers({ response, request }) {
 
         const params = request.get();
+
+        const rules = {
+            gender: [
+                rule('regex', /^(M$|F$)/)
+            ],
+            page: 'number',
+            page_size: 'number',
+            date_of_birthday: 'date',
+            search_query: 'string',
+            ssc: 'number',
+            lmd: 'number'
+        }
+
+        const validation = await validate(params, rules);
+
+        if (validation.fails()) {
+        return response
+            .status(400)
+            .json({
+            status: "FAILED",
+            message: validation.messages()
+            });
+        }
+
         const gender = params.gender || "";
         const page = params.page || 1;
         const page_size = params.page_size || 20;
