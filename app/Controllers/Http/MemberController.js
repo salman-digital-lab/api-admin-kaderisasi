@@ -1,9 +1,8 @@
 'use strict'
 
-const Member = use('App/Models/Member');
-const ActivityRegistration = use('App/Models/ActivityRegistration');
-const Database = use('Database');
+const { ModelNotFoundException } = require("@adonisjs/lucid/src/Exceptions");
 
+const Member = use('App/Models/Member');
 class MemberController {
 
     async getMembers({ response, request }) {
@@ -18,7 +17,8 @@ class MemberController {
         const searchQuery = params.search_query || "";
 
         try {
-            const members = await Database
+            const members = await Member
+                .query()
                 .select([
                     'members.*',
                     'universities.name AS university'
@@ -66,7 +66,7 @@ class MemberController {
 
     async getMember({ params, response }) {
         try {
-            const member = await Member.find(params.id);
+            const member = await Member.findByOrFail('id', params.id);
             const activities = await member.activities().fetch()
 
             member.activities = activities
@@ -79,10 +79,17 @@ class MemberController {
                 }
             })
         } catch(err) {
-            response.status(500).json({
-                status: "FAILED",
-                message: "Gagal mendapatkan data member karena kesalahan server"
-            }) 
+            if (err instanceof ModelNotFoundException) {
+                response.status(404).json({
+                    status: "FAILED",
+                    message: "Gagal mendapatkan data member karena data tidak ditemukan"
+                }) 
+            } else {
+                response.status(500).json({
+                    status: "FAILED",
+                    message: "Gagal mendapatkan data member karena kesalahan server"
+                }) 
+            }
         }
     }
 
