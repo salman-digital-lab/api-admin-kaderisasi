@@ -66,10 +66,11 @@ class MemberController {
 
     async getMember({ params, response }) {
         try {
-            const member = await Member.findByOrFail('id', params.id);
-            const activities = await member.activities().fetch()
-
-            member.activities = activities
+            const member = await Member
+                .query()
+                .with('activities')
+                .where('id', params.id)
+                .fetch()
 
             response.status(200).json({
                 status: "SUCCESS",
