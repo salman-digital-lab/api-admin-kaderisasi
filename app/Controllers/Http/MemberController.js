@@ -67,7 +67,7 @@ class MemberController {
     async getMember({ params, response }) {
         try {
             const member = await Member.find(params.id);
-            const activities = await member.registered_activities().fetch()
+            const activities = await member.activities().fetch()
 
             member.activities = activities
 

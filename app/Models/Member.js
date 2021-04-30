@@ -25,7 +25,7 @@ class Member extends Model {
     return ['salt', 'password', 'is_active', 'created_at', 'updated_at']
   }
 
-  registered_activities() {
+  activities() {
     return this.hasMany('App/Models/ActivityRegistration')
   }
 
