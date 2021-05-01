@@ -8,7 +8,7 @@ class ActivityRegistrationSchema extends Schema {
       table.integer('member_id', 11).notNullable()
       table.integer('activity_id', 11).unsigned().notNullable()
       table.foreign('activity_id').references('activities.id').onDelete('CASCADE').onUpdate('CASCADE')
-      table.text('questionnaire').nullable()
+      table.text('questionnaire').nullable().default("[]")
       table.enu('status', ['REGISTERED', 'JOINED', 'PASSED', 'FAILED', 'REJECTED']).default('REGISTERED')
       table.datetime('created_at').nullable()
     })

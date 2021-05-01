@@ -91,7 +91,6 @@ class DasbordAdminController {
                 data:count_role[0],
             })
         }
-        
     }
 
     
@@ -100,7 +99,6 @@ class DasbordAdminController {
         member_roles.name AS jenis_member, COUNT(member_roles.name) AS jumlah_permember
         FROM universities INNER JOIN members ON universities.id = members.university_id INNER JOIN member_roles
         ON member_roles.id = members.role_id GROUP BY universities.name, member_roles.name`)
-        
         return response.status(200).json({
             status: "SUCCESS",
             message: " jumlah memmber per universitas ",
