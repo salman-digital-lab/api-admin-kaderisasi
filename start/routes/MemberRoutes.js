@@ -21,4 +21,9 @@ Route.group(() => {
         'MemberController.blockMember'
     )
 
+    Route.put(
+        '/:id/',
+        'MemberController.updateMember'
+    )
+
 }).prefix('/v1/member');

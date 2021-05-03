@@ -1,6 +1,6 @@
 'use strict'
 
-const { rule, validate } = use("Validator")
+const { rule, validate, sanitize} = use("Validator")
 const { ModelNotFoundException } = require("@adonisjs/lucid/src/Exceptions");
 
 const Member = use('App/Models/Member');
@@ -28,8 +28,8 @@ class MemberController {
         return response
             .status(400)
             .json({
-            status: "FAILED",
-            message: validation.messages()
+                status: "FAILED",
+                message: validation.messages()
             });
         }
 
@@ -137,6 +137,75 @@ class MemberController {
             }) 
         }
     }
+
+    async updateMember({ params, request, response }) {
+        const all = request.all();
+
+        const rules = {
+            gender: [
+                rule('regex', /^(M$|F$)/)
+            ],
+            date_of_birthday: 'date',
+            name: 'string',
+            email: 'email',
+            phone: 'string',
+            line_id: 'string',
+            from_address: 'string',
+            current_address: 'string',
+            major: 'string'
+        }
+
+        const validation = await validate(all, rules);
+
+        if (validation.fails()) {
+        return response
+            .status(400)
+            .json({
+                status: "FAILED",
+                message: validation.messages()
+            });
+        }
+
+        const sanitationRules = {
+            date_of_birthday: 'to_date'
+        }
+
+        const data = sanitize(all, sanitationRules);
+
+        try {
+            const member = await Member.findByOrFail('id', params.id);
+
+            Object.keys(data).forEach(column => {
+                member.merge({
+                    [column]: data[column]
+                })
+            })
+
+
+            await member.save();
+
+            response.status(200).json({
+                status: "SUCCESS",
+                message: "Berhasil mengubah data member",
+                data: member
+            })
+
+
+        } catch(err) {
+            if (err instanceof ModelNotFoundException) {
+                response.status(404).json({
+                    status: "FAILED",
+                    message: "Gagal mengubah data member karena data tidak ditemukan"
+                }) 
+            } else {
+                response.status(500).json({
+                    status: "FAILED",
+                    message: "Gagal mengubah data member karena kesalahan server"
+                }) 
+            }
+        }
+    }
+
 }
 
 module.exports = MemberController
