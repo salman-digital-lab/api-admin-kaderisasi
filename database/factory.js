@@ -14,6 +14,7 @@
 /** @type {import('@adonisjs/lucid/src/Factory')} */
 const Factory = use("Factory");
 const Category = use("App/Models/ActivityCategory");
+const MemberRole = use("App/Models/MemberRole");
 
 Factory.blueprint("App/Models/ActivityCategory", (faker) => {
   const name = faker.username();
@@ -31,6 +32,7 @@ Factory.blueprint('App/Models/University', (faker) => {
 Factory.blueprint("App/Models/Activity", async (faker) => {
 
   const categories = await Category.all();
+  const roles = await MemberRole.all();
   const name = faker.sentence();
 
   return {
@@ -39,6 +41,7 @@ Factory.blueprint("App/Models/Activity", async (faker) => {
     description: faker.text,
     begin_date: faker.date(),
     end_date: faker.date(),
+    minimum_role_id: faker.pickone(roles.rows).id,
     register_begin_date: faker.date(),
     register_end_date: faker.date(),
     category_id: categories.toJSON()[Math.floor(Math.random() * categories.toJSON().length)].id,
