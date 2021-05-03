@@ -167,7 +167,9 @@ class MemberController {
         }
 
         const sanitationRules = {
-            date_of_birthday: 'to_date'
+            date_of_birthday: 'to_date',
+            major: 'title',
+            name: 'title'
         }
 
         const data = sanitize(all, sanitationRules);
