@@ -152,7 +152,9 @@ class MemberController {
             line_id: 'string',
             from_address: 'string',
             current_address: 'string',
-            major: 'string'
+            major: 'string',
+            university_id: 'number',
+            faculty: 'string'
         }
 
         const validation = await validate(all, rules);
@@ -169,7 +171,9 @@ class MemberController {
         const sanitationRules = {
             date_of_birthday: 'to_date',
             major: 'title',
-            name: 'title'
+            name: 'title',
+            faculty: 'title',
+            university_id: 'to_int'
         }
 
         const data = sanitize(all, sanitationRules);
