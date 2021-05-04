@@ -43,20 +43,23 @@ class ActivityParticipanController {
         }
     }
 
-    async show_participants({ params, response }) {
+    async show_participants({ params, request, response }) {
 
-        const { activity_id, status } = params;
+        const { activity_id } = params;
+        const data = request.all();
+        data.activity_id = activity_id;
         const registrationStatus = await ActivityRegistration.registrationStatus();
 
         const rules = {
-            activity_id: 'number',
-            status: [rule('in', registrationStatus)]
+            activity_id: 'required|number',
+            status: [rule('in', registrationStatus)],
+            role_id: 'number',
+            university_id: 'number',
+            page: 'number',
+            perPage: 'number',
         }
 
-        const validation = await validate({
-            'status': status,
-            'activity_id': activity_id
-        }, rules);
+        const validation = await validate(data, rules);
 
         if (validation.fails()) {
             return response
@@ -67,13 +70,39 @@ class ActivityParticipanController {
                 });
         }
 
-        const activity_registrations = await ActivityRegistration.query()
-            .where({ activity_id: activity_id, status: status })
-            .with("member")
-            .with('member.member_role')
-            .fetch()
+        const activity = await Activity.findBy({ id: activity_id, is_deleted: 0 });
+
+        if (!activity) {
+            return response
+                .status(400)
+                .json({
+                    status: "FAILED",
+                    message: "Tidak ada data aktivitas yang ditemukan"
+                });
+        }
+
+        const whereClause = {}
+        whereClause.activity_id = activity_id
+
+        if (data.status) {
+            whereClause.status = data.status
+        }
+
+        if (data.role_id) {
+            whereClause["members.role_id"] = data.role_id
+        }
+
+        if (data.university_id) {
+            whereClause["members.university_id"] = data.university_id
+        }
+
+        const page = (data.page) ? data.page : 1
+        const perPage = (data.perPage) ? data.perPage : 10
 
         try {
+
+            const activity_registrations = await ActivityRegistration.getParticipants(whereClause, page, perPage);
+
             return response
                 .status(200)
                 .json({
