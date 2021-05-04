@@ -4,13 +4,32 @@ const { validate } = use("Validator");
 const ActivityRegistration = use("App/Models/ActivityRegistration");
 const Activity = use("App/Models/Activity");
 const Member = use("App/Models/Member");
-const Database = use('Database')
 
 class ActivityRegistrationController {
 
-  async index({ params, response }) {
+  async index({ request, params, response }) {
 
     const { activity_id } = params;
+    const data = request.all();
+    data.activity_id = activity_id;
+
+    const rules = {
+      activity_id: 'required|number',
+      page: 'number',
+      perPage: 'number',
+    }
+
+    const validation = await validate(data, rules);
+
+    if (validation.fails()) {
+      return response
+        .status(400)
+        .json({
+          status: "FAILED",
+          message: validation.messages()
+        });
+    }
+
     const activity = await Activity.findBy({ id: activity_id, is_deleted: 0 })
 
     if (!activity) {
@@ -23,11 +42,13 @@ class ActivityRegistrationController {
     }
 
     try {
-      const activity_registrations = await ActivityRegistration.query()
-        .where({ activity_id: activity_id })
-        .with("member")
-        .with('member.member_role')
-        .fetch()
+
+      const whereClause = {}
+      whereClause.activity_id = activity_id
+
+      const page = (data.page) ? data.page : 1
+      const perPage = (data.perPage) ? data.perPage : 10
+      const activity_registrations = await ActivityRegistration.getParticipants(whereClause, page, perPage);
 
       return response
         .status(200)
