@@ -54,3 +54,11 @@ Route.group(() => {
   Route.get('years', 'DashboardAdminController.CountMembersYears')
   Route.get('gender', 'DashboardAdminController.CountMembersGender')
 }).prefix('v1/dashboard/get/all')
+
+Route.group(() => {
+  Route.get('get/all', 'PublicInformationController.GetAllInformation' )
+  Route.get('detail', 'PublicInformationController.Detailformation' )
+  Route.get('insert', 'PublicInformationController.insert')
+  Route.put('update', 'PublicInformationController.update' )
+  Route.delete('delete', 'PublicInformationController.delete')
+}).prefix('v1/publicinformartion')
