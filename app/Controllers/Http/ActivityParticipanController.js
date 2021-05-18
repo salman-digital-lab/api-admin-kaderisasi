@@ -383,18 +383,14 @@ class ActivityParticipanController {
             // Mohon saran untuk solusi alternatifnya
 
             row = await Promise.all(row)
-            await workbook.xlsx.writeFile(`./tmp/uploads/exports/export-participants-${sanitizor.slug(activity.name)}-${formatted}.xlsx`)
+            const buffer = await workbook.xlsx.writeBuffer()
 
             return response
                 .status(200)
-                .json({
-                    status: "SUCCESS",
-                    message: "Data Partisipan berhasil diexport!",
-                    data: {
-                        'file_location': 'tmp/uploads/exports/',
-                        'file_name': `export-participants-${activity_id}-${formatted}.xlsx`
-                    },
-                });
+                .safeHeader('Content-type', 'application/vnd-ms-excel')
+                .safeHeader('Content-Disposition', `attachment; filename=${sanitizor.slug(activity.name)}.xls`)
+                .send(buffer)
+
         } catch (error) {
             return response
                 .status(400)

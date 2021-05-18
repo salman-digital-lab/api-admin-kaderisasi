@@ -2,6 +2,49 @@
 
 const { test } = use('Test/Suite')('Activities')
 
-test('make sure 2 + 2 is 4', async ({ assert }) => {
-  assert.equal(2 + 2, 4)
+trait('DatabaseTransactions')
+trait('Test/ApiClient')
+
+trait((suite) => {
+	suite.Context.macro('getAnActivity', async function() {
+		return await User.findByOrFail('email', "123@example.net")
+	})	
+})
+
+
+test('activities index test', async ({assert}) => {
+
+
+
+})
+
+
+test('create activity test', async ({assert}) => {
+
+
+	
+})
+
+
+test('get activity detail', async ({assert}) => {
+
+
+	
+})
+
+test('get non-existent activity detail', async ({assert}) => {
+
+
+	
+})
+
+test('get participants', async ({assert}) => {
+
+
+	
+})
+
+test('get participant excel', async ({assert}) => {
+
+	
 })
