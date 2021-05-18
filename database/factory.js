@@ -29,34 +29,33 @@ Factory.blueprint('App/Models/University', (faker) => {
   }
 })
 
-Factory.blueprint("App/Models/Activity", async (faker) => {
+Factory.blueprint("App/Models/Activity", async (faker, index, data) => {
 
-  const categories = await Category.all();
-  const roles = await MemberRole.all();
   const name = faker.sentence();
-  const form_data = `[
+  const form_data = [
     {
-      "type": "text",
-      "label": "Nama Lengkap",
-      "name": "input123",
-      "placeholder": "Masukan Nama Lengkap",
-      "required": true
+      "type" : "text",
+      "label" : "Text Area",
+      "name" : "text-15529591",
+      "placeholder" : true,
+      "required" : true,
     },
     {
-      "type": "number",
-      "label": "Nomor Telepon",
-      "name": "input124",
-      "placeholder": "Masukan Nomor Telepon",
-      "required": true
-    },
-    {
-      "type": "checkbox",
-      "label": "Hobi",
-      "name": "input125",
-      "placeholder": "Pilih Hobi",
-      "required": true
+      "type" : "dropdown",
+      "label" : "A dropdown",
+      "name"  : "dropdown-1414155",
+      "placeholder" : true,
+      "required" : true,
+      "data" : [{
+          "label" : "label1",
+          "value" : "label1"
+        },
+        {
+          "label" : "label2",
+          "value" : "label2"
+        }]
     }
-  ]`;
+  ];
 
   return {
     name: name,
@@ -64,11 +63,11 @@ Factory.blueprint("App/Models/Activity", async (faker) => {
     description: faker.text,
     begin_date: faker.date(),
     end_date: faker.date(),
-    minimum_role_id: faker.pickone(roles.rows).id,
+    minimum_role_id: faker.pickone(data.roles.rows).id,
     register_begin_date: faker.date(),
     register_end_date: faker.date(),
-    category_id: categories.toJSON()[Math.floor(Math.random() * categories.toJSON().length)].id,
-    form_data: form_data
+    category_id: faker.pickone(data.categories.rows).id,
+    form_data: JSON.stringify(form_data)
   };
 });
 
@@ -129,5 +128,12 @@ Factory.blueprint("App/Models/Group", (faker) => {
     shortname: "adm",
     description: "administrator",
     is_admin: true
+  }
+})
+
+Factory.blueprint("App/Models/ActivityCarousel", (faker, index, data) => {
+  return {
+    filename : "carousel_dummy.jpg",
+    activity_id : data.activity_id
   }
 })
