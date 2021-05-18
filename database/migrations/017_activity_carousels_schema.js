@@ -13,9 +13,6 @@ class ActivityCarouselsSchema extends Schema {
   }
 
   down() {
-    this.table('activity_carousels', (table) => {
-      table.dropForeign('activity_id', 'activity_carousels_activity_id_foreign')
-    })
     this.drop('activity_carousels')
   }
 }

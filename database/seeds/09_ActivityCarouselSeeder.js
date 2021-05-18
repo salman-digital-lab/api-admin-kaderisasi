@@ -23,14 +23,9 @@ class ActivityCarouselSeeder {
     const activities = await Activities.all()
 
     for (const activity of activities.rows) {
-      for (let index = 1; index <= 3; index++) {
-        await ActivityCarousel.createMany([
-          {
-            activity_id: activity.id,
-            filename: "banner" + index + ".jpg"
-          }
-        ])
-      }
+      await Factory.model('App/Models/ActivityCarousel').createMany(50,{
+        activity_id : activity.id
+      })
     }
   }
 }
