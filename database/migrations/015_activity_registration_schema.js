@@ -5,6 +5,7 @@ const Schema = use('Schema')
 class ActivityRegistrationSchema extends Schema {
   up() {
     this.create('activity_registrations', (table) => {
+      table.increments()
       table.integer('member_id', 11).notNullable()
       table.integer('activity_id', 11).unsigned().notNullable()
       table.foreign('activity_id').references('activities.id').onDelete('CASCADE').onUpdate('CASCADE')

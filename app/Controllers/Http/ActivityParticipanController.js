@@ -3,18 +3,40 @@
 const { validate, rule, sanitizor } = use("Validator");
 const ActivityRegistration = use("App/Models/ActivityRegistration");
 const Activity = use("App/Models/Activity");
+const SaveQuestionnaire = use('App/Models/SaveQuestionnaire');
 const Excel = require('exceljs')
 
 class ActivityParticipanController {
 
     async show_questionnaire({ params, response }) {
+
         const { member_id, activity_id } = params;
-        const activity_registrations = await ActivityRegistration.findBy({
+
+        const rules = {
+            member_id: 'required|number',
+            activity_id: 'required|number'
+        }
+
+        const validation = await validate({
+            member_id: member_id,
+            activity_id: activity_id
+        }, rules);
+
+        if (validation.fails()) {
+            return response
+                .status(400)
+                .json({
+                    status: "FAILED",
+                    message: validation.messages()
+                });
+        }
+
+        const activity_registration = await ActivityRegistration.findBy({
             'member_id': member_id,
             'activity_id': activity_id
         });
 
-        if (!activity_registrations) {
+        if (!activity_registration) {
             return response
                 .status(400)
                 .json({
@@ -24,21 +46,70 @@ class ActivityParticipanController {
         }
 
         try {
+
+            const activity = await Activity.findBy({ id: activity_registration.activity_id, is_deleted: 0 });
+            if (!activity) {
+                return response
+                    .status(400)
+                    .json({
+                        status: "FAILED",
+                        message: "Tidak ada data aktivitas yang ditemukan"
+                    });
+            }
+
+            const questionnaire = JSON.parse(activity.toJSON().form_data);
+            if (!questionnaire) {
+                return response
+                    .status(400)
+                    .json({
+                        status: "FAILED",
+                        message: "Aktivitas ini tidak memiliki kuisioner"
+                    });
+            }
+
+            const data = [];
+            const questionnaire_answers = await SaveQuestionnaire.query()
+                .where('id_registration', activity_registration.id)
+                .fetch()
+
+            if (questionnaire_answers.rows.length < 1) {
+                return response
+                    .status(400)
+                    .json({
+                        status: "FAILED",
+                        message: "Tidak ada data yang ditemukan"
+                    });
+            }
+
+            questionnaire.forEach(question => {
+
+                const answer_filtered = questionnaire_answers.toJSON().filter((item) => item.id_name === question.name)
+                let answer = answer_filtered[0].answer;
+
+                if (answer.charAt(0) === '[') {
+                    answer = JSON.parse(answer)
+                }
+
+                data.push({
+                    "name": question.name,
+                    "label": question.label,
+                    "answer": answer
+                })
+            });
+
             return response
                 .status(200)
                 .json({
                     status: "SUCCESS",
                     message: "Data Kuisioner Partisipan berhasil dimuat!",
-                    data: {
-                        questionnaire: activity_registrations.questionnaire
-                    },
+                    data: data
                 });
         } catch (error) {
             return response
                 .status(500)
                 .json({
                     status: "FAILED",
-                    message: error
+                    message: "Gagal memuat Kuisioner Partisipan karena kesalahan server"
                 });
         }
     }

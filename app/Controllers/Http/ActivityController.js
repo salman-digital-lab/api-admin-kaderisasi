@@ -61,6 +61,7 @@ class ActivityController {
         .where('is_deleted', 0)
         .with("activityCategory")
         .with("minimumRole")
+        .with("carousel")
         .paginate(page, perPage)
 
       return response
@@ -150,30 +151,6 @@ class ActivityController {
     }
 
     try {
-      let bannerImageName = null
-
-      if (request.file('banner_image')) {
-        const bannerImage = request.file('banner_image', {
-          types: ['image'],
-          size: '2mb'
-        })
-
-        await bannerImage.move(Helpers.tmpPath('uploads'), {
-          name: `${new Date().getTime()}.${bannerImage.subtype}`,
-          overwrite: true
-        })
-
-        if (!bannerImage.moved()) {
-          return response
-            .status(400)
-            .json({
-              status: "FAILED",
-              message: bannerImage.error()
-            });
-        }
-
-        bannerImageName = bannerImage.fileName
-      }
 
       const activity = new Activity();
       activity.name = data.name;
@@ -186,7 +163,6 @@ class ActivityController {
       activity.description = data.description;
       activity.status = data.status;
       activity.minimum_role_id = data.minimum_role_id;
-      activity.banner_image = bannerImageName;
       activity.form_data = (data.form_id) ? form_template.data : '[]';
       activity.is_published = data.is_published;
       await activity.save();
@@ -236,6 +212,7 @@ class ActivityController {
       .where({ id: id, is_deleted: 0 })
       .with("activityCategory")
       .with("minimumRole")
+      .with("carousel")
       .fetch()
 
     try {
@@ -354,44 +331,6 @@ class ActivityController {
       }
     }
 
-    let bannerImageName = null
-
-    if (request.file('banner_image')) {
-      const bannerImage = request.file('banner_image', {
-        types: ['image'],
-        size: '2mb'
-      })
-
-      await bannerImage.move(Helpers.tmpPath('uploads'), {
-        name: `${new Date().getTime()}.${bannerImage.subtype}`,
-        overwrite: true
-      })
-
-      if (!bannerImage.moved()) {
-        return response
-          .status(500)
-          .json({
-            status: "FAILED",
-            message: bannerImage.error()
-          });
-      }
-
-      if (activity.banner_image) {
-        try {
-          await unlink(`./tmp/uploads/${activity.banner_image}`)
-        } catch (error) {
-          return response
-            .status(500)
-            .json({
-              status: "FAILED",
-              message: error.message
-            });
-        }
-      }
-
-      bannerImageName = bannerImage.fileName
-    }
-
     try {
 
       activity.name = data.name;
@@ -410,10 +349,6 @@ class ActivityController {
 
       if (data.minimum_role_id) {
         activity.minimum_role_id = data.minimum_role_id;
-      }
-
-      if (bannerImageName) {
-        activity.banner_image = bannerImageName;
       }
 
       if (data.form_id) {
@@ -483,7 +418,7 @@ class ActivityController {
         .status(200)
         .json({
           status: "SUCCESS",
-          message: "Data Kategori Aktivitas berhasil dihapus!",
+          message: "Data Aktivitas berhasil dihapus!",
           data: activity,
         });
     } catch (error) {
