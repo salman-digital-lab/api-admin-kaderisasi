@@ -51,6 +51,10 @@ class ActivityRegistration extends Model {
     member() {
         return this.hasOne("App/Models/Member", "member_id", "id");
     }
+
+    activity() {
+        return this.belongsTo("App/Models/Activity", "activity_id", "id");
+    }
 }
 
 module.exports = ActivityRegistration

@@ -34,7 +34,7 @@ trait((suite) => {
 
 test('test user valid login', async ({ getUser, client }) => {
 
-    const user = getUser()
+    const user = await getUser()
     const response = await client
         .post('v1/user/login')
         .send({
