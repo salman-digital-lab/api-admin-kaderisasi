@@ -8,19 +8,15 @@ const Excel = require('exceljs')
 
 class ActivityParticipanController {
 
-    async show_questionnaire({ params, response }) {
+    async show({ params, response }) {
 
-        const { member_id, activity_id } = params;
+        const { registration_id } = params;
 
         const rules = {
-            member_id: 'required|number',
-            activity_id: 'required|number'
+            registration_id: 'number'
         }
 
-        const validation = await validate({
-            member_id: member_id,
-            activity_id: activity_id
-        }, rules);
+        const validation = await validate({ registration_id: registration_id }, rules);
 
         if (validation.fails()) {
             return response
@@ -31,10 +27,7 @@ class ActivityParticipanController {
                 });
         }
 
-        const activity_registration = await ActivityRegistration.findBy({
-            'member_id': member_id,
-            'activity_id': activity_id
-        });
+        const activity_registration = await ActivityRegistration.find(registration_id)
 
         if (!activity_registration) {
             return response
@@ -46,7 +39,119 @@ class ActivityParticipanController {
         }
 
         try {
+            const activity_registrations = await ActivityRegistration.query()
+                .where({ id: registration_id })
+                .with("member")
+                .with('member.member_role')
+                .fetch()
 
+            return response
+                .status(200)
+                .json({
+                    status: "SUCCESS",
+                    message: "Data Registrasi Aktivitas berhasil dimuat!",
+                    data: activity_registrations,
+                });
+        } catch (error) {
+            return response
+                .status(500)
+                .json({
+                    status: "FAILED",
+                    message: error
+                });
+        }
+    }
+
+    async update_status({ params, response }) {
+
+        const data = params;
+        const registrationStatus = await ActivityRegistration.registrationStatus();
+
+        const rules = {
+            registration_id: 'required|number',
+            status: [rule('in', registrationStatus)]
+        }
+
+        const validation = await validate(data, rules);
+
+        if (validation.fails()) {
+            return response
+                .status(400)
+                .json({
+                    status: "FAILED",
+                    message: validation.messages()
+                });
+        }
+
+        const activity_registration = await ActivityRegistration.find(data.registration_id);
+
+        if (!activity_registration) {
+            return response
+                .status(400)
+                .json({
+                    status: "FAILED",
+                    message: "Tidak ada data yang ditemukan"
+                });
+        }
+
+        try {
+            await ActivityRegistration
+                .query()
+                .where('id', data.registration_id)
+                .update({ status: data.status })
+
+            const activity_registrations = await ActivityRegistration.find(data.registration_id);
+
+            return response
+                .status(200)
+                .json({
+                    status: "SUCCESS",
+                    message: "Status Partisipan berhasil diperbarui!",
+                    data: activity_registrations,
+                });
+        } catch (error) {
+            return response
+                .status(500)
+                .json({
+                    status: "FAILED",
+                    message: error
+                });
+        }
+    }
+
+    async show_questionnaire({ params, response }) {
+
+        const { registration_id } = params;
+
+        const rules = {
+            registration_id: 'required|number'
+        }
+
+        const validation = await validate({
+            registration_id: registration_id
+        }, rules);
+
+        if (validation.fails()) {
+            return response
+                .status(400)
+                .json({
+                    status: "FAILED",
+                    message: validation.messages()
+                });
+        }
+
+        const activity_registration = await ActivityRegistration.find(registration_id);
+
+        if (!activity_registration) {
+            return response
+                .status(400)
+                .json({
+                    status: "FAILED",
+                    message: "Tidak ada data yang ditemukan"
+                });
+        }
+
+        try {
             const activity = await Activity.findBy({ id: activity_registration.activity_id, is_deleted: 0 });
             if (!activity) {
                 return response
@@ -114,7 +219,7 @@ class ActivityParticipanController {
         }
     }
 
-    async show_participants({ params, request, response }) {
+    async index({ params, request, response }) {
 
         const { activity_id } = params;
         const data = request.all();
@@ -234,72 +339,6 @@ class ActivityParticipanController {
                     status: "SUCCESS",
                     message: "Data Statistik Partisipan berhasil dimuat!",
                     data: data,
-                });
-        } catch (error) {
-            return response
-                .status(400)
-                .json({
-                    status: "FAILED",
-                    message: error
-                });
-        }
-    }
-
-    async update_registration_status({ params, response }) {
-
-        const data = params;
-        const registrationStatus = await ActivityRegistration.registrationStatus();
-
-        const rules = {
-            member_id: 'required|number',
-            activity_id: 'required|number',
-            status: [rule('in', registrationStatus)]
-        }
-
-        const validation = await validate(data, rules);
-
-        if (validation.fails()) {
-            return response
-                .status(400)
-                .json({
-                    status: "FAILED",
-                    message: validation.messages()
-                });
-        }
-
-        const activity_registration = await ActivityRegistration.findBy({
-            'member_id': data.member_id,
-            'activity_id': data.activity_id
-        });
-
-        if (!activity_registration) {
-            return response
-                .status(400)
-                .json({
-                    status: "FAILED",
-                    message: "Tidak ada data yang ditemukan"
-                });
-        }
-
-        try {
-
-            await ActivityRegistration
-                .query()
-                .where('member_id', data.member_id)
-                .where('activity_id', data.activity_id)
-                .update({ status: data.status })
-
-            const activity_registrations = await ActivityRegistration.findBy({
-                'member_id': data.member_id,
-                'activity_id': data.activity_id
-            });
-
-            return response
-                .status(200)
-                .json({
-                    status: "SUCCESS",
-                    message: "Status Partisipan berhasil diperbarui!",
-                    data: activity_registrations,
                 });
         } catch (error) {
             return response

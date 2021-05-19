@@ -1,9 +1,10 @@
 const Route = use('Route')
 
 Route.group(() => {
-    Route.get('participant-questionnaire/:member_id/:activity_id', 'ActivityParticipanController.show_questionnaire')
-    Route.get('participants/:activity_id', 'ActivityParticipanController.show_participants')
-    Route.get('participant-statistics/:activity_id', 'ActivityParticipanController.show_statistics')
-    Route.put('update-participant-status/:member_id/:activity_id/:status', 'ActivityParticipanController.update_registration_status')
-    Route.get('export-participant/:activity_id', 'ActivityParticipanController.export')
+    Route.get('participant/:registration_id', 'ActivityParticipanController.show')
+    Route.put('participant/:registration_id/:status', 'ActivityParticipanController.update_status')
+    Route.get('participant/:registration_id/questionnaire', 'ActivityParticipanController.show_questionnaire')
+    Route.get(':activity_id/participant', 'ActivityParticipanController.index')
+    Route.get(':activity_id/participant/statistics', 'ActivityParticipanController.show_statistics')
+    Route.get(':activity_id/participant/export', 'ActivityParticipanController.export')
 }).prefix("v1/activity");

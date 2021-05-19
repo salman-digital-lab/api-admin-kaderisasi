@@ -5,8 +5,6 @@ const Category = use("App/Models/ActivityCategory");
 const ActivityFormTemplate = use("App/Models/ActivityFormTemplate");
 const Activity = use("App/Models/Activity");
 const MemberRole = use('App/Models/MemberRole');
-const Helpers = use('Helpers')
-const { unlink } = use('fs').promises
 
 class ActivityController {
 
@@ -92,9 +90,9 @@ class ActivityController {
       name: "required",
       slug: "required_if:name|unique:activities,slug",
       begin_date: "required|date",
-      end_date: `required_if:begin_date|date|after:${data.begin_date}`,
+      end_date: "required|date",
       register_begin_date: "required|date",
-      register_end_date: `required_if:register_begin_date|date|after:${data.register_begin_date}`,
+      register_end_date: "required|date",
       category_id: 'required|number',
       form_id: 'required_if:form_id|number',
       minimum_role_id: 'required|number',
@@ -262,16 +260,13 @@ class ActivityController {
       data.slug = sanitizor.slug(data.name);
     }
 
-    const begin_date = (data.begin_date) ? data.begin_date : activity.begin_date
-    const register_begin_date = (data.register_begin_date) ? data.register_begin_date : activity.register_begin_date
-
     const rules = {
       name: "required_if:name",
       slug: `required_if:name|unique:activities,slug,id,${activity.id}`,
       begin_date: "required_if:begin_date|date",
-      end_date: `required_if:end_date|date|after:${begin_date}`,
+      end_date: "required_if:end_date|date",
       register_begin_date: "required_if:register_begin_date|date",
-      register_end_date: `required_if:register_end_date|date|after:${register_begin_date}`,
+      register_end_date: "required_if:register_end_date|date",
       category_id: 'required_if:category_id|number',
       form_id: 'required_if:form_id|number',
       minimum_role_id: 'required_if:minimum_role_id|number',
