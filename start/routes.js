@@ -39,12 +39,6 @@ Route.group(() => {
   Route.post('user/:id/upload', 'UserController.upload')
   Route.resource('group', 'GroupController').apiOnly().middleware('auth')
 }).prefix('/v1')
-Route.group(() => {
-  Route.get('/:activity_id', 'ActivityRegistrationController.index')
-  Route.post('/', 'ActivityRegistrationController.store')
-  Route.get('/:member_id/:activity_id', 'ActivityRegistrationController.show')
-  Route.delete('/:member_id/:activity_id', 'ActivityRegistrationController.destroy')
-}).prefix("v1/activity-registration");
 
 Route.group(() => {
   Route.get('member', 'DashboardAdminController.CountMembers')
