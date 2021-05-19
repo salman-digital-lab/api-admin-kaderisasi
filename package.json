@@ -7,8 +7,8 @@
   "scripts": {
     "start": "node server.js",
     "test": "nyc node ace test",
-    "lint" : "standard",
-    "lint-fix" : "standard --fix"
+    "lint": "standard",
+    "lint-fix": "standard --fix"
   },
   "keywords": [
     "adonisjs",
@@ -34,5 +34,8 @@
   },
   "autoload": {
     "App": "./app"
+  },
+  "devDependencies": {
+    "standard": "^16.0.3"
   }
 }
