@@ -14,13 +14,13 @@
 */
 
 
-
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use("Route");
 
-
 require('./routes/RegionRoutes')
 require('./routes/UniversityRoutes');
+require('./routes/ActivityParticipantRoutes');
+require('./routes/MemberRoutes');
 
 Route.group(() => {
   Route.resource("activity-category", "ActivityCategoryController").apiOnly();
@@ -39,9 +39,12 @@ Route.group(() => {
   Route.post('user/:id/upload', 'UserController.upload')
   Route.resource('group', 'GroupController').apiOnly().middleware('auth')
 }).prefix('/v1')
+
 Route.group(() => {
-  Route.get('/:activity_id', 'ActivityRegistrationController.index')
-  Route.post('/', 'ActivityRegistrationController.store')
-  Route.get('/:member_id/:activity_id', 'ActivityRegistrationController.show')
-  Route.delete('/:member_id/:activity_id', 'ActivityRegistrationController.destroy')
-}).prefix("v1/activity-registration");
+  Route.get('member', 'DashboardAdminController.CountMembers')
+  Route.get('autocomplete/:universities?', 'DashboardAdminController.AutocompleteUniversities')
+  Route.get('provinces/:id?', 'DashboardAdminController.CountMemberProvinces')
+  Route.get('universities', 'DashboardAdminController.CountMembersUniversities')
+  Route.get('years', 'DashboardAdminController.CountMembersYears')
+  Route.get('gender', 'DashboardAdminController.CountMembersGender')
+}).prefix('v1/dashboard/get/all')
