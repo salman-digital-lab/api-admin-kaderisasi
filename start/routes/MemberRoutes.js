@@ -12,6 +12,11 @@ Route.group(() => {
 Route.group(() => {
 
     Route.get(
+        '/:id/activities',
+        'MemberController.getMemberActivities'
+    )
+
+    Route.get(
         '/:id',
         'MemberController.getMember'
     )

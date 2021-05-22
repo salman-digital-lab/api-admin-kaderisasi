@@ -3,6 +3,7 @@
 const { rule, validate, sanitize} = use("Validator")
 const { ModelNotFoundException } = require("@adonisjs/lucid/src/Exceptions");
 
+const ActivityRegistration = use('App/Models/ActivityRegistration');
 const Member = use('App/Models/Member');
 class MemberController {
 
@@ -77,14 +78,14 @@ class MemberController {
 
             response.status(200).json({
                 status: "SUCCESS",
-                message: "Berhasil mendapatkan data member",
+                message: "Berhasil mendapatkan data aktivitas member",
                 data: members
             })
 
         } catch (error) {
             response.status(500).json({
                 status: "FAILED",
-                message: "Gagal mendapatkan data member karena kesalahan server"
+                message: "Gagal mendapatkan data aktivitas member karena kesalahan server"
             })            
         }
     }
@@ -93,7 +94,6 @@ class MemberController {
         try {
             const member = await Member
                 .query()
-                .with('activities')
                 .where('id', params.id)
                 .fetch()
 
@@ -116,6 +116,34 @@ class MemberController {
                     message: "Gagal mendapatkan data member karena kesalahan server"
                 }) 
             }
+        }
+    }
+
+    async getMemberActivities({ params, response }) {
+        try {
+            const activities = await ActivityRegistration
+                .query()
+                .leftJoin('activities', 'activity_registrations.activity_id', 'activities.id')
+                .leftJoin('activity_categories', 'activities.category_id', 'activity_categories.id')
+                .where('member_id', params.id)
+                .select('activities.name', 'activities.begin_date')
+                .select('activity_categories.name as category_name')
+                .select('activity_registrations.status')
+                .fetch();
+
+            response.status(200).json({
+                status: "SUCCESS",
+                message: "Berhasil mendapatkan data aktivitas member",
+                data: {
+                    activities
+                }
+            })
+        } catch(err) {
+            console.log(err);
+            response.status(500).json({
+                status: "FAILED",
+                message: "Gagal mendapatkan data member karena kesalahan server"
+            });
         }
     }
 
