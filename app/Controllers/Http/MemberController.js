@@ -78,14 +78,14 @@ class MemberController {
 
             response.status(200).json({
                 status: "SUCCESS",
-                message: "Berhasil mendapatkan data aktivitas member",
+                message: "Berhasil mendapatkan data member",
                 data: members
             })
 
         } catch (error) {
             response.status(500).json({
                 status: "FAILED",
-                message: "Gagal mendapatkan data aktivitas member karena kesalahan server"
+                message: "Gagal mendapatkan data member karena kesalahan server"
             })            
         }
     }
@@ -139,10 +139,9 @@ class MemberController {
                 }
             })
         } catch(err) {
-            console.log(err);
             response.status(500).json({
                 status: "FAILED",
-                message: "Gagal mendapatkan data member karena kesalahan server"
+                message: "Gagal mendapatkan data aktivitas member karena kesalahan server"
             });
         }
     }

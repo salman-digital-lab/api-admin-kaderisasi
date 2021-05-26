@@ -7,7 +7,7 @@ const Model = use('Model')
 const Hash = use('Hash')
 
 class Member extends Model {
-  static boot () {
+  static boot() {
     super.boot()
 
     /**
@@ -31,6 +31,10 @@ class Member extends Model {
 
   member_role() {
     return this.hasOne("App/Models/MemberRole", "role_id", "id");
+  }
+
+  university() {
+    return this.hasOne("App/Models/University", "university_id", "id");
   }
 }
 
