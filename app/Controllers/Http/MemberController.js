@@ -47,10 +47,13 @@ class MemberController {
                 .query()
                 .select([
                     'members.*',
-                    'universities.name AS university'
+                    'universities.name AS university',
+                    'member_roles.name AS role_name',
+                    'member_roles.description AS role_description'
                 ])
                 .from('members')
                 .leftJoin('universities', 'members.university_id', 'universities.id')
+                .leftJoin('member_roles', 'members.role_id', 'member_roles.id')
                 .where(function() {
                     this.where('members.name', 'LIKE', `%${searchQuery}%`)
                     .orWhere('city_of_birth', 'LIKE', `%${searchQuery}%`)
