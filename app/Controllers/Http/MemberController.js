@@ -129,7 +129,6 @@ class MemberController {
                     message: "Gagal mendapatkan data member karena data tidak ditemukan"
                 }) 
             } else {
-                console.log(err);
                 response.status(500).json({
                     status: "FAILED",
                     message: "Gagal mendapatkan data member karena kesalahan server"
