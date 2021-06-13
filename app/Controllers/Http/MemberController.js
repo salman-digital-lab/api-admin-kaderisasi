@@ -97,7 +97,22 @@ class MemberController {
         try {
             const member = await Member
                 .query()
-                .where('id', params.id)
+                .select([
+                    'members.*',
+                    'universities.name AS university',
+                    'member_roles.name AS role_name',
+                    'region_provinces.name as province_name',
+                    'region_regencies.name as regency_name',
+                    'region_districts.name as district_name',
+                    'region_villages.name as village_name'
+                ])
+                .leftJoin('universities', 'members.university_id', 'universities.id')
+                .leftJoin('member_roles', 'members.role_id', 'member_roles.id')
+                .leftJoin('region_provinces', 'members.province_id', 'region_provinces.id')
+                .leftJoin('region_regencies', 'members.regency_id', 'region_regencies.id')
+                .leftJoin('region_districts', 'members.district_id', 'region_districts.id')
+                .leftJoin('region_villages', 'members.village_Id', 'region_villages.id')
+                .where('members.id', params.id)
                 .fetch()
 
             response.status(200).json({
@@ -114,6 +129,7 @@ class MemberController {
                     message: "Gagal mendapatkan data member karena data tidak ditemukan"
                 }) 
             } else {
+                console.log(err);
                 response.status(500).json({
                     status: "FAILED",
                     message: "Gagal mendapatkan data member karena kesalahan server"
