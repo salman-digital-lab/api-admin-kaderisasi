@@ -3,6 +3,7 @@
 const { rule, validate, sanitize} = use("Validator")
 const { ModelNotFoundException } = require("@adonisjs/lucid/src/Exceptions");
 
+const ActivityRegistration = use('App/Models/ActivityRegistration');
 const Member = use('App/Models/Member');
 class MemberController {
 
@@ -46,10 +47,13 @@ class MemberController {
                 .query()
                 .select([
                     'members.*',
-                    'universities.name AS university'
+                    'universities.name AS university',
+                    'member_roles.name AS role_name',
+                    'member_roles.description AS role_description'
                 ])
                 .from('members')
                 .leftJoin('universities', 'members.university_id', 'universities.id')
+                .leftJoin('member_roles', 'members.role_id', 'member_roles.id')
                 .where(function() {
                     this.where('members.name', 'LIKE', `%${searchQuery}%`)
                     .orWhere('city_of_birth', 'LIKE', `%${searchQuery}%`)
@@ -93,8 +97,22 @@ class MemberController {
         try {
             const member = await Member
                 .query()
-                .with('activities')
-                .where('id', params.id)
+                .select([
+                    'members.*',
+                    'universities.name AS university',
+                    'member_roles.name AS role_name',
+                    'region_provinces.name as province_name',
+                    'region_regencies.name as regency_name',
+                    'region_districts.name as district_name',
+                    'region_villages.name as village_name'
+                ])
+                .leftJoin('universities', 'members.university_id', 'universities.id')
+                .leftJoin('member_roles', 'members.role_id', 'member_roles.id')
+                .leftJoin('region_provinces', 'members.province_id', 'region_provinces.id')
+                .leftJoin('region_regencies', 'members.regency_id', 'region_regencies.id')
+                .leftJoin('region_districts', 'members.district_id', 'region_districts.id')
+                .leftJoin('region_villages', 'members.village_Id', 'region_villages.id')
+                .where('members.id', params.id)
                 .fetch()
 
             response.status(200).json({
@@ -116,6 +134,33 @@ class MemberController {
                     message: "Gagal mendapatkan data member karena kesalahan server"
                 }) 
             }
+        }
+    }
+
+    async getMemberActivities({ params, response }) {
+        try {
+            const activities = await ActivityRegistration
+                .query()
+                .leftJoin('activities', 'activity_registrations.activity_id', 'activities.id')
+                .leftJoin('activity_categories', 'activities.category_id', 'activity_categories.id')
+                .where('member_id', params.id)
+                .select('activities.name', 'activities.begin_date')
+                .select('activity_categories.name as category_name')
+                .select('activity_registrations.status')
+                .fetch();
+
+            response.status(200).json({
+                status: "SUCCESS",
+                message: "Berhasil mendapatkan data aktivitas member",
+                data: {
+                    activities
+                }
+            })
+        } catch(err) {
+            response.status(500).json({
+                status: "FAILED",
+                message: "Gagal mendapatkan data aktivitas member karena kesalahan server"
+            });
         }
     }
 
