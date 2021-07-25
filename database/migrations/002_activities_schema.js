@@ -3,7 +3,7 @@
 const Schema = use('Schema')
 
 class ActivitiesSchema extends Schema {
-  up() {
+  up () {
     this.create('activities', (table) => {
       table.increments()
       table.string('name', 255).notNullable().default(null)
@@ -25,11 +25,7 @@ class ActivitiesSchema extends Schema {
     })
   }
 
-  down() {
-    this.table('activities', (table) => {
-      table.dropIndex('slug', 'activities_slug_unique')
-      table.dropForeign('category_id', 'activities_category_id_foreign')
-    })
+  down () {
     this.drop('activities')
   }
 }
