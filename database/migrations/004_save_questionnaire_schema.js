@@ -5,7 +5,7 @@ const Schema = use('Schema')
 
 class SaveQuestionnaireSchema extends Schema {
   up() {
-    this.create('save_questionnaires', (table) => {
+    this.create('save_questionnaire', (table) => {
       table.increments()
       table.integer('id_registration', 11).unsigned().notNullable()
       table.foreign('id_registration').references('activity_registrations.id').onDelete('CASCADE')
@@ -15,7 +15,7 @@ class SaveQuestionnaireSchema extends Schema {
   }
 
   down() {
-    this.drop('save_questionnaires')
+    this.drop('save_questionnaire')
   }
 }
 

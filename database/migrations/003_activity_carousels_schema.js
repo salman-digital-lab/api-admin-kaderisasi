@@ -4,7 +4,7 @@
 const Schema = use('Schema')
 
 class ActivityCarouselsSchema extends Schema {
-  up() {
+  up () {
     this.create('activity_carousels', (table) => {
       table.increments()
       table.integer('activity_id', 11).unsigned().notNullable()
@@ -14,7 +14,7 @@ class ActivityCarouselsSchema extends Schema {
     })
   }
 
-  down() {
+  down () {
     this.drop('activity_carousels')
   }
 }
