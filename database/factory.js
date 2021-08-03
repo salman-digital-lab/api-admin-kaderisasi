@@ -122,15 +122,6 @@ Factory.blueprint('App/Models/Member', (faker, index, data) => {
   }
 })
 
-Factory.blueprint("App/Models/Group", (faker) => {
-  return {
-    name: "admin",
-    shortname: "adm",
-    description: "administrator",
-    is_admin: true
-  }
-})
-
 Factory.blueprint("App/Models/ActivityCarousel", (faker, index, data) => {
   return {
     filename : "carousel_dummy.jpg",

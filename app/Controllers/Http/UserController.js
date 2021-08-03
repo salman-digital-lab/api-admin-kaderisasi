@@ -24,15 +24,14 @@ class UserController {
         const { email, password } = request.all()
 
         try {
-            const user = await User.findBy('email', email)
+            var user = await User.findBy('email', email)
             const token = await auth.withRefreshToken().attempt(email, password);
 
             if (!user.active) {
                 return response.json({ status: 'FAILED', message: 'the account is inactive' })
             }
-            const user_group = await UsersGroup.findBy('user_id', user.id)
-            const group = await Group.findBy('id', user_group.group_id)
-            user.group = group
+            
+            user = await User.getSerializedUser(user.id)
 
             return response.json({ status: 'SUCCESS', message: 'login success', token, user })
         } catch (error) {

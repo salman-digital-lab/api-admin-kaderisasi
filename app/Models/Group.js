@@ -20,6 +20,12 @@ class Group extends Model {
     users_group() {
         return this.hasMany('App/Models/UsersGroup')
     }
+
+    privileges() {
+        return this
+            .belongsToMany('App/Models/Privilege')
+            .pivotTable('groups_privileges')
+    }
 }
 
 module.exports = Group
