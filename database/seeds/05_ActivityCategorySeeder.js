@@ -3,7 +3,7 @@
 const Factory = use('Factory')
 
 class ActivityCategorySeeder {
-  async run() {
+  async run () {
     await Factory.model('App/Models/ActivityCategory').createMany(10)
   }
 }

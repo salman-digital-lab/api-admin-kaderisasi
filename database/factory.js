@@ -1,4 +1,4 @@
-"use strict";
+'use strict'
 
 /*
 |--------------------------------------------------------------------------
@@ -12,54 +12,53 @@
 */
 
 /** @type {import('@adonisjs/lucid/src/Factory')} */
-const Factory = use("Factory");
-const Category = use("App/Models/ActivityCategory");
-const MemberRole = use("App/Models/MemberRole");
+const Factory = use('Factory')
+const Category = use('App/Models/ActivityCategory')
+const MemberRole = use('App/Models/MemberRole')
 
-Factory.blueprint("App/Models/ActivityCategory", (faker) => {
-  const name = faker.username();
+Factory.blueprint('App/Models/ActivityCategory', (faker) => {
+  const name = faker.username()
   return {
-    name: name.charAt(0).toUpperCase() + name.slice(1),
-  };
-});
-
-Factory.blueprint('App/Models/University', (faker) => {
-  return {
-    name: "University of ".concat(faker.city())
+    name: name.charAt(0).toUpperCase() + name.slice(1)
   }
 })
 
-Factory.blueprint("App/Models/Activity", async (faker, index, data) => {
+Factory.blueprint('App/Models/University', (faker) => {
+  return {
+    name: 'University of '.concat(faker.city())
+  }
+})
 
-  const name = faker.sentence();
+Factory.blueprint('App/Models/Activity', async (faker, index, data) => {
+  const name = faker.sentence()
   const form_data = [
     {
-      "type" : "text",
-      "label" : "Text Area",
-      "name" : "text-15529591",
-      "placeholder" : true,
-      "required" : true,
+      type: 'text',
+      label: 'Text Area',
+      name: 'text-15529591',
+      placeholder: true,
+      required: true
     },
     {
-      "type" : "dropdown",
-      "label" : "A dropdown",
-      "name"  : "dropdown-1414155",
-      "placeholder" : true,
-      "required" : true,
-      "data" : [{
-          "label" : "label1",
-          "value" : "label1"
-        },
-        {
-          "label" : "label2",
-          "value" : "label2"
-        }]
+      type: 'dropdown',
+      label: 'A dropdown',
+      name: 'dropdown-1414155',
+      placeholder: true,
+      required: true,
+      data: [{
+        label: 'label1',
+        value: 'label1'
+      },
+      {
+        label: 'label2',
+        value: 'label2'
+      }]
     }
-  ];
+  ]
 
   return {
     name: name,
-    slug: name.toLowerCase().split(" ").join("-"),
+    slug: name.toLowerCase().split(' ').join('-'),
     description: faker.text,
     begin_date: faker.date(),
     end_date: faker.date(),
@@ -68,26 +67,25 @@ Factory.blueprint("App/Models/Activity", async (faker, index, data) => {
     register_end_date: faker.date(),
     category_id: faker.pickone(data.categories.rows).id,
     form_data: JSON.stringify(form_data)
-  };
-});
+  }
+})
 
-Factory.blueprint("App/Models/User", async (faker) => {
+Factory.blueprint('App/Models/User', async (faker) => {
   const first_name = faker.first()
   const last_name = faker.last()
 
   return {
     username: faker.username(),
     email: faker.email(),
-    password: "example",
+    password: 'example',
     first_name: first_name,
     last_name: last_name,
-    display_name: first_name + " " + last_name,
+    display_name: first_name + ' ' + last_name,
     salt: faker.string({ length: 255 })
   }
 })
 
 Factory.blueprint('App/Models/Member', (faker, index, data) => {
-
   const birthday_year = faker.integer({ min: 1990, max: 1999 })
   const birthday_month = faker.integer({ min: 1, max: 12 })
   const birthday_day = faker.integer({ min: 1, max: 20 })
@@ -102,17 +100,17 @@ Factory.blueprint('App/Models/Member', (faker, index, data) => {
     gender: faker.pickone(['M', 'F']),
     email: faker.email(),
     phone: faker.phone(),
-    line_id: "@" + faker.string({ alpha: true, numeric: true }),
-    date_of_birthday: birthday_year + "-" + birthday_month + "-" + birthday_day,
+    line_id: '@' + faker.string({ alpha: true, numeric: true }),
+    date_of_birthday: birthday_year + '-' + birthday_month + '-' + birthday_day,
     city_of_birth: faker.city(),
     from_address: faker.address(),
     current_address: faker.address(),
     faculty: faker.pickone(['Medicine', 'Humanitarian Studies', 'Engineering']),
-    major: faker.pickone(["Mathematics, Politics, Law"]),
+    major: faker.pickone(['Mathematics, Politics, Law']),
     student_id: faker.string({ numeric: true, length: 12 }),
     intake_year: faker.pickone([2016, 2017, 2018, 2019, 2020]),
     role_id: role.id,
-    password: "example",
+    password: 'example',
     university_id: university.id,
     province_id: village.id.substring(0, 2),
     regency_id: village.id.substring(0, 4),
@@ -122,9 +120,9 @@ Factory.blueprint('App/Models/Member', (faker, index, data) => {
   }
 })
 
-Factory.blueprint("App/Models/ActivityCarousel", (faker, index, data) => {
+Factory.blueprint('App/Models/ActivityCarousel', (faker, index, data) => {
   return {
-    filename : "carousel_dummy.jpg",
-    activity_id : data.activity_id
+    filename: 'carousel_dummy.jpg',
+    activity_id: data.activity_id
   }
 })

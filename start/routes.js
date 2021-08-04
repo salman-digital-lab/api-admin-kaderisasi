@@ -1,4 +1,4 @@
-"use strict";
+'use strict'
 
 /*
 |--------------------------------------------------------------------------
@@ -13,40 +13,45 @@
 |
 */
 
-
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
-const Route = use("Route");
+const Route = use('Route')
 
 require('./routes/RegionRoutes')
-require('./routes/UniversityRoutes');
-require('./routes/ActivityParticipantRoutes');
-require('./routes/MemberRoutes');
-require('./routes/ActivityCarouselRoutes');
+require('./routes/UniversityRoutes')
+require('./routes/ActivityParticipantRoutes')
+require('./routes/MemberRoutes')
+require('./routes/ActivityCarouselRoutes')
 
 Route.group(() => {
-  Route.resource("activity-category", "ActivityCategoryController").apiOnly();
-  Route.resource("activity", "ActivityController").apiOnly();
-  Route.resource("activity-form-template", "ActivityFormTemplateController").apiOnly();
-}).prefix("v1").middleware(['auth']);
+  Route.resource('activity-category', 'ActivityCategoryController').apiOnly()
+  Route.resource('activity', 'ActivityController').apiOnly()
+  Route.resource('activity-form-template', 'ActivityFormTemplateController').apiOnly()
+}).prefix('v1').middleware(['auth'])
 
 Route.get('/', ({ view }) => {
-  return view.render('welcome');
+  return view.render('welcome')
 })
 
-// Users -> user management
-// User -> for single user API
+/** ACL related APIs */
 Route.group(() => {
+  Route.get('groups/:id/privileges', 'GroupController.privileges')
+  Route.post('groups/:id/privileges/:privilege_id', 'GroupController.addPrivilege')
+  Route.delete('groups/:id/privileges/:privilege_id', 'GroupController.deletePrivilege')
+  Route.resource('groups', 'GroupController').apiOnly()
+  Route.get('privileges', 'GroupController.privileges')
   Route.resource('users', 'UserController').apiOnly()
+}).prefix('v1').middleware(['auth', 'activeUser', 'privileges:users'])
+
+/** Auth */
+Route.group(() => {
+//Route.post('/user/:id/upload', 'UserController.upload').middleware('auth')
   Route.post('/user/login', 'UserController.login')
-  Route.put('/user/:id/reset-password', 'UserController.reset_password')
-  Route.post('/user/:id/upload', 'UserController.upload')
-  Route.resource('group', 'GroupController').apiOnly().middleware('auth')
-}).prefix('/v1')
+//Route.put('/user/:id/reset-password', 'UserController.reset_password')
+}).prefix('v1')
 
 Route.group(() => {
   Route.get('', 'AuthenticatedUserController.show')
 }).prefix('v1/user').middleware('auth')
-
 
 Route.group(() => {
   Route.get('member', 'DashboardAdminController.CountMembers')
