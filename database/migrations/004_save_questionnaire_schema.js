@@ -4,7 +4,7 @@
 const Schema = use('Schema')
 
 class SaveQuestionnaireSchema extends Schema {
-  up() {
+  up () {
     this.create('save_questionnaire', (table) => {
       table.increments()
       table.integer('id_registration', 11).unsigned().notNullable()
@@ -14,7 +14,7 @@ class SaveQuestionnaireSchema extends Schema {
     })
   }
 
-  down() {
+  down () {
     this.drop('save_questionnaire')
   }
 }

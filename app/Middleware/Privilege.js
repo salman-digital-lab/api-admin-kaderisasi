@@ -15,6 +15,10 @@ class Privilege {
 
     var { group , privileges} = await auth.user.privileges()
 
+    if( group.is_disabled ) {
+      throw new ForbiddenException('Access denied : group is disabled. Contact admin for details')
+    }
+    
     if(!group.is_admin) {
       privileges = privileges.map( function (privilege) {
         return privilege.name
