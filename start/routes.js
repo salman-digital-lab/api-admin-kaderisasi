@@ -21,6 +21,7 @@ require('./routes/UniversityRoutes')
 require('./routes/ActivityParticipantRoutes')
 require('./routes/MemberRoutes')
 require('./routes/ActivityCarouselRoutes')
+require('./routes/StudentCareRoutes')
 
 Route.group(() => {
   Route.resource('activity-category', 'ActivityCategoryController').apiOnly()
@@ -51,7 +52,7 @@ Route.group(() => {
 
 Route.group(() => {
   Route.get('', 'AuthenticatedUserController.show')
-}).prefix('v1/user').middleware('auth')
+}).prefix('v1/user').middleware(['auth', 'activeUser'])
 
 Route.group(() => {
   Route.get('member', 'DashboardAdminController.CountMembers')
