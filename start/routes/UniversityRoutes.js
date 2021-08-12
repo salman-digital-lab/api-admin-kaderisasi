@@ -2,11 +2,6 @@ const Route = use('Route')
 
 Route.group(() => {
 
-    Route.get(
-        '/',
-        'UniversityController.getUniversities'
-    );
-
     Route.post(
         '/',
         'UniversityController.createUniversity'
@@ -22,4 +17,9 @@ Route.group(() => {
         'UniversityController.deleteUniversity'
     );
 
-}).prefix('/v1/universities');
+}).prefix('/v1/universities').middleware(['auth', 'privileges:universities']);
+
+Route.get(
+    '/v1/universities/',
+    'UniversityController.getUniversities'
+);
