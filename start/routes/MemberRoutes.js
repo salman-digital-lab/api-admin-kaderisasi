@@ -7,7 +7,7 @@ Route.group(() => {
         'MemberController.getMembers'
     )
 
-}).prefix('/v1/members');
+}).prefix('/v1/members').middleware(['auth', 'privileges:members']);
 
 Route.group(() => {
 
@@ -31,4 +31,4 @@ Route.group(() => {
         'MemberController.updateMember'
     )
 
-}).prefix('/v1/member');
+}).prefix('/v1/member').middleware(['auth', 'privileges:members']);
