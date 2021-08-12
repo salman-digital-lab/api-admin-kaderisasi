@@ -27,7 +27,7 @@ Route.group(() => {
   Route.resource('activity-category', 'ActivityCategoryController').apiOnly()
   Route.resource('activity', 'ActivityController').apiOnly()
   Route.resource('activity-form-template', 'ActivityFormTemplateController').apiOnly()
-}).prefix('v1').middleware(['auth'])
+}).prefix('v1').middleware(['auth', 'activeUser', 'privileges:activity'])
 
 Route.get('/', ({ view }) => {
   return view.render('welcome')
@@ -45,9 +45,9 @@ Route.group(() => {
 
 /** Auth */
 Route.group(() => {
-//Route.post('/user/:id/upload', 'UserController.upload').middleware('auth')
+  //Route.post('/user/:id/upload', 'UserController.upload').middleware('auth')
   Route.post('/user/login', 'UserController.login')
-//Route.put('/user/:id/reset-password', 'UserController.reset_password')
+  //Route.put('/user/:id/reset-password', 'UserController.reset_password')
 }).prefix('v1')
 
 Route.group(() => {
