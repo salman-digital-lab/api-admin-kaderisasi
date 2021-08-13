@@ -15,3 +15,6 @@ database/*.sqlite
 
 # coverage
 test/coverage
+
+# uploaded banner
+public/activity_pic

@@ -10,7 +10,6 @@ class ActivityCarouselsSchema extends Schema {
       table.integer('activity_id', 11).unsigned().notNullable()
       table.foreign('activity_id').references('activities.id').onDelete('CASCADE').onUpdate('CASCADE')
       table.string('filename', 100)
-      table.boolean('is_banner').defaultTo(false)
     })
   }
 
