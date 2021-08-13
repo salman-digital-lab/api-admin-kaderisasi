@@ -15,8 +15,7 @@ class ActivityCarouselController {
 
     const rules = {
       activity_id: "required|number",
-      banner_image: "required|file|file_ext:png,PNG,jpg,JPG,jpeg,JPEG|file_size:2mb|file_types:image",
-      is_banner: "required_if:is_banner|boolean"
+      banner_image: "required|file|file_ext:png,PNG,jpg,JPG,jpeg,JPEG|file_size:2mb|file_types:image"
     };
 
     const validation = await validate(data, rules);
@@ -64,37 +63,10 @@ class ActivityCarouselController {
 
     try {
 
-      let is_banner_exist_check = false;
-
-      if (data.is_banner) {
-        if (data.is_banner == 1) {
-          await ActivityCarousel
-            .query()
-            .where('activity_id', data.activity_id)
-            .update({ is_banner: 0 });
-        } else {
-          is_banner_exist_check = true;
-        }
-      } else {
-        is_banner_exist_check = true;
-      }
-
-      if (is_banner_exist_check) {
-        const is_banner_exist = await ActivityCarousel.query()
-          .where('activity_id', data.activity_id)
-          .where('is_banner', 1)
-          .fetch()
-
-        if (is_banner_exist.rows.length === 0) {
-          data.is_banner = 1;
-        }
-      }
-
       const activityCarousel = new ActivityCarousel();
 
       activityCarousel.activity_id = data.activity_id;
       activityCarousel.filename = bannerImageName;
-      activityCarousel.is_banner = data.is_banner;
       await activityCarousel.save();
 
       const activity_carousel = await ActivityCarousel.findOrFail(activityCarousel.id);
@@ -200,18 +172,6 @@ class ActivityCarouselController {
           });
       }
 
-      if (activity_carousel.is_banner === 1) {
-        const is_another_banner_exist = await ActivityCarousel.query()
-          .where('activity_id', activity_carousel.activity_id)
-          .where('id', '!=', activity_carousel.id)
-          .first()
-
-        if (is_another_banner_exist) {
-          is_another_banner_exist.is_banner = 1;
-          await is_another_banner_exist.save();
-        }
-      }
-
       // Catatan :
       // Jika file tidak ada, maka akan terjadi error
 
@@ -235,66 +195,6 @@ class ActivityCarouselController {
           message: error.message
         });
     }
-  }
-
-  async updateIsBanner({ params, response }) {
-
-    const { id } = params;
-
-    const rules = {
-      id: "required|number"
-    };
-
-    const validation = await validate({ id, id }, rules);
-
-    if (validation.fails()) {
-      return response
-        .status(400)
-        .json({
-          status: "FAILED",
-          message: validation.messages()
-        });
-    }
-
-    try {
-
-      const activity_carousel = await ActivityCarousel.findBy('id', id);
-
-      if (!activity_carousel) {
-        return response
-          .status(400)
-          .json({
-            status: "FAILED",
-            message: "Tidak ada Banner Image yang ditemukan"
-          });
-      }
-
-      await ActivityCarousel
-        .query()
-        .where('activity_id', activity_carousel.activity_id)
-        .where('is_banner', 1)
-        .update({ is_banner: 0 });
-
-      activity_carousel.is_banner = 1;
-      await activity_carousel.save();
-
-      return response
-        .status(200)
-        .json({
-          status: "SUCCESS",
-          message: "Banner Image berhasil ditetapkan!",
-          data: activity_carousel,
-        });
-
-    } catch (error) {
-      return response
-        .status(500)
-        .json({
-          status: "FAILED",
-          message: error.message
-        });
-    }
-
   }
 }
 
