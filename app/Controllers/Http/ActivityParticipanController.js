@@ -391,6 +391,17 @@ class ActivityParticipanController {
         { header: 'Status', key: 'status', width: 20, style: { font: font } },
       ]
 
+      const form_data = JSON.parse((await activity.toJSON()).form_data);
+
+      form_data.forEach((form) => {
+        worksheet.columns = [...worksheet.columns, {
+          header: form.label, 
+          key: form.name, 
+          width: 20, 
+          style: { font: font }
+        }]
+      })
+
       let no = 1
       let row = await activity_registrations.toJSON().map(item => {
         worksheet.addRow({
