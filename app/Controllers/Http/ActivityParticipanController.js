@@ -389,7 +389,6 @@ class ActivityParticipanController {
         { header: 'Role', key: 'role', width: 15, style: { font: font } },
         { header: 'Created At', key: 'created_at', width: 15, style: { font: font } },
         { header: 'Status', key: 'status', width: 20, style: { font: font } },
-        { header: 'Questionnaire', key: 'questionnaire', width: 50, style: { font: font } }
       ]
 
       let no = 1
