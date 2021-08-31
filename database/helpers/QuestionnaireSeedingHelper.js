@@ -179,7 +179,7 @@ class QuestionnaireSeedingHelper {
       type: 'checkbox',
       label: 'a checkbox',
       name: this.checkboxFieldName,
-      data: this.checkboxData()
+      data: this.checkboxData
     }
   }
 
