@@ -46,6 +46,7 @@ class ActivityRegistrationSeeder {
       const answers = QuestionnaireSeedingHelper.formAnswer
       questionnaire_items.push(answers.map(function (row) {
         row.id_registration = registration.id
+        row.answer = JSON.stringify(row.answer)
         return row
       }))
     }

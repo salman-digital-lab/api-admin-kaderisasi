@@ -4,7 +4,7 @@
 
 A wrapper class for seeders to fetch questionnaire data
 
-currently supports : text, number, scale, option, dropdown
+currently supports : text, number, scale, radio, dropdown, checkbox
 */
 
 class QuestionnaireSeedingHelper {
@@ -20,12 +20,16 @@ class QuestionnaireSeedingHelper {
     return 'dropdown-1414155'
   }
 
-  static get optionFieldName () {
-    return 'option-45119'
+  static get radioFieldName () {
+    return 'radio-45119'
   }
 
   static get scaleFieldName () {
     return 'scale-15195911'
+  }
+
+  static get checkboxFieldName () {
+    return 'checkbox-123554'
   }
 
   static get formObject () {
@@ -33,8 +37,9 @@ class QuestionnaireSeedingHelper {
       this.textField,
       this.numberField,
       this.dropdownField,
-      this.optionField,
-      this.scaleField
+      this.radioField,
+      this.scaleField,
+      this.checkboxField
     ]
   }
 
@@ -43,8 +48,9 @@ class QuestionnaireSeedingHelper {
       this.textAnswer,
       this.numberAnswer,
       this.dropdownAnswer,
-      this.optionAnswer,
-      this.scaleAnswer
+      this.radioAnswer,
+      this.scaleAnswer,
+      this.checkboxAnswer
     ]
   }
 
@@ -68,8 +74,8 @@ class QuestionnaireSeedingHelper {
   static get numberField () {
     return {
 	    	type: 'number',
-	        label: 'A Number',
-	        name: this.numberFieldName
+        label: 'A Number',
+        name: this.numberFieldName
     }
   }
 
@@ -86,49 +92,64 @@ class QuestionnaireSeedingHelper {
       type: 'dropdown',
       label: 'A dropdown',
       name: this.dropdownFieldName,
-      data: [{
-	            label: 'label1',
-	            value: 'label1'
-	            },
-	            {
-	            label: 'label2',
-	            value: 'label2'
-      }]
+      data: this.dropdownData
     }
+  }
+
+  static get dropdownData () {
+    return [{
+        label: 'label1',
+        value: 'label1v'
+      },
+      {
+        label: 'label2',
+        value: 'label2v'
+      },
+      {
+        label: 'label3',
+        value: 'value3v'
+    }]
   }
 
   static get dropdownAnswer () {
+    var data = this.dropdownData
     return {
-	        id_name: this.dropdownFieldName,
-	        answer: 'label1'
+        id_name: this.dropdownFieldName,
+        answer: data[Math.floor(Math.random() * data.length)].value
     }
   }
 
-  /** OPTIONS */
-  static get optionField () {
+  /** RADIO */
+  static get radioField () {
     return {
-	        type: 'option',
-	        label: 'An option',
-	        name: this.optionFieldName,
-	        data: [{
-        label: 'Ya',
-        value: 'Ya'
-	            },
-	            {
-        label: 'Tidak',
-        value: 'Tidak'
-	            },
-	            {
-        label: 'Pernah',
-        value: 'Pernah'
-	        }]
-	    }
+	        type: 'radio',
+	        label: 'An radio',
+	        name: this.radioFieldName,
+	        data: this.radioData
+    }
   }
 
-  static get optionAnswer () {
+  static get radioData () {
+    return [{
+        label: 'Ya',
+        value: 'Ya'
+        },
+        {
+        label: 'Tidak',
+        value: 'Tidak'
+        },
+        {
+        label: 'Pernah',
+        value: 'Pernah'
+    }]
+  }
+
+  static get radioAnswer () {
+
+    var data = this.radioData
     return {
-	        id_name: this.optionFieldName,
-	        answer: 'Pernah'
+	        id_name: this.radioFieldName,
+	        answer: data[Math.floor(Math.random() * data.length)].value
     }
   }
 
@@ -151,6 +172,40 @@ class QuestionnaireSeedingHelper {
         	answer: Math.floor(Math.random() * 10) + 1
     }
   }
+
+  /** CHECKBOX */
+  static get checkboxField () {
+    return {
+      type: 'checkbox',
+      label: 'a checkbox',
+      name: this.checkboxFieldName,
+      data: this.checkboxData()
+    }
+  }
+
+  static get checkboxData () {
+    return [
+    {
+      label: "box1",
+      value : "a"
+    },{
+      label: "box2",
+      value : "b"
+    },{
+      label: "box3",
+      value: "c"
+    }]
+  }
+
+  static get checkboxAnswer () {
+    return {
+      id_name: this.checkboxFieldName,
+      answer: ["a", "b", "c"]
+    }
+  }
 }
+
+  
+
 
 module.exports = QuestionnaireSeedingHelper
