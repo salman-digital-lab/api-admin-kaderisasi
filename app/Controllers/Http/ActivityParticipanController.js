@@ -372,7 +372,16 @@ class ActivityParticipanController {
           status: 'FAILED',
           message: 'Belum terdapat member yang mendaftar pada aktivitas ini'
         })
-    }
+    } 
+
+    const registrationIds = this.getActivityRegistrationsIds(await activity_registrations.toJSON());
+    
+    const questionnaire_answers = await SaveQuestionnaire
+      .query()
+      .whereIn('id_registration', registrationIds)
+      .fetch();
+    
+    const answers_data = this.buildQuestionnaireAnswerData(await questionnaire_answers.toJSON());
 
     try {
       const workbook = new Excel.Workbook()
@@ -389,12 +398,22 @@ class ActivityParticipanController {
         { header: 'Role', key: 'role', width: 15, style: { font: font } },
         { header: 'Created At', key: 'created_at', width: 15, style: { font: font } },
         { header: 'Status', key: 'status', width: 20, style: { font: font } },
-        { header: 'Questionnaire', key: 'questionnaire', width: 50, style: { font: font } }
       ]
+
+      const form_data = JSON.parse((await activity.toJSON()).form_data);
+
+      form_data.forEach((form) => {
+        worksheet.columns = [...worksheet.columns, {
+          header: form.label, 
+          key: form.name, 
+          width: 20, 
+          style: { font: font }
+        }]
+      })
 
       let no = 1
       let row = await activity_registrations.toJSON().map(item => {
-        worksheet.addRow({
+        let row_data = {
           no: no++,
           name: item.member.name,
           gender: item.member.gender,
@@ -403,9 +422,12 @@ class ActivityParticipanController {
           line_id: item.member.line_id,
           role: item.member.member_role.name,
           created_at: item.created_at,
-          status: item.status,
-          questionnaire: item.questionnaire
+          status: item.status
+        }
+        form_data.forEach((form) => {
+          row_data[form.name] = this.getRegistrantFormDataValue(item.id, form.name, answers_data);
         })
+        worksheet.addRow(row_data);
       })
 
       const formatted = Date.now()
@@ -433,6 +455,37 @@ class ActivityParticipanController {
         })
     }
   }
+
+  getActivityRegistrationsIds(activityRegistrations) {
+    const ids = activityRegistrations.map(activityRegistration => activityRegistration.id);
+    return ids;
+  }
+
+  buildQuestionnaireAnswerData(questionnaire_answers) {
+    const data = {}
+    questionnaire_answers.forEach(answer => {
+      const registration_id = answer.id_registration;
+      const form_name = answer.id_name;
+      const answer_value = answer.answer;
+
+      if (data[registration_id] == null) {
+        data[registration_id] = {};
+      }
+
+      data[registration_id][form_name] = answer_value;
+    })
+
+    return data;
+  }
+
+  getRegistrantFormDataValue(registration_id, form_name, data) {
+    if (data[registration_id] == null) {
+      return null;
+    }
+
+    return data[registration_id][form_name];
+  }
+
 }
 
 module.exports = ActivityParticipanController
