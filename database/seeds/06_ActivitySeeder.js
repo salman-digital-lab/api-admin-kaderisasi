@@ -25,19 +25,16 @@ class ActivitySeeder {
       return [
         {
           activity_id: activity.id,
-          filename: 'main.jpg',
-          is_banner: true
+          filename: 'main.jpg'
 
         },
         {
           activity_id: activity.id,
-          filename: 'banner1.jpg',
-          is_banner: false
+          filename: 'banner1.jpg'
         },
         {
           activity_id: activity.id,
-          filename: 'banner2.jpg',
-          is_banner: false
+          filename: 'banner2.jpg'
         }
       ]
     })

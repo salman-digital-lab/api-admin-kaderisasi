@@ -20,7 +20,7 @@ require('./routes/RegionRoutes')
 require('./routes/UniversityRoutes')
 require('./routes/Activity/ActivityParticipantRoutes')
 require('./routes/MemberRoutes')
-require('./routes/ActivityCarouselRoutes')
+require('./routes/Activity/ActivityCarouselRoutes')
 require('./routes/StudentCareRoutes')
 require('./routes/Activity/ActivityRoutes')
 
