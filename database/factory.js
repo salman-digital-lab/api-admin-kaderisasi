@@ -126,3 +126,20 @@ Factory.blueprint('App/Models/ActivityCarousel', (faker, index, data) => {
     activity_id: data.activity_id
   }
 })
+
+Factory.blueprint('App/Models/Checklist', (faker) => {
+  return {
+    checklist_name: faker.username()
+  }
+})
+
+Factory.blueprint('App/Models/MemberChecklist', (faker, index, data) => {
+
+  const member = faker.pickone(data.members.rows)
+  const checklist = faker.pickone(data.checklists.rows)
+
+  return {
+    member_id: member.id,
+    checklist_id: checklist.id
+  }
+})

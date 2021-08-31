@@ -65,3 +65,10 @@ Route.group(() => {
   Route.put('update', 'PublicInformationController.update')
   Route.delete('delete', 'PublicInformationController.delete')
 }).prefix('v1/publicinformartion')
+
+Route.group(() => {
+  Route.resource('/', 'ChecklistController').apiOnly()
+  Route.post('/tick', 'ChecklistController.tick')
+  Route.delete('/untick/:member_id/:checklist_id', 'ChecklistController.untick')
+  Route.get('/member/:member_id', 'ChecklistController.member')
+}).prefix('v1/checklist').middleware('auth')
