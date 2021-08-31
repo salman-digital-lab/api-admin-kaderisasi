@@ -7,4 +7,4 @@ Route.group(() => {
     Route.get(':activity_id/participant', 'ActivityParticipanController.index')
     Route.get(':activity_id/participant/statistics', 'ActivityParticipanController.show_statistics')
     Route.get(':activity_id/participant/export', 'ActivityParticipanController.export')
-}).prefix("v1/activity");
+}).prefix("v1/activity").middleware(['auth', 'activeUser', 'privileges:activity'])

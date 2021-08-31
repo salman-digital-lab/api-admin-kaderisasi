@@ -1,8 +1,7 @@
 const Route = use('Route')
 
 Route.group(() => {
-    Route.post('carousel', 'ActivityCarouselController.store')
-    Route.get('carousel/:activity_id', 'ActivityCarouselController.show')
-    Route.delete('carousel/:id', 'ActivityCarouselController.destroy')
-    Route.put('carousel/:id/isBanner', 'ActivityCarouselController.updateIsBanner')
-}).prefix("v1/activity");
+    Route.post('banner', 'ActivityCarouselController.store')
+    Route.get(':activity_id/banner', 'ActivityCarouselController.show')
+    Route.delete('banner/:id', 'ActivityCarouselController.destroy')
+}).prefix("v1/activity").middleware(['auth', 'activeUser', 'privileges:activity']);

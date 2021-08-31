@@ -18,9 +18,9 @@ const Route = use('Route')
 
 require('./routes/RegionRoutes')
 require('./routes/UniversityRoutes')
-require('./routes/ActivityParticipantRoutes')
+require('./routes/Activity/ActivityParticipantRoutes')
 require('./routes/MemberRoutes')
-require('./routes/ActivityCarouselRoutes')
+require('./routes/Activity/ActivityCarouselRoutes')
 require('./routes/StudentCareRoutes')
 
 Route.group(() => {
