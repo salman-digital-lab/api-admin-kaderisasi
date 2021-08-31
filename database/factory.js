@@ -15,6 +15,7 @@
 const Factory = use('Factory')
 const Category = use('App/Models/ActivityCategory')
 const MemberRole = use('App/Models/MemberRole')
+const QuestionnaireSeedingHelper = require('./helpers/QuestionnaireSeedingHelper')
 
 Factory.blueprint('App/Models/ActivityCategory', (faker) => {
   const name = faker.username()
@@ -31,30 +32,7 @@ Factory.blueprint('App/Models/University', (faker) => {
 
 Factory.blueprint('App/Models/Activity', async (faker, index, data) => {
   const name = faker.sentence()
-  const form_data = [
-    {
-      type: 'text',
-      label: 'Text Area',
-      name: 'text-15529591',
-      placeholder: true,
-      required: true
-    },
-    {
-      type: 'dropdown',
-      label: 'A dropdown',
-      name: 'dropdown-1414155',
-      placeholder: true,
-      required: true,
-      data: [{
-        label: 'label1',
-        value: 'label1'
-      },
-      {
-        label: 'label2',
-        value: 'label2'
-      }]
-    }
-  ]
+  const form_data = QuestionnaireSeedingHelper.formObject
 
   return {
     name: name,
