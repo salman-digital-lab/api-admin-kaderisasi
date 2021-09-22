@@ -105,6 +105,33 @@ Factory.blueprint('App/Models/ActivityCarousel', (faker, index, data) => {
   }
 })
 
+Factory.blueprint('App/Models/Class', (faker) => {
+  return {
+    title: faker.sentence({ words: 3 }),
+    description: faker.sentence({ words: 10 })
+  }
+})
+
+Factory.blueprint('App/Models/ClassSection', (faker, index, data) => {
+
+  const kelas = faker.pickone(data.kelas.rows)
+
+  return {
+    title: faker.sentence({ words: 2 }),
+    class_id: kelas.id
+  }
+})
+
+Factory.blueprint('App/Models/ClassSectionVideo', (faker, index, data) => {
+
+  const section = faker.pickone(data.sections.rows)
+
+  return {
+    title: faker.sentence({ words: 2 }),
+    link: faker.url({ domain: 'www.youtube.com' }),
+    section_id: section.id
+  }
+})
 Factory.blueprint('App/Models/Checklist', (faker) => {
   return {
     checklist_name: faker.username()

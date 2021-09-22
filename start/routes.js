@@ -67,6 +67,15 @@ Route.group(() => {
 }).prefix('v1/publicinformartion')
 
 Route.group(() => {
+  Route.get('/section/video/:id_section', 'ClassSectionVideoController.index')
+  Route.resource('/section/video', 'ClassSectionVideoController').apiOnly()
+  Route.get('/section/:id_class', 'ClassSectionController.index')
+  Route.resource('/section', 'ClassSectionController').apiOnly()
+  Route.get(':id_class/section', 'ClassSectionController.getByClass')
+  Route.resource('/', 'ClassController').apiOnly()
+}).prefix('v1/class')
+
+Route.group(() => {
   Route.resource('/', 'ChecklistController').apiOnly()
   Route.post('/tick', 'ChecklistController.tick')
   Route.delete('/untick/:member_id/:checklist_id', 'ChecklistController.untick')
