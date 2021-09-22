@@ -11,6 +11,7 @@ class MemberChecklistSchema extends Schema {
       table.foreign('member_id').references('id').inTable('members').onDelete('CASCADE')
       table.integer('checklist_id').unsigned()
       table.foreign('checklist_id').references('id').inTable('checklists').onDelete('CASCADE')
+      table.unique(['member_id', 'checklist_id'])
       table.timestamps()
     })
   }
