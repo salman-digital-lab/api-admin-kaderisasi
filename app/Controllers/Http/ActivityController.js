@@ -2,7 +2,6 @@
 
 const { validate, sanitizor } = use("Validator");
 const Category = use("App/Models/ActivityCategory");
-const ActivityFormTemplate = use("App/Models/ActivityFormTemplate");
 const Activity = use("App/Models/Activity");
 const MemberRole = use('App/Models/MemberRole');
 
@@ -62,6 +61,15 @@ class ActivityController {
         .with("carousel")
         .paginate(page, perPage)
 
+      let converted = activities.toJSON()
+      let activityData = converted.data
+
+      activityData.forEach(element => {
+        delete element.form_data
+      })
+      
+      activities.data = activityData
+
       return response
         .status(200)
         .json({
@@ -74,7 +82,7 @@ class ActivityController {
         .status(500)
         .json({
           status: "FAILED",
-          message: error
+          message: error.message
         });
     }
   }
@@ -94,7 +102,6 @@ class ActivityController {
       register_begin_date: "required|date",
       register_end_date: "required|date",
       category_id: 'required|number',
-      form_id: 'required_if:form_id|number',
       minimum_role_id: 'required|number',
       status: "required_if:status|in:OPENED,CLOSED",
       is_published: "required_if:is_published|in:0,1",
@@ -122,21 +129,6 @@ class ActivityController {
         });
     }
 
-    let form_template = null;
-
-    if (data.form_id) {
-      try {
-        form_template = await ActivityFormTemplate.findByOrFail('id', data.form_id)
-      } catch (error) {
-        return response
-          .status(400)
-          .json({
-            status: "FAILED",
-            message: "Form Template ID tidak valid!"
-          });
-      }
-    }
-
     try {
       await MemberRole.findByOrFail('id', data.minimum_role_id)
     } catch (error) {
@@ -161,8 +153,8 @@ class ActivityController {
       activity.description = data.description;
       activity.status = data.status;
       activity.minimum_role_id = data.minimum_role_id;
-      activity.form_data = (data.form_id) ? form_template.data : '[]';
       activity.is_published = data.is_published;
+      activity.form_data = '[]';
       await activity.save();
 
       const activities = await Activity.query()
@@ -182,7 +174,7 @@ class ActivityController {
         .status(500)
         .json({
           status: "FAILED",
-          message: error
+          message: error.message
         });
     }
   }
@@ -215,12 +207,16 @@ class ActivityController {
 
     try {
       if (activities.rows.length > 0) {
+
+        var activityData = activities.toJSON()
+        delete activityData[0].form_data
+
         return response
           .status(200)
           .json({
             status: "SUCCESS",
             message: "Data Aktivitas berhasil dimuat!",
-            data: activities,
+            data: activityData,
           });
       }
 
@@ -235,7 +231,7 @@ class ActivityController {
         .status(500)
         .json({
           status: "FAILED",
-          message: error
+          message: error.message
         });
     }
   }
@@ -268,7 +264,6 @@ class ActivityController {
       register_begin_date: "required_if:register_begin_date|date",
       register_end_date: "required_if:register_end_date|date",
       category_id: 'required_if:category_id|number',
-      form_id: 'required_if:form_id|number',
       minimum_role_id: 'required_if:minimum_role_id|number',
       status: "required_if:status|in:OPENED,CLOSED",
       is_published: "required_if:is_published|in:0,1",
@@ -294,21 +289,6 @@ class ActivityController {
           .json({
             status: "FAILED",
             message: "Category ID tidak valid!"
-          });
-      }
-    }
-
-    let form_template = null;
-
-    if (data.form_id) {
-      try {
-        form_template = await ActivityFormTemplate.findByOrFail('id', data.form_id)
-      } catch (error) {
-        return response
-          .status(400)
-          .json({
-            status: "FAILED",
-            message: "Form Template ID tidak valid!"
           });
       }
     }
@@ -346,10 +326,6 @@ class ActivityController {
         activity.minimum_role_id = data.minimum_role_id;
       }
 
-      if (data.form_id) {
-        activity.form_data = form_template.data;
-      }
-
       activity.is_published = data.is_published;
       await activity.save();
 
@@ -370,7 +346,7 @@ class ActivityController {
         .status(500)
         .json({
           status: "FAILED",
-          message: error
+          message: error.message
         });
     }
   }
