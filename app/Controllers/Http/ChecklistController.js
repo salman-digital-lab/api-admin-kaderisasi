@@ -27,7 +27,7 @@ class ChecklistController {
       perPage: 'number'
     }
 
-    const validation = await validate(data, rules)
+    const validation = await validateAll(data, rules)
     if (validation.fails()) {
       return response
         .status(400)
@@ -45,31 +45,7 @@ class ChecklistController {
       .where('checklist_name', 'LIKE', `%${search}%`)
       .paginate(page, perPage)
 
-    return response.json({ status: 'SUCCESS', message: 'success get users', data: checklists })
-    // try {
-    //   const checklists = await Checklist
-    //     .query()
-    //     .withCount('members')
-    //     .fetch()
-
-    //   if (checklists.toJSON().length > 0) {
-    //     return response.json({
-    //       status: 'SUCCESS',
-    //       message: 'Berhasil memperoleh checklists',
-    //       checklists
-    //     })
-    //   }
-
-    //   return response.json({
-    //     status: 'SUCCESS',
-    //     message: 'checklists masih kosong'
-    //   })
-    // } catch (error) {
-    //   return response.json({
-    //     status: 'FAILED',
-    //     message: error.message
-    //   })
-    // }
+    return response.json({ status: 'SUCCESS', message: 'success get checklists', data: checklists })
   }
 
   /**
@@ -129,7 +105,6 @@ class ChecklistController {
         .query()
         .where('id', id)
         .withCount('members')
-        .with('members')
         .fetch()
 
       if (checklist.toJSON().length > 0) {
@@ -233,8 +208,8 @@ class ChecklistController {
     }
   }
 
-  async tick({ request, response }) {
-    const data = request.all()
+  async tick({ request, response, params }) {
+    const data = params
     const rules = {
       member_id: 'required|number',
       checklist_id: 'required|number'
@@ -307,7 +282,7 @@ class ChecklistController {
       const member = await Member
         .query()
         .where('id', id)
-        .withCount('checklists')
+        .select('id', 'name', 'email')
         .with('checklists')
         .fetch()
 
@@ -315,13 +290,13 @@ class ChecklistController {
         return response.json({
           status: 'SUCCESS',
           message: 'Berhasil memperoleh checklist member',
-          member
+          member: member
         })
       }
 
-      return response.json({
-        status: 'SUCCESS',
-        message: 'data tidak ditemukan'
+      return response.status(404).json({
+        status: 'Failed',
+        message: 'member tidak ditemukan'
       })
     } catch (error) {
       return response.json({

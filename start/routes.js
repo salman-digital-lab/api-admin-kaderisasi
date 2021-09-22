@@ -68,7 +68,7 @@ Route.group(() => {
 
 Route.group(() => {
   Route.resource('/', 'ChecklistController').apiOnly()
-  Route.post('/tick', 'ChecklistController.tick')
+  Route.post('/tick/:member_id/:checklist_id', 'ChecklistController.tick')
   Route.delete('/untick/:member_id/:checklist_id', 'ChecklistController.untick')
   Route.get('/member/:member_id', 'ChecklistController.member')
 }).prefix('v1/checklist').middleware('auth')
