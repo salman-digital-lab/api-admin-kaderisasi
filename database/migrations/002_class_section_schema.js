@@ -4,17 +4,17 @@
 const Schema = use('Schema')
 
 class ClassSectionSchema extends Schema {
-  up () {
+  up() {
     this.create('class_sections', (table) => {
       table.increments()
       table.string('title', 100).notNullable()
       table.integer('class_id').unsigned()
-      table.foreign('class_id').references('id').inTable('classes')
+      table.foreign('class_id').references('id').inTable('classes').onDelete('CASCADE')
       table.timestamps()
     })
   }
 
-  down () {
+  down() {
     this.drop('class_sections')
   }
 }
