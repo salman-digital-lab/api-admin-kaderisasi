@@ -23,6 +23,7 @@ require('./routes/MemberRoutes')
 require('./routes/Activity/ActivityCarouselRoutes')
 require('./routes/StudentCareRoutes')
 require('./routes/Activity/ActivityRoutes')
+require('./routes/Activity/ActivityQuestionnaireRoutes')
 
 Route.get('/', ({ view }) => {
   return view.render('welcome')
