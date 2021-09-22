@@ -36,6 +36,12 @@ class Member extends Model {
   university() {
     return this.hasOne("App/Models/University", "university_id", "id");
   }
+
+  checklists() {
+    return this
+      .belongsToMany('App/Models/Checklist')
+      .pivotTable('member_checklists')
+  }
 }
 
 module.exports = Member
