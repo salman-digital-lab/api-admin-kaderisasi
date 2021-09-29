@@ -176,7 +176,7 @@ class QuestionnaireSeedingHelper {
   /** CHECKBOX */
   static get checkboxField () {
     return {
-      type: 'checkbox',
+      type: 'option',
       label: 'a checkbox',
       name: this.checkboxFieldName,
       data: this.checkboxData

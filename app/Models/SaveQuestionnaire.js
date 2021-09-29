@@ -7,6 +7,10 @@ class SaveQuestionnaire extends Model {
         super.boot()
         this.addTrait('NoTimestamp')
     }
+
+    static get table() {
+        return "save_questionnaire"
+    }
 }
 
 module.exports = SaveQuestionnaire
