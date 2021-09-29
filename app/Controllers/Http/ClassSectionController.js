@@ -242,7 +242,7 @@ class ClassSectionController {
 
       return response.json({
         status: 'SUCCESS',
-        message: 'Berhasil menghapus data kelas'
+        message: 'Berhasil menghapus section'
       })
 
     } catch (error) {
@@ -253,46 +253,6 @@ class ClassSectionController {
     }
   }
 
-  async getByClass({ params, response }) {
-
-    const id = params.id_class
-
-    if (isNaN(id)) {
-      return response.status(400).json({
-        status: 'FAILED',
-        message: 'Params id harus berupa angka'
-      })
-    }
-
-    const kelas = await Class.find(id)
-
-    if (kelas == null) {
-      return response.status(404).json({
-        status: 'FAILED',
-        message: 'Kelas dengan id yg dimasukkan tidak ditemukan'
-      })
-    }
-
-    try {
-      const section = await Class
-        .query()
-        .where('id', id)
-        .with('sections')
-        .fetch()
-      return response
-        .status(200)
-        .json({
-          status: 'SUCCESS',
-          message: 'Kelas ditemukan',
-          data: section
-        })
-    } catch (error) {
-      response.status(500).json({
-        status: 'FAILED',
-        message: error.message
-      })
-    }
-  }
 }
 
 module.exports = ClassSectionController
