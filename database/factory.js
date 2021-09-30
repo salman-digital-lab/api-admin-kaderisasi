@@ -41,8 +41,8 @@ Factory.blueprint('App/Models/Activity', async (faker, index, data) => {
     begin_date: faker.date(),
     end_date: faker.date(),
     minimum_role_id: faker.pickone(data.roles.rows).id,
-    register_begin_date: faker.date(),
-    register_end_date: faker.date(),
+    register_begin_date: faker.date({year: 2021, month: 1}),
+    register_end_date: faker.date({year: 2021, month: faker.integer{min: 1, max: 10}}),
     category_id: faker.pickone(data.categories.rows).id,
     form_data: JSON.stringify(form_data)
   }
