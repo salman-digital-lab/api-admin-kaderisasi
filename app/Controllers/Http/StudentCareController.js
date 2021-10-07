@@ -23,6 +23,7 @@ class StudentCareController {
                 }) 
         }  
     }
+    
     async get({response}) {
           try {
             const studentCare = await Database
@@ -77,7 +78,6 @@ class StudentCareController {
         .table('student_care')
         .where('id', data)
         .update({
-            self_data_is_right: request.input('self_data_is_right'), 
             problem_owner: request.input('problem_owner'),  
             problem_owner_name: request.input('problem_owner_name'), 
             problem_category: request.input('problem_category'),
