@@ -235,34 +235,6 @@ class UserController {
 
   }
 
-  async reset_password ({ request, params, response }) {
-    const id = params.id
-    const rules = {
-      password: 'required|min:6',
-      password_confirmation: 'same:password'
-    }
-
-    const validation = await validateAll(request.all(), rules)
-    if (validation.fails()) {
-      return response.json({ status: 'FAILED', message: validation.messages() })
-    }
-
-    const { password } = request.all()
-
-    await User
-      .query()
-      .where('id', id)
-      .update({
-        password: await Hash.make(password)
-      })
-
-    return response.json({
-      status: 'SUCCESS',
-      message: 'password reset successfully',
-      new_password: password
-    })
-  }
-
   // async destroy ({ params, response }) {
   //   try {
   //     const id = params.id

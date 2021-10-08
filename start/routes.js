@@ -24,6 +24,7 @@ require('./routes/Activity/ActivityCarouselRoutes')
 require('./routes/StudentCareRoutes')
 require('./routes/Activity/ActivityRoutes')
 require('./routes/Activity/ActivityQuestionnaireRoutes')
+require('./routes/User/routes')
 
 Route.get('/', ({ view }) => {
   return view.render('welcome')
@@ -41,14 +42,8 @@ Route.group(() => {
 
 /** Auth */
 Route.group(() => {
-  //Route.post('/user/:id/upload', 'UserController.upload').middleware('auth')
   Route.post('/user/login', 'UserController.login')
-  //Route.put('/user/:id/reset-password', 'UserController.reset_password')
 }).prefix('v1')
-
-Route.group(() => {
-  Route.get('', 'AuthenticatedUserController.show')
-}).prefix('v1/user').middleware(['auth', 'activeUser'])
 
 Route.group(() => {
   Route.get('member', 'DashboardAdminController.CountMembers')
