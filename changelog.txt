@@ -1,0 +1,2 @@
+08/10/2021
+- Finished fixing auth user controller, now with additional endpoint to update profile data (POST v1/user)
