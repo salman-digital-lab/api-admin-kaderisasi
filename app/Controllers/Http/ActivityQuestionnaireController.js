@@ -156,13 +156,21 @@ class ActivityQuestionnaireController {
       response[form_label] = {}
       if (data) {
         data.forEach(data_item => {
-          const data_label = data_item.label
-          if (!extracted_data[form_key] || !extracted_data[form_key][data_label]) {
-            response[form_label][data_label] = 0;
-            return ;
-          } 
-          
-          response[form_label][data_label] = extracted_data[form_key][data_label]
+          const data_label = data_item.label;
+          if (data_label) { // Not a scale form
+            if (!extracted_data[form_key] || !extracted_data[form_key][data_label]) {
+              response[form_label][data_label] = 0;
+              return ;
+            } 
+            
+            response[form_label][data_label] = extracted_data[form_key][data_label]
+          } else { // scale form
+            const minScale = data_item.min;
+            const maxScale = data_item.max;
+            for (let scale = minScale; scale <= maxScale; scale++) {
+              response[form_label][scale] = (extracted_data[form_key] && extracted_data[form_key][scale]) ? extracted_data[form_key][scale] : 0;
+            }
+          }
         })
       } else {
         if (!extracted_data[form_key]) {
