@@ -6,6 +6,8 @@ const Model = use('Model')
 /** @type {import('@adonisjs/framework/src/Hash')} */
 const Hash = use('Hash')
 
+var MD5 = require("crypto-js/md5")
+
 class Member extends Model {
   static boot() {
     super.boot()
@@ -16,7 +18,7 @@ class Member extends Model {
      */
     this.addHook('beforeSave', async (userInstance) => {
       if (userInstance.dirty.password) {
-        userInstance.password = await Hash.make(userInstance.password)
+        userInstance.password = await MD5(userInstance.password).toString()
       }
     })
   }
