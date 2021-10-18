@@ -1,2 +1,5 @@
+18/10/2021
+- Changed member seeding to md5
+
 08/10/2021
 - Finished fixing auth user controller, now with additional endpoint to update profile data (POST v1/user)
