@@ -1,4 +1,5 @@
 20/10/2021
+- Added URL to carousel endpoint during /get request
 - Changed student care endpoints (all routes under /student-care)
 
 18/10/2021
