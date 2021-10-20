@@ -126,7 +126,7 @@ class ActivityCarouselController {
         .fetch()
 
       activity_carousels.rows.map( function (el) {
-        el.filename = Env.get('APP_URL') + '/activity_pic/' + el.filename
+        el.filename = Env.get('APP_URL') + '/public/activity_pic/' + el.filename
       })
 
       return response
