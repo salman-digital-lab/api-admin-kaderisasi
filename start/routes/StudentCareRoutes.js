@@ -1,8 +1,9 @@
 const Route = use('Route')
 
 Route.group(() => {
-  Route.delete('studentCare/:id', 'StudentCareController.delete')
-  Route.get('studentCare', 'StudentCareController.get')
-  Route.get('studentCare/:id', 'StudentCareController.getById')
-  Route.put('studentCare/:id', 'StudentCareController.update')
-}).prefix('/v1')
+  Route.delete(':id', 'StudentCareController.delete')
+  Route.get('', 'StudentCareController.get')
+  Route.get('counselors', 'StudentCareController.getCounselors')
+  Route.get(':id', 'StudentCareController.getById')
+  Route.put(':id', 'StudentCareController.update')
+}).prefix('/v1/student-care')

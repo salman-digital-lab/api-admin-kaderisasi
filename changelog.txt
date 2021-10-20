@@ -1,3 +1,6 @@
+20/10/2021
+- Changed student care endpoints (all routes under /student-care)
+
 18/10/2021
 - Changed member seeding to md5
 
