@@ -17,4 +17,4 @@ database/*.sqlite
 test/coverage
 
 # uploaded banner
-public/activity_pic
+public/activity_pic/*
