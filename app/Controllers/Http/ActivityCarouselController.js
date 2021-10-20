@@ -6,6 +6,8 @@ const ActivityCarousel = use("App/Models/ActivityCarousel")
 const Activity = use("App/Models/Activity");
 const { unlink } = use('fs').promises;
 
+const Env = use('Env')
+
 class ActivityCarouselController {
 
   async store({ request, response }) {
@@ -123,6 +125,10 @@ class ActivityCarouselController {
         .where('activity_id', activity_id)
         .fetch()
 
+      activity_carousels.rows.map( function (el) {
+        el.filename = Env.get('APP_URL') + '/activity_pic/' + el.filename
+      })
+
       return response
         .status(200)
         .json({
@@ -135,7 +141,7 @@ class ActivityCarouselController {
         .status(500)
         .json({
           status: "FAILED",
-          message: error
+          message: error.message
         });
     }
   }
