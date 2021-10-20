@@ -41,8 +41,8 @@ Factory.blueprint('App/Models/Activity', async (faker, index, data) => {
     begin_date: faker.date(),
     end_date: faker.date(),
     minimum_role_id: faker.pickone(data.roles.rows).id,
-    register_begin_date: faker.date({year: 2021, month: 1}),
-    register_end_date: faker.date({year: 2021, month: faker.integer({min: 1, max: 10})}),
+    register_begin_date: faker.date({ year: 2021, month: 1 }),
+    register_end_date: faker.date({ year: 2021, month: faker.integer({ min: 1, max: 10 }) }),
     category_id: faker.pickone(data.categories.rows).id,
     form_data: JSON.stringify(form_data)
   }
@@ -113,7 +113,6 @@ Factory.blueprint('App/Models/Class', (faker) => {
 })
 
 Factory.blueprint('App/Models/ClassSection', (faker, index, data) => {
-
   const kelas = faker.pickone(data.kelas.rows)
 
   return {
@@ -123,7 +122,6 @@ Factory.blueprint('App/Models/ClassSection', (faker, index, data) => {
 })
 
 Factory.blueprint('App/Models/ClassSectionVideo', (faker, index, data) => {
-
   const section = faker.pickone(data.sections.rows)
 
   return {
@@ -132,6 +130,7 @@ Factory.blueprint('App/Models/ClassSectionVideo', (faker, index, data) => {
     section_id: section.id
   }
 })
+
 Factory.blueprint('App/Models/Checklist', (faker) => {
   return {
     checklist_name: faker.username()
@@ -139,12 +138,25 @@ Factory.blueprint('App/Models/Checklist', (faker) => {
 })
 
 Factory.blueprint('App/Models/MemberChecklist', (faker, index, data) => {
-
   const member = faker.pickone(data.members.rows)
   const checklist = faker.pickone(data.checklists.rows)
 
   return {
     member_id: member.id,
     checklist_id: checklist.id
+  }
+})
+
+Factory.blueprint('App/Models/StudentCare', (faker, index, data) => {
+  const member = faker.pickone(data.members.rows)
+  const user = faker.pickone(data.users.rows)
+  return {
+    member_id: member.id,
+    problem_owner: faker.pickone(['Diri Sendiri', 'Teman']),
+    problem_category: faker.pickone(['Akademik', 'Keuangan', 'Lainnya']),
+    technical_handling: faker.pickone(['Online', 'Bertemu langsung']),
+    problem_category_desk: faker.text,
+    id_counselor: user.id,
+    counselor_gender: faker.pickone(['Laki-laki', 'Perempuan', 'Keduanya'])
   }
 })
