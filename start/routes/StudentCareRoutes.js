@@ -6,4 +6,4 @@ Route.group(() => {
   Route.get('counselors', 'StudentCareController.getCounselors')
   Route.get(':id', 'StudentCareController.getById')
   Route.put(':id', 'StudentCareController.update')
-}).prefix('/v1/student-care')
+}).prefix('/v1/student-care').middleware(['auth', 'activeUser', 'privileges:student-care'])
