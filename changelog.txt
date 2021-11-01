@@ -1,3 +1,7 @@
+01/11/2021
+- Added student-care privilege to student-care endpoints
+[UNDEPLOYED]
+
 20/10/2021
 - Added URL to carousel endpoint during /get request
 - Changed student care endpoints (all routes under /student-care)
