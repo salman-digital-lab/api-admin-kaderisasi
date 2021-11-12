@@ -22,24 +22,4 @@ Route.group(() => {
         'RegionController.getVillagesByDistrictId'
     );
 
-    Route.delete(
-        '/provinces/:id',
-        'RegionController.deleteProvince'
-    );
-
-    Route.delete(
-        '/regencies/:id',
-        'RegionController.deleteRegency'
-    );
-
-    Route.delete(
-        '/districts/:id',
-        'RegionController.deleteDistrict'
-    );
-
-    Route.delete(
-        '/villages/:id',
-        'RegionController.deleteVillage'
-    );
-
 }).prefix('/v1/regions');
