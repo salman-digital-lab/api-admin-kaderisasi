@@ -5,6 +5,9 @@ const { ModelNotFoundException } = require("@adonisjs/lucid/src/Exceptions");
 
 const ActivityRegistration = use('App/Models/ActivityRegistration');
 const Member = use('App/Models/Member');
+const UsersGroup = use('App/Models/UsersGroup')
+const Database = use('Database')
+
 class MemberController {
 
     async getMembers({ response, request }) {
@@ -201,7 +204,8 @@ class MemberController {
             university_id: 'number',
             faculty: 'string',
             ssc: 'number',
-            lmd: 'number'
+            lmd: 'number',
+            groupId: 'number'
         }
 
         const validation = await validate(all, rules);
@@ -217,17 +221,20 @@ class MemberController {
 
         const sanitationRules = {
             date_of_birthday: 'to_date',
-            major: 'title',
-            name: 'title',
-            faculty: 'title',
             university_id: 'to_int',
             ssc: 'to_int',
-            lmd: 'to_int'
+            lmd: 'to_int',
+            groupId: 'to_int'
         }
 
         const data = sanitize(all, sanitationRules);
 
+        const newGroupId = data.groupId;
+        // Remove groupId key from data to prevent updating groupId from members tables
+        delete data.groupId;
+
         try {
+            const trx = await Database.beginTransaction();
             const member = await Member.findByOrFail('id', params.id);
 
             Object.keys(data).forEach(column => {
@@ -236,8 +243,13 @@ class MemberController {
                 })
             })
 
+            await member.save(trx);
+            await UsersGroup
+                .query(trx)
+                .where('user_id', params.id)
+                .update({ group_id: newGroupId });
 
-            await member.save();
+            await trx.commit()
 
             response.status(200).json({
                 status: "SUCCESS",
@@ -247,6 +259,7 @@ class MemberController {
 
 
         } catch(err) {
+            console.log(err);
             if (err instanceof ModelNotFoundException) {
                 response.status(404).json({
                     status: "FAILED",
