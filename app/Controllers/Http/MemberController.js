@@ -201,7 +201,8 @@ class MemberController {
             university_id: 'number',
             faculty: 'string',
             ssc: 'number',
-            lmd: 'number'
+            lmd: 'number',
+            role_id: 'number'
         }
 
         const validation = await validate(all, rules);
@@ -222,7 +223,8 @@ class MemberController {
             faculty: 'title',
             university_id: 'to_int',
             ssc: 'to_int',
-            lmd: 'to_int'
+            lmd: 'to_int',
+            role_id: 'to_int'
         }
 
         const data = sanitize(all, sanitationRules);
