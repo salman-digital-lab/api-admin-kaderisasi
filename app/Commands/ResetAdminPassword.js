@@ -5,6 +5,7 @@ const { Command } = require('@adonisjs/ace')
 const Database = use('Database')
 const User = use('App/Models/User')
 const Hash = use('Hash')
+const Env = use('Env')
 
 class ResetAdminPassword extends Command {
   static settings = {
@@ -23,10 +24,10 @@ class ResetAdminPassword extends Command {
     this.info('Starting reset admin password command...');
     
     const users = (await User.all()).toJSON();
-    this.info(`Updating ${users.length} data.`);
+    this.info(`Updating ${users.length} row...`);
 
     try {
-      const password = await Hash.make('Bmka.admin@2021')
+      const password = await Hash.make(Env.get('ADMIN_DEFAULT_PASSWORD'))
       await User
         .query()
         .update({ password: password })
