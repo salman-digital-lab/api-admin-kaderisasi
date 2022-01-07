@@ -6,7 +6,6 @@ const Model = use('Model')
 class University extends Model {
 	static boot () {
 		super.boot()
-		// this.addTrait('NoTimestamp')
 	}
 
 	static get updatedAtColumn() {
