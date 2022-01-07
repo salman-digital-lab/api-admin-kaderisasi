@@ -24,7 +24,7 @@ class Member extends Model {
   }
 
   static get hidden() {
-    return ['salt', 'password', 'is_active', 'created_at', 'updated_at']
+    return ['salt', 'password', 'created_at', 'updated_at']
   }
 
   activities() {
