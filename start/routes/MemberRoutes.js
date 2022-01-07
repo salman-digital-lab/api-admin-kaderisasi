@@ -26,6 +26,11 @@ Route.group(() => {
         'MemberController.blockMember'
     )
 
+    Route.patch(
+        '/:id/unblock',
+        'MemberController.unblockMember'
+    )
+
     Route.put(
         '/:id/',
         'MemberController.updateMember'
