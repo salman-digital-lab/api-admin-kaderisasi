@@ -5,9 +5,17 @@ const Category = use("App/Models/ActivityCategory");
 
 class ActivityCategoryController {
 
-  async index({ response }) {
+  async index({ request, response }) {
     try {
-      const categories = await Category.all();
+      const data = request.all();
+      const page = data.page ? data.page : 1;
+      const perPage = data.perPage ? data.perPage : 10;
+      const sortField = data.sortField ? data.sortField : "created_at"
+      const sortDirection = data.sortDirection ? data.sortDirection : "desc"
+      const categories = await Category.query()
+        .orderBy(sortField, sortDirection)
+        .paginate(page, perPage);
+        
       return response
         .status(200)
         .json({
