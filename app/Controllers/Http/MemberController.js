@@ -117,6 +117,10 @@ class MemberController {
         .leftJoin("region_villages", "members.village_Id", "region_villages.id")
         .where("members.id", params.id)
         .fetch();
+      if (member.rows[0].file_image) {
+        member.rows[0].file_image =
+          Env.get("APP_URL") + "/public/" + member.rows[0].file_image;
+      }
 
       response.status(200).json({
         status: "SUCCESS",
