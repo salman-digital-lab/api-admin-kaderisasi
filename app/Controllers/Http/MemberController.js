@@ -186,7 +186,7 @@ class MemberController {
       if (member.is_active) {
         member.is_active = false;
       } else {
-        response.status(400).json({
+        response.status(200).json({
           status: "FAILED",
           message: "Gagal memblokir member karena member berstatus tidak aktif",
         });
@@ -213,7 +213,7 @@ class MemberController {
       if (!member.is_active) {
         member.is_active = true;
       } else {
-        response.status(400).json({
+        response.status(200).json({
           status: "FAILED",
           message: "Gagal memblokir member karena member berstatus aktif",
         });
