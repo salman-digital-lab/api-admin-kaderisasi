@@ -88,8 +88,8 @@ class ActivityQuestionnaireController {
       let questionnaire_data = await Database
         .select('id_name', 'answer')
         .count('* as count')
-        .from('save_questionnaires')
-        .leftJoin('activity_registrations', 'activity_registrations.id', 'save_questionnaires.id_registration')
+        .from('save_questionnaire')
+        .leftJoin('activity_registrations', 'activity_registrations.id', 'save_questionnaire.id_registration')
         .where('activity_id', activity_id)
         .groupBy('id_name', 'answer');
       questionnaire_data = JSON.parse(JSON.stringify(questionnaire_data))
@@ -131,24 +131,41 @@ class ActivityQuestionnaireController {
   }
 
   extractQuestionnaireData(questionnaire_data) {
-    const extracted_data = {};
+    const extracted_data = {};  
     questionnaire_data.forEach(data => {
       const question_id = data.id_name;
-      const answer = data.answer;
+      const answer = data.answer.replace(/['"]+/g, ''); // Remove double quotes, for example: answer '"label1v"' should be converted to 'label1v'
       const count = data.count;
-      if (extracted_data[question_id] == null) {
-        extracted_data[question_id] = {}
+      if (question_id.includes('checkbox')) { // Checkboxes need special treats, because the answer [a,b,c] should computed one for each.
+        // repeat count times
+        for (let i = 1; i <= count; i++) {
+          // Trim the '[' and ']' then split by comma            
+          answer.substring(1, answer.length - 1).split(',').forEach(value => {
+            if (extracted_data[question_id] == null) {
+              extracted_data[question_id] = {}
+            }
+            if (extracted_data[question_id][value] == null) {
+              extracted_data[question_id][value] = 0;
+            }   
+            extracted_data[question_id][value] += 1;
+          })
+        }
+      } else {
+        if (extracted_data[question_id] == null) {
+          extracted_data[question_id] = {}
+        }
+
+        extracted_data[question_id][answer] = count; 
       }
-
-      extracted_data[question_id][answer] = count; 
     })
-
     return extracted_data;
   }
 
   buildQuestionnaireStatisticsResponse(form_data, extracted_data) {
     const response = {};
     Object.keys(form_data).forEach(key => {
+      // console.log(form_data[key]);
+      // console.log()
       const form_key = key;
       const form_label = form_data[key].label;
       const data = form_data[key].data;
@@ -156,8 +173,10 @@ class ActivityQuestionnaireController {
       response[form_label] = {}
       if (data) {
         data.forEach(data_item => {
-          const data_label = data_item.label;
+          const data_label = data_item.value;
           if (data_label) { // Not a scale form
+            // console.log(form_key, " ", data_label);
+            // console.log(extracted_data[form_key])
             if (!extracted_data[form_key] || !extracted_data[form_key][data_label]) {
               response[form_label][data_label] = 0;
               return ;
