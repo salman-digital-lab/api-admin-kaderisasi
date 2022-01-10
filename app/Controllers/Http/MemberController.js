@@ -5,6 +5,7 @@ const { ModelNotFoundException } = require("@adonisjs/lucid/src/Exceptions");
 
 const ActivityRegistration = use("App/Models/ActivityRegistration");
 const Member = use("App/Models/Member");
+const Env = use('Env')
 class MemberController {
   async getMembers({ response, request }) {
     const params = request.get();
