@@ -263,6 +263,7 @@ class MemberController {
       faculty: "string",
       ssc: "number",
       lmd: "number",
+      spectra: "number",
       role_id: "number",
       komprof: "string"
     };
