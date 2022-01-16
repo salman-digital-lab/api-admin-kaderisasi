@@ -37,7 +37,7 @@ class MemberController {
     const searchQuery = params.search_query || "";
 
     try {
-      const members = await Member.query()
+      let members = (await Member.query()
         .select([
           "members.*",
           "universities.name AS university",
@@ -70,7 +70,18 @@ class MemberController {
             this.whereNotNull("lmd").andWhere("lmd", "LIKE", `%${lmd}%`);
           }
         })
-        .paginate(page, page_size);
+        .paginate(page, page_size))
+        .toJSON();
+
+      members = {
+        ...members,
+        data: members.data.map(member => {
+          return {
+            ...member,
+            komprof: member.komprof ? member.komprof.split(",") : []
+          }
+        })
+      }
 
       response.status(200).json({
         status: "SUCCESS",
@@ -87,7 +98,7 @@ class MemberController {
 
   async getMember({ params, response }) {
     try {
-      const member = await Member.query()
+      let member = (await Member.query()
         .select([
           "members.*",
           "universities.name AS university",
@@ -95,7 +106,7 @@ class MemberController {
           "region_provinces.name as province_name",
           "region_regencies.name as regency_name",
           "region_districts.name as district_name",
-          "region_villages.name as village_name",
+          "region_villages.name as village_name"
         ])
         .leftJoin("universities", "members.university_id", "universities.id")
         .leftJoin("member_roles", "members.role_id", "member_roles.id")
@@ -116,7 +127,13 @@ class MemberController {
         )
         .leftJoin("region_villages", "members.village_Id", "region_villages.id")
         .where("members.id", params.id)
-        .fetch();
+        .fetch())
+        .toJSON()[0];
+
+      member = {
+        ...member,
+        komprof: member.komprof ? member.komprof.split(',') : []
+      }
 
       response.status(200).json({
         status: "SUCCESS",
@@ -247,6 +264,7 @@ class MemberController {
       ssc: "number",
       lmd: "number",
       role_id: "number",
+      komprof: "string"
     };
 
     const validation = await validate(all, rules);
