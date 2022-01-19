@@ -5,6 +5,7 @@ const { ModelNotFoundException } = require("@adonisjs/lucid/src/Exceptions");
 
 const ActivityRegistration = use("App/Models/ActivityRegistration");
 const Member = use("App/Models/Member");
+const Env = use('Env')
 class MemberController {
   async getMembers({ response, request }) {
     const params = request.get();
@@ -117,6 +118,10 @@ class MemberController {
         .leftJoin("region_villages", "members.village_Id", "region_villages.id")
         .where("members.id", params.id)
         .fetch();
+      if (member.rows[0].file_image) {
+        member.rows[0].file_image =
+          Env.get("APP_URL") + "/public/" + member.rows[0].file_image;
+      }
 
       response.status(200).json({
         status: "SUCCESS",
@@ -181,7 +186,7 @@ class MemberController {
       if (member.is_active) {
         member.is_active = false;
       } else {
-        response.status(400).json({
+        response.status(200).json({
           status: "FAILED",
           message: "Gagal memblokir member karena member berstatus tidak aktif",
         });
@@ -208,7 +213,7 @@ class MemberController {
       if (!member.is_active) {
         member.is_active = true;
       } else {
-        response.status(400).json({
+        response.status(200).json({
           status: "FAILED",
           message: "Gagal memblokir member karena member berstatus aktif",
         });
