@@ -5,7 +5,7 @@ const { ModelNotFoundException } = require("@adonisjs/lucid/src/Exceptions");
 
 const ActivityRegistration = use("App/Models/ActivityRegistration");
 const Member = use("App/Models/Member");
-const Env = use('Env')
+const Env = use("Env");
 class MemberController {
   async getMembers({ response, request }) {
     const params = request.get();
@@ -38,40 +38,52 @@ class MemberController {
     const searchQuery = params.search_query || "";
 
     try {
-      const members = await Member.query()
-        .select([
-          "members.*",
-          "universities.name AS university",
-          "member_roles.name AS role_name",
-          "member_roles.description AS role_description",
-        ])
-        .from("members")
-        .leftJoin("universities", "members.university_id", "universities.id")
-        .leftJoin("member_roles", "members.role_id", "member_roles.id")
-        .where(function () {
-          this.where("members.name", "LIKE", `%${searchQuery}%`)
-            .orWhere("city_of_birth", "LIKE", `%${searchQuery}%`)
-            .orWhere("email", "LIKE", `%${searchQuery}%`)
-            .orWhere("from_address", "LIKE", `%${searchQuery}%`)
-            .orWhere("current_address", "LIKE", `%${searchQuery}%`)
-            .orWhere("universities.name", "LIKE", `%${searchQuery}%`)
-            .orWhere("major", "LIKE", `%${searchQuery}%`)
-            .orWhere("faculty", "LIKE", `%${searchQuery}%`)
-            .orWhere("line_id", "LIKE", `%${searchQuery}%`);
-        })
-        .andWhere("gender", "LIKE", `%${gender}%`)
-        .andWhere("date_of_birthday", "LIKE", `%${dateOfBirthday}%`)
-        .andWhere(function () {
-          if (ssc) {
-            this.whereNotNull("ssc").andWhere("ssc", "LIKE", `%${ssc}%`);
-          }
-        })
-        .andWhere(function () {
-          if (lmd) {
-            this.whereNotNull("lmd").andWhere("lmd", "LIKE", `%${lmd}%`);
-          }
-        })
-        .paginate(page, page_size);
+      let members = (
+        await Member.query()
+          .select([
+            "members.*",
+            "universities.name AS university",
+            "member_roles.name AS role_name",
+            "member_roles.description AS role_description",
+          ])
+          .from("members")
+          .leftJoin("universities", "members.university_id", "universities.id")
+          .leftJoin("member_roles", "members.role_id", "member_roles.id")
+          .where(function () {
+            this.where("members.name", "LIKE", `%${searchQuery}%`)
+              .orWhere("city_of_birth", "LIKE", `%${searchQuery}%`)
+              .orWhere("email", "LIKE", `%${searchQuery}%`)
+              .orWhere("from_address", "LIKE", `%${searchQuery}%`)
+              .orWhere("current_address", "LIKE", `%${searchQuery}%`)
+              .orWhere("universities.name", "LIKE", `%${searchQuery}%`)
+              .orWhere("major", "LIKE", `%${searchQuery}%`)
+              .orWhere("faculty", "LIKE", `%${searchQuery}%`)
+              .orWhere("line_id", "LIKE", `%${searchQuery}%`);
+          })
+          .andWhere("gender", "LIKE", `%${gender}%`)
+          .andWhere("date_of_birthday", "LIKE", `%${dateOfBirthday}%`)
+          .andWhere(function () {
+            if (ssc) {
+              this.whereNotNull("ssc").andWhere("ssc", "LIKE", `%${ssc}%`);
+            }
+          })
+          .andWhere(function () {
+            if (lmd) {
+              this.whereNotNull("lmd").andWhere("lmd", "LIKE", `%${lmd}%`);
+            }
+          })
+          .paginate(page, page_size)
+      ).toJSON();
+
+      members = {
+        ...members,
+        data: members.data.map((member) => {
+          return {
+            ...member,
+            komprof: member.komprof ? member.komprof.split(",") : [],
+          };
+        }),
+      };
 
       response.status(200).json({
         status: "SUCCESS",
@@ -88,40 +100,51 @@ class MemberController {
 
   async getMember({ params, response }) {
     try {
-      const member = await Member.query()
-        .select([
-          "members.*",
-          "universities.name AS university",
-          "member_roles.name AS role_name",
-          "region_provinces.name as province_name",
-          "region_regencies.name as regency_name",
-          "region_districts.name as district_name",
-          "region_villages.name as village_name",
-        ])
-        .leftJoin("universities", "members.university_id", "universities.id")
-        .leftJoin("member_roles", "members.role_id", "member_roles.id")
-        .leftJoin(
-          "region_provinces",
-          "members.province_id",
-          "region_provinces.id"
-        )
-        .leftJoin(
-          "region_regencies",
-          "members.regency_id",
-          "region_regencies.id"
-        )
-        .leftJoin(
-          "region_districts",
-          "members.district_id",
-          "region_districts.id"
-        )
-        .leftJoin("region_villages", "members.village_Id", "region_villages.id")
-        .where("members.id", params.id)
-        .fetch();
+      let member = (
+        await Member.query()
+          .select([
+            "members.*",
+            "universities.name AS university",
+            "member_roles.name AS role_name",
+            "region_provinces.name as province_name",
+            "region_regencies.name as regency_name",
+            "region_districts.name as district_name",
+            "region_villages.name as village_name",
+          ])
+          .leftJoin("universities", "members.university_id", "universities.id")
+          .leftJoin("member_roles", "members.role_id", "member_roles.id")
+          .leftJoin(
+            "region_provinces",
+            "members.province_id",
+            "region_provinces.id"
+          )
+          .leftJoin(
+            "region_regencies",
+            "members.regency_id",
+            "region_regencies.id"
+          )
+          .leftJoin(
+            "region_districts",
+            "members.district_id",
+            "region_districts.id"
+          )
+          .leftJoin(
+            "region_villages",
+            "members.village_Id",
+            "region_villages.id"
+          )
+          .where("members.id", params.id)
+          .fetch()
+      ).toJSON()[0];
       if (member.rows[0].file_image) {
         member.rows[0].file_image =
           Env.get("APP_URL") + "/public/" + member.rows[0].file_image;
       }
+
+      member = {
+        ...member,
+        komprof: member.komprof ? member.komprof.split(",") : [],
+      };
 
       response.status(200).json({
         status: "SUCCESS",
@@ -251,7 +274,9 @@ class MemberController {
       faculty: "string",
       ssc: "number",
       lmd: "number",
+      spectra: "number",
       role_id: "number",
+      komprof: "string",
     };
 
     const validation = await validate(all, rules);
