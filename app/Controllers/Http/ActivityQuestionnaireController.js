@@ -5,6 +5,7 @@ const database = require("../../../config/database")
 const Activity = use('App/Models/Activity')
 const Database = use('Database')
 const FormValidator = require('../../Validator/FormValidator')
+const { ModelNotFoundException } = require("@adonisjs/lucid/src/Exceptions");
 
 class ActivityQuestionnaireController {
 
@@ -94,7 +95,11 @@ class ActivityQuestionnaireController {
         .groupBy('id_name', 'answer');
       questionnaire_data = JSON.parse(JSON.stringify(questionnaire_data))
 
-      const activity = (await Activity.findBy({ id: activity_id, is_deleted: 0 })).toJSON();
+      const activity_data = (await Activity.findBy({ id: activity_id, is_deleted: 0 }));
+      if (activity_data == null) {
+        throw new ModelNotFoundException()
+      }
+      const activity = activity_data.toJSON()
 
       const form_data = this.getActivityFormQuestion(activity);
       const extracted_data = this.extractQuestionnaireData(questionnaire_data);
@@ -106,11 +111,17 @@ class ActivityQuestionnaireController {
         data: statistics
       });
     } catch (error) {
-        response.status(500).json({
-          status: "FAILED",
-          message: "Gagal mendapat data statistik kuesioner karena kegagalan server",
-          error: error
-        })
+      if (error instanceof ModelNotFoundException) {
+          response.status(404).json({
+              status: "FAILED",
+              message: "Gagal mendapatkan data statistik kuesioner karena data aktivitas tidak ditemukan"
+          }) 
+      } else {
+          response.status(500).json({
+              status: "FAILED",
+              message: "Gagal mendapatkan data statistik kuesioner karena kesalahan server"
+          }) 
+      }
     }
   }
 
