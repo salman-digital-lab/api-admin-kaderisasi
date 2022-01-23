@@ -100,45 +100,49 @@ class MemberController {
 
   async getMember({ params, response }) {
     try {
-      let member = (
-        await Member.query()
-          .select([
-            "members.*",
-            "universities.name AS university",
-            "member_roles.name AS role_name",
-            "region_provinces.name as province_name",
-            "region_regencies.name as regency_name",
-            "region_districts.name as district_name",
-            "region_villages.name as village_name",
-          ])
-          .leftJoin("universities", "members.university_id", "universities.id")
-          .leftJoin("member_roles", "members.role_id", "member_roles.id")
-          .leftJoin(
-            "region_provinces",
-            "members.province_id",
-            "region_provinces.id"
-          )
-          .leftJoin(
-            "region_regencies",
-            "members.regency_id",
-            "region_regencies.id"
-          )
-          .leftJoin(
-            "region_districts",
-            "members.district_id",
-            "region_districts.id"
-          )
-          .leftJoin(
-            "region_villages",
-            "members.village_Id",
-            "region_villages.id"
-          )
-          .where("members.id", params.id)
-          .fetch()
-      ).toJSON()[0];
-      if (member.rows[0].file_image) {
-        member.rows[0].file_image =
-          Env.get("APP_URL") + "/public/" + member.rows[0].file_image;
+      let member = await Member.query()
+        .select([
+          "members.*",
+          "universities.name AS university",
+          "member_roles.name AS role_name",
+          "region_provinces.name as province_name",
+          "region_regencies.name as regency_name",
+          "region_districts.name as district_name",
+          "region_villages.name as village_name",
+        ])
+        .leftJoin("universities", "members.university_id", "universities.id")
+        .leftJoin("member_roles", "members.role_id", "member_roles.id")
+        .leftJoin(
+          "region_provinces",
+          "members.province_id",
+          "region_provinces.id"
+        )
+        .leftJoin(
+          "region_regencies",
+          "members.regency_id",
+          "region_regencies.id"
+        )
+        .leftJoin(
+          "region_districts",
+          "members.district_id",
+          "region_districts.id"
+        )
+        .leftJoin("region_villages", "members.village_Id", "region_villages.id")
+        .where("members.id", params.id)
+        .fetch();
+
+      member = member.toJSON()[0]
+
+      if (!member) {
+        const err = new Error('Gagal mendapatkan data member karena data tidak ditemukan')
+        err.code = 404
+
+        throw err
+      }
+
+      if (member.file_image) {
+        member.file_image =
+          Env.get("PROFILE_URL") + member.file_image;
       }
 
       member = {
@@ -154,10 +158,10 @@ class MemberController {
         },
       });
     } catch (err) {
-      if (err instanceof ModelNotFoundException) {
+      if (err.code === 404) {
         response.status(404).json({
           status: "FAILED",
-          message: "Gagal mendapatkan data member karena data tidak ditemukan",
+          message: err.message ?? err.messages,
         });
       } else {
         response.status(500).json({
