@@ -12,13 +12,13 @@ class ActivityQuestionnaireController {
   async index ({ params, response }) {
     const id = params.activity_id
     try {
-      var data = await Activity.query().select('form_data').where('id', id).fetch()
+      const data = await Activity.query().select('form_data').where('id', id).fetch()
+      let formData = data.toJSON()
 
-      var formData = data.toJSON()
-      formData = JSON.parse(formData[0]["form_data"])
-
-      if (formData === null) {
+      if (formData.length < 1) {
         formData = []
+      } else {
+        formData = JSON.parse(formData[0]["form_data"])
       }
       
       return response
