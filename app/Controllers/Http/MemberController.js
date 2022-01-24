@@ -294,9 +294,6 @@ class MemberController {
 
     const sanitationRules = {
       date_of_birthday: "to_date",
-      major: "title",
-      name: "title",
-      faculty: "title",
       university_id: "to_int",
       ssc: "to_int",
       lmd: "to_int",
