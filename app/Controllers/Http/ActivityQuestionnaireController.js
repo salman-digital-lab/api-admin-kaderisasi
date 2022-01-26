@@ -12,10 +12,16 @@ class ActivityQuestionnaireController {
   async index ({ params, response }) {
     const id = params.activity_id
     try {
-      const data = await Activity.query().select('form_data').where('id', id).fetch()
+      const data = await Activity.query().select('id', 'form_data').where('id', id).fetch()
       let formData = data.toJSON()
 
       if (formData.length < 1) {
+        const error = new Error('Aktivitas tidak ditemukan')
+        error.status = 404
+        throw error;
+      }
+      
+      if (formData[0]['form_data'] == null) {
         formData = []
       } else {
         formData = JSON.parse(formData[0]["form_data"])
@@ -28,13 +34,21 @@ class ActivityQuestionnaireController {
           message: "Data Kuisioner Aktivitas berhasil dimuat!",
           data: formData
         });
-
     } catch (error) {
+      if (error.status === 404) {
+        return response
+          .status(error.status)
+          .json({
+            status: "FAILED",
+            message: error.message ?? error.messages
+          });
+      }
+
       return response
         .status(500)
         .json({
           status: "FAILED",
-          message: error
+          message: "Gagal mendapatkan data kuesioner karena kesalahan server"
         });
     }
   }
