@@ -58,20 +58,12 @@ class MemberController {
               .orWhere("universities.name", "LIKE", `%${searchQuery}%`)
               .orWhere("major", "LIKE", `%${searchQuery}%`)
               .orWhere("faculty", "LIKE", `%${searchQuery}%`)
-              .orWhere("line_id", "LIKE", `%${searchQuery}%`);
+              .orWhere("line_id", "LIKE", `%${searchQuery}%`)
           })
-          .andWhere("gender", "LIKE", `%${gender}%`)
-          .andWhere("date_of_birthday", "LIKE", `%${dateOfBirthday}%`)
-          .andWhere(function () {
-            if (ssc) {
-              this.whereNotNull("ssc").andWhere("ssc", "LIKE", `%${ssc}%`);
-            }
-          })
-          .andWhere(function () {
-            if (lmd) {
-              this.whereNotNull("lmd").andWhere("lmd", "LIKE", `%${lmd}%`);
-            }
-          })
+          .andWhere(this.searchFilter(gender, 'gender'))
+          .andWhere(this.searchFilter(dateOfBirthday, 'date_of_birthday'))
+          .andWhere(this.searchFilter(ssc, 'ssc'))
+          .andWhere(this.searchFilter(lmd, 'lmd'))
           .paginate(page, page_size)
       ).toJSON();
 
@@ -91,10 +83,19 @@ class MemberController {
         data: members,
       });
     } catch (error) {
+      console.log(error)
       response.status(500).json({
         status: "FAILED",
         message: "Gagal mendapatkan data member karena kesalahan server",
       });
+    }
+  }
+
+  searchFilter(data, columnName) {
+    return function() {
+      if (data) {
+        this.whereNotNull(columnName).andWhere(columnName, "LIKE", `%${data}%`);
+      }
     }
   }
 
