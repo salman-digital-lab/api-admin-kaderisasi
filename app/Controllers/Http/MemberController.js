@@ -97,7 +97,11 @@ class MemberController {
   searchFilter(data, columnName) {
     return function() {
       if (data) {
-        this.whereNotNull(columnName).andWhere(columnName, data);
+        if (columnName == 'date_of_birthday') {
+          this.whereNotNull(columnName).andWhere(columnName, 'LIKE', `%${data}%`);
+        } else {
+          this.whereNotNull(columnName).andWhere(columnName, data);
+        }
       }
     }
   }
