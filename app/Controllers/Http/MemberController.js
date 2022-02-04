@@ -18,6 +18,7 @@ class MemberController {
       search_query: "string",
       ssc: "number",
       lmd: "number",
+      spectra: "number"
     };
 
     const validation = await validate(params, rules);
@@ -35,6 +36,7 @@ class MemberController {
     const dateOfBirthday = params.date_of_birthday || "";
     const ssc = params.ssc;
     const lmd = params.lmd;
+    const spectra = params.spectra;
     const searchQuery = params.search_query || "";
 
     try {
@@ -64,6 +66,7 @@ class MemberController {
           .andWhere(this.searchFilter(dateOfBirthday, 'date_of_birthday'))
           .andWhere(this.searchFilter(ssc, 'ssc'))
           .andWhere(this.searchFilter(lmd, 'lmd'))
+          .andWhere(this.searchFilter(spectra, 'spectra'))
           .paginate(page, page_size)
       ).toJSON();
 
@@ -94,7 +97,11 @@ class MemberController {
   searchFilter(data, columnName) {
     return function() {
       if (data) {
-        this.whereNotNull(columnName).andWhere(columnName, "LIKE", `%${data}%`);
+        if (columnName == 'date_of_birthday') {
+          this.whereNotNull(columnName).andWhere(columnName, 'LIKE', `%${data}%`);
+        } else {
+          this.whereNotNull(columnName).andWhere(columnName, data);
+        }
       }
     }
   }
