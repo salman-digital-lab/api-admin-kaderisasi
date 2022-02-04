@@ -50,12 +50,14 @@ class StudentCareController {
 
     const page = params.page || 1
     const perPage = params.perPage || 20
+    const sortField = params.sortField || 'created_at'
 
     try {
       const data = await StudentCare
         .query()
         .with('member')
         .with('counselor')
+        .orderBy(sortField, 'desc')
         .paginate(page, perPage)
 
       return response.status(200).json({
