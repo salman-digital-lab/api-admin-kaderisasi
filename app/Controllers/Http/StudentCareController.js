@@ -132,7 +132,7 @@ class StudentCareController {
       .query()
       .innerJoin('users_groups', 'users.id', 'users_groups.user_id')
       .innerJoin('groups', 'users_groups.group_id', 'groups.id')
-      .where('groups.shortname', 'KON')
+      .where('groups.shortname', 'KCR')
       .fetch()
 
     return response.status(200).json({
