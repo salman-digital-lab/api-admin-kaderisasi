@@ -1,7 +1,7 @@
 "use strict";
 
 const University = use("App/Models/University");
-const { validate } = use("Validator");
+const { validate, sanitizor } = use("Validator");
 
 class UniversityController {
   async getUniversities({ request, response }) {
@@ -11,7 +11,9 @@ class UniversityController {
       const perPage = data.perPage ? data.perPage : 10;
       const sortField = data.sortField ? data.sortField : "created_at"
       const sortDirection = data.sortDirection ? data.sortDirection : "desc"
+      const name = sanitizor.escape(data.name) || ""
       const universities = await University.query()
+        .where("name", "like", `%${name}%`)
         .orderBy(sortField, sortDirection)
         .paginate(page, perPage);
 
