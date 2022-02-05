@@ -157,7 +157,7 @@ class ActivityCategoryController {
     }
   }
 
-  async destroy({ params, response }) {
+  async setActive({ params, response }) {
 
     const { id } = params;
     const category = await Category.find(id);
@@ -172,12 +172,16 @@ class ActivityCategoryController {
     }
 
     try {
-      await category.delete();
+      const message = category.is_active ? "Data Kategori Aktivitas berhasil dinonaktifkan" : "Data Kategori Aktivitas berhasil diaktifkan";
+      
+      category.is_active = category.is_active ? false : true;
+      await category.save();
+      
       return response
         .status(200)
         .json({
           status: "SUCCESS",
-          message: "Data Kategori Aktivitas berhasil dihapus!",
+          message,
           data: category,
         });
     } catch (error) {
