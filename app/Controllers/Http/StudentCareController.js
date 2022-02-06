@@ -3,7 +3,7 @@ const Database = use('Database')
 const d = Date(Date.now())
 const date = d.toString()
 
-const { validate } = use('Validator')
+const { validate, sanitizor } = use('Validator')
 
 const StudentCare = use('App/Models/StudentCare')
 const User = use('App/Models/User')
@@ -34,7 +34,8 @@ class StudentCareController {
 
     const rules = {
       page: 'number',
-      perPage: 'number'
+      perPage: 'number',
+      name: 'string'
     }
 
     const validation = await validate(params, rules)
@@ -51,10 +52,13 @@ class StudentCareController {
     const page = params.page || 1
     const perPage = params.perPage || 20
     const sortField = params.sortField || 'created_at'
+    const name = sanitizor.escape(params.name) || ""
 
     try {
       const data = await StudentCare
         .query()
+        .innerJoin('members', 'student_care.member_id', 'members.id')
+        .where('members.name', 'like', `%${name}%`)
         .with('member')
         .with('counselor')
         .orderBy(sortField, 'desc')
