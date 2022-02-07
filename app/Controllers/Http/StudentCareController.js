@@ -51,6 +51,7 @@ class StudentCareController {
 
     const page = params.page || 1
     const perPage = params.perPage || 20
+    const sortField = params.sortField || 'created_at'
     const name = sanitizor.escape(params.name) || ""
 
     try {
@@ -60,6 +61,7 @@ class StudentCareController {
         .where('members.name', 'like', `%${name}%`)
         .with('member')
         .with('counselor')
+        .orderBy(sortField, 'desc')
         .paginate(page, perPage)
 
       return response.status(200).json({
@@ -134,7 +136,7 @@ class StudentCareController {
       .query()
       .innerJoin('users_groups', 'users.id', 'users_groups.user_id')
       .innerJoin('groups', 'users_groups.group_id', 'groups.id')
-      .where('groups.shortname', 'KON')
+      .where('groups.shortname', 'KCR')
       .fetch()
 
     return response.status(200).json({
