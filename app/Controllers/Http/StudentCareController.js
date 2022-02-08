@@ -62,6 +62,7 @@ class StudentCareController {
         .with('member')
         .with('counselor')
         .orderBy(sortField, 'desc')
+        .select("student_care.*")
         .paginate(page, perPage)
 
       return response.status(200).json({
