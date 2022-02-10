@@ -5,6 +5,7 @@ const ActivityRegistration = use('App/Models/ActivityRegistration')
 const Activity = use('App/Models/Activity')
 const SaveQuestionnaire = use('App/Models/SaveQuestionnaire')
 const Excel = require('exceljs')
+const { NULL } = require('mysql/lib/protocol/constants/types')
 
 class ActivityParticipanController {
   async show ({ params, response }) {
@@ -363,8 +364,13 @@ class ActivityParticipanController {
       .where({ activity_id: activity_id })
       .with('member')
       .with('member.member_role')
+      .with('member.university')
+      .with('member.province')
+      .with('member.regencies')
+      .with('member.district')
+      .with('member.village')
       .fetch()
-
+    
     if (!activity_registrations.toJSON()) {
       return response
         .status(400)
@@ -395,9 +401,23 @@ class ActivityParticipanController {
         { header: 'Email', key: 'email', width: 30, style: { font: font } },
         { header: 'Phone', key: 'phone', width: 20, style: { font: font } },
         { header: 'Line ID', key: 'line_id', width: 15, style: { font: font } },
+        { header: 'Province', key: 'province', width: 25, style: { font: font } },
+        { header: 'Regency', key: 'regency', width: 40, style: { font: font } },
+        { header: 'District', key: 'district', width: 40, style: { font: font } },
+        { header: 'Village', key: 'village', width: 40, style: { font: font } },
+        { header: 'Date of birthday', key: 'date_of_birthday', width: 20, style: { font: font } },
+        { header: 'City of birth', key: 'city_of_birth', width: 35, style: { font: font } },
+        { header: 'From addres', key: 'from_address', width: 150, style: { font: font } },
+        { header: 'Current address', key: 'current_address', width: 150, style: { font: font } },
+        { header: 'University', key: 'university', width: 50, style: { font: font } },
+        { header: 'Faculty', key: 'faculty', width: 70, style: { font: font } },
+        { header: 'Major', key: 'major', width: 40, style: { font: font } },
+        { header: 'Intake Year', key: 'intake_year', width: 13, style: { font: font } },
         { header: 'Role', key: 'role', width: 15, style: { font: font } },
-        { header: 'Created At', key: 'created_at', width: 15, style: { font: font } },
-        { header: 'Status', key: 'status', width: 20, style: { font: font } },
+        { header: 'Salt', key: 'salt', width: 11, style: { font: font } },
+        { header: 'SSC', key: 'ssc', width: 11, style: { font: font } },
+        { header: 'LMD', key: 'lmd', width: 11, style: { font: font } },
+        { header: 'Komprof', key: 'komprof', width: 11, style: { font: font } },
       ]
 
       const form_data = JSON.parse((await activity.toJSON()).form_data);
@@ -413,6 +433,23 @@ class ActivityParticipanController {
 
       let no = 1
       let row = await activity_registrations.toJSON().map(item => {
+        var propertiesNull = {name: " "};
+        if(item.member.university_id === null){
+          item.member.university= propertiesNull;
+        }
+        if(item.member.province_id === null){
+          item.member.province= propertiesNull;
+        }
+        if(item.member.regency_id === null){
+          item.member.regencies= propertiesNull;
+        }
+        if(item.member.district_id === null){
+          item.member.district= propertiesNull;
+        }
+        if(item.member.village_id === null){
+          item.member.village= propertiesNull;
+        }
+        
         let row_data = {
           no: no++,
           name: item.member.name,
@@ -420,18 +457,32 @@ class ActivityParticipanController {
           email: item.member.email,
           phone: item.member.phone,
           line_id: item.member.line_id,
+          province: item.member.province.name,
+          regency: item.member.regencies.name,
+          district: item.member.district.name,
+          village: item.member.village.name,
+          date_of_birthday: item.member.date_of_birthday,
+          city_of_birth: item.member.city_of_birth,
+          from_address: item.member.from_address,
+          current_address: item.member.current_address,
+          university: item.member.university.name,
+          faculty: item.member.faculty,
+          major: item.member.major,
+          intake_year: item.member.intake_year,
           role: item.member.member_role.name,
-          created_at: item.created_at,
-          status: item.status
+          salt: item.member.salt,
+          ssc: item.member.ssc,
+          lmd: item.member.lmd,
+          komprof: item.member.komprof,
         }
         form_data.forEach((form) => {
           row_data[form.name] = this.getRegistrantFormDataValue(item.id, form.name, answers_data);
         })
         worksheet.addRow(row_data);
       })
+      
 
       const formatted = Date.now()
-
       // Catatan
       // sekarang file akan dimasukkan ke buffer terlebih dahulu
       // Solusi ini cukup untuk jumlah pendaftar kecil
@@ -447,6 +498,7 @@ class ActivityParticipanController {
         .safeHeader('Content-Disposition', `attachment; filename=${sanitizor.slug(activity.name)}.xls`)
         .send(buffer)
     } catch (error) {
+      console.log(error);
       return response
         .status(400)
         .json({
@@ -455,7 +507,7 @@ class ActivityParticipanController {
         })
     }
   }
-
+  
   getActivityRegistrationsIds(activityRegistrations) {
     const ids = activityRegistrations.map(activityRegistration => activityRegistration.id);
     return ids;
@@ -482,7 +534,6 @@ class ActivityParticipanController {
     if (data[registration_id] == null) {
       return null;
     }
-
     return data[registration_id][form_name];
   }
 
