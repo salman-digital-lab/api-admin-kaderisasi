@@ -366,7 +366,7 @@ class ActivityParticipanController {
       .with('member.member_role')
       .with('member.university')
       .with('member.province')
-      .with('member.regencies')
+      .with('member.regency')
       .with('member.district')
       .with('member.village')
       .fetch()
@@ -440,7 +440,7 @@ class ActivityParticipanController {
           item.member.province= propertiesNull;
         }
         if(item.member.regency_id === null){
-          item.member.regencies= propertiesNull;
+          item.member.regency= propertiesNull;
         }
         if(item.member.district_id === null){
           item.member.district= propertiesNull;
@@ -457,7 +457,7 @@ class ActivityParticipanController {
           phone: item.member.phone,
           line_id: item.member.line_id,
           province: item.member.province.name,
-          regency: item.member.regencies.name,
+          regency: item.member.regency.name,
           district: item.member.district.name,
           village: item.member.village.name,
           date_of_birthday: item.member.date_of_birthday,

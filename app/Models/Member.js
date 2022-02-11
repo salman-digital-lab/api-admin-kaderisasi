@@ -42,7 +42,7 @@ class Member extends Model {
     return this.hasOne("App/Models/Region/Province", "province_id", "id");
   }
 
-  regencies() {
+  regency() {
     return this.hasOne("App/Models/Region/Regency", "regency_id", "id");
   }
 
