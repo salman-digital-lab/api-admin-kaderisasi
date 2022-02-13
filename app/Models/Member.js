@@ -38,6 +38,21 @@ class Member extends Model {
   university() {
     return this.hasOne("App/Models/University", "university_id", "id");
   }
+  province() {
+    return this.hasOne("App/Models/Region/Province", "province_id", "id");
+  }
+
+  regency() {
+    return this.hasOne("App/Models/Region/Regency", "regency_id", "id");
+  }
+
+  district() {
+    return this.hasOne("App/Models/Region/District", "district_id", "id");
+  }
+
+  village() {
+    return this.hasOne("App/Models/Region/Village", "village_id", "id");
+  }
 
   checklists() {
     return this
