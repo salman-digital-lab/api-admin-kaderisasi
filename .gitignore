@@ -5,7 +5,16 @@ node_modules
 tmp
 
 # Environment variables, never commit this file
-.env
+.env*
 
 # The development sqlite file
 database/*.sqlite
+
+# nyc
+.nyc_output/
+
+# coverage
+test/coverage
+
+# uploaded banner
+public/activity_pic/*

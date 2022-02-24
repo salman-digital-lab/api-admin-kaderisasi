@@ -1,15 +1,15 @@
 'use strict'
 
-const Database = use('Database');
-const { validate } = use('Validator');
+const Province = use('App/Models/Region/Province')
+const Regency = use('App/Models/Region/Regency')
+const District = use('App/Models/Region/District')
+const Village = use('App/Models/Region/Village')
 
 class RegionController {
 
     async getProvinces({ response }) {
         try {
-            const provinces = await Database
-            .select('*')
-            .from('region_provinces')
+            const provinces = await Province.all()
         
             response.status(200).json({
                 status: "SUCCESS",
@@ -26,10 +26,11 @@ class RegionController {
 
     async getRegenciesByProvinceId({ params, response }) {
         try {
-            const regencies = await Database
-                .select('*')
-                .from('region_regencies')
-                .where('province_id', params.id)
+            const province = await Province.find(params.id)
+
+            const regencies = await province
+                .regencies()
+                .fetch()
                 
             response.status(200).json({
                 status: "SUCCESS",
@@ -46,10 +47,11 @@ class RegionController {
 
     async getDistrictsByRegencyId({ params, response }) {
         try {
-            const districts = await Database
-                .select('*')
-                .from('region_districts')
-                .where('regency_id', params.id)
+            const regency = await Regency.find(params.id)
+
+            const districts = await regency
+                .districts()
+                .fetch()
                 
             response.status(200).json({
                 status: "SUCCESS",
@@ -66,10 +68,11 @@ class RegionController {
 
     async getVillagesByDistrictId({ params, response }) {
         try {
-            const villages = await Database
-                .select('*')
-                .from('region_villages')
-                .where('district_id', params.id)
+            const district = await District.find(params.id)
+            
+            const villages = await district
+                .villages()
+                .fetch()
                 
             response.json({
                 status: "SUCCESS",
@@ -86,19 +89,8 @@ class RegionController {
 
     async deleteProvince({ params, response }) {
         try {
-            const province = await Database
-                .table('region_provinces')
-                .where({
-                    id: params.id
-                })
-
-            await Database
-                .table('region_provinces')
-                .where({
-                    id: params.id
-                })
-                .delete()
-            
+            const province = await Province.find(params.id)
+            await province.delete()
             response.status(200).json({
                 status: "SUCCESS",
                 message: "Berhasil menghapus provinsi",
@@ -114,26 +106,14 @@ class RegionController {
 
     async deleteRegency({ params, response }) {
         try {
-            const regency = await Database
-                .table('region_regencies')
-                .where({
-                    id: params.id
-                })
-
-            await Database
-                .table('region_regencies')
-                .where({
-                    id: params.id
-                })
-                .delete()
-            
+            const regency = await Regency.find(params.id)
+            await regency.delete()
             response.status(200).json({
                 status: "SUCCESS",
                 message: "Berhasil menghapus kabupaten",
                 data: regency
             })
         } catch(err) {
-            console.log(err);
             response.status(500).json({
                 status: "FAILED",
                 message: "Gagal menghapus kabupaten karena kesalahan server"
@@ -143,19 +123,8 @@ class RegionController {
 
     async deleteDistrict({ params, response }) {
         try {
-            const district = await Database
-                .table('region_districts')
-                .where({
-                    id: params.id
-                })
-
-            await Database
-                .table('region_districts')
-                .where({
-                    id: params.id
-                })
-                .delete()
-            
+            const district = await District.find(params.id)
+            await district.delete()
             response.status(200).json({
                 status: "SUCCESS",
                 message: "Berhasil menghapus kecamatan",
@@ -171,19 +140,8 @@ class RegionController {
 
     async deleteVillage({ params, response }) {
         try {
-            const village = await Database
-                .table('region_villages')
-                .where({
-                    id: params.id
-                })
-
-            await Database
-                .table('region_villages')
-                .where({
-                    id: params.id
-                })
-                .delete()
-            
+            const village = await Village.find(params.id)
+            await village.delete()
             response.status(200).json({
                 status: "SUCCESS",
                 message: "Berhasil menghapus desa",

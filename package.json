@@ -6,7 +6,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node ace test"
+    "test": "nyc node ace test",
+    "lint": "standard",
+    "lint-fix": "standard --fix"
   },
   "keywords": [
     "adonisjs",
@@ -25,10 +27,16 @@
     "@adonisjs/ignitor": "^2.0.8",
     "@adonisjs/lucid": "^6.1.3",
     "@adonisjs/validator": "^5.0.6",
-    "mysql": "^2.18.1"
+    "@adonisjs/vow": "^1.0.17",
+    "crypto-js": "^4.1.1",
+    "exceljs": "^4.2.1",
+    "mysql": "^2.18.1",
+    "nyc": "^15.1.0"
   },
-  "devDependencies": {},
   "autoload": {
     "App": "./app"
+  },
+  "devDependencies": {
+    "standard": "^16.0.3"
   }
 }

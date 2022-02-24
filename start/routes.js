@@ -1,4 +1,4 @@
-"use strict";
+'use strict'
 
 /*
 |--------------------------------------------------------------------------
@@ -13,24 +13,66 @@
 |
 */
 
-
-
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
-const Route = use("Route");
-
+const Route = use('Route')
 
 require('./routes/RegionRoutes')
-require('./routes/UniversityRoutes');
+require('./routes/UniversityRoutes')
+require('./routes/Activity/ActivityParticipantRoutes')
+require('./routes/MemberRoutes')
+require('./routes/Activity/ActivityCarouselRoutes')
+require('./routes/StudentCareRoutes')
+require('./routes/Activity/ActivityRoutes')
+require('./routes/Activity/ActivityQuestionnaireRoutes')
+require('./routes/User/routes')
+
+Route.get('/', ({ view }) => {
+  return view.render('welcome')
+})
+
+/** ACL related APIs */
+Route.group(() => {
+  Route.get('groups/:id/privileges', 'GroupController.privileges')
+  Route.post('groups/:id/privileges/:privilege_id', 'GroupController.addPrivilege')
+  Route.delete('groups/:id/privileges/:privilege_id', 'GroupController.deletePrivilege')
+  Route.resource('groups', 'GroupController').apiOnly()
+  Route.get('privileges', 'GroupController.privileges')
+  Route.resource('users', 'UserController').apiOnly()
+}).prefix('v1').middleware(['auth', 'activeUser', 'privileges:users'])
+
+/** Auth */
+Route.group(() => {
+  Route.post('/user/login', 'UserController.login')
+}).prefix('v1')
 
 Route.group(() => {
-  Route.resource("activity-category", "ActivityCategoryController").apiOnly();
-  Route.resource("activity", "ActivityController").apiOnly();
-  Route.resource("activity-form-template", "ActivityFormTemplateController").apiOnly();
-}).prefix("v1");
+  Route.get('member', 'DashboardAdminController.CountMembers')
+  Route.get('autocomplete/:universities?', 'DashboardAdminController.AutocompleteUniversities')
+  Route.get('provinces/:id?', 'DashboardAdminController.CountMemberProvinces')
+  Route.get('universities', 'DashboardAdminController.CountMembersUniversities')
+  Route.get('years', 'DashboardAdminController.CountMembersYears')
+  Route.get('gender', 'DashboardAdminController.CountMembersGender')
+}).prefix('v1/dashboard/get/all')
 
 Route.group(() => {
-  Route.get('/:activity_id', 'ActivityRegistrationController.index')
-  Route.post('/', 'ActivityRegistrationController.store')
-  Route.get('/:member_id/:activity_id', 'ActivityRegistrationController.show')
-  Route.delete('/:member_id/:activity_id', 'ActivityRegistrationController.destroy')
-}).prefix("v1/activity-registration");
+  Route.get('get/all', 'PublicInformationController.GetAllInformation')
+  Route.get('detail', 'PublicInformationController.Detailformation')
+  Route.get('insert', 'PublicInformationController.insert')
+  Route.put('update', 'PublicInformationController.update')
+  Route.delete('delete', 'PublicInformationController.delete')
+}).prefix('v1/publicinformartion')
+
+Route.group(() => {
+  Route.get('/section/:id_section/video', 'ClassSectionVideoController.index')
+  Route.resource('/section/video', 'ClassSectionVideoController').apiOnly()
+  Route.get(':id_class/section', 'ClassSectionController.index')
+  Route.resource('/section', 'ClassSectionController').apiOnly()
+  Route.resource('/', 'ClassController').apiOnly()
+}).prefix('v1/class').middleware(['auth', 'activeUser'])
+
+Route.group(() => {
+  Route.resource('/', 'ChecklistController').apiOnly()
+  Route.post('/tick/:member_id/:checklist_id', 'ChecklistController.tick')
+  Route.delete('/untick/:member_id/:checklist_id', 'ChecklistController.untick')
+  Route.get('/member/:member_id', 'ChecklistController.member')
+}).prefix('v1/checklist').middleware(['auth', 'activeUser'])

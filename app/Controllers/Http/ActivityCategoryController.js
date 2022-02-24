@@ -5,9 +5,17 @@ const Category = use("App/Models/ActivityCategory");
 
 class ActivityCategoryController {
 
-  async index({ response }) {
+  async index({ request, response }) {
     try {
-      const categories = await Category.all();
+      const data = request.all();
+      const page = data.page ? data.page : 1;
+      const perPage = data.perPage ? data.perPage : 10;
+      const sortField = data.sortField ? data.sortField : "created_at"
+      const sortDirection = data.sortDirection ? data.sortDirection : "desc"
+      const categories = await Category.query()
+        .orderBy(sortField, sortDirection)
+        .paginate(page, perPage);
+        
       return response
         .status(200)
         .json({
@@ -17,7 +25,7 @@ class ActivityCategoryController {
         });
     } catch (error) {
       return response
-        .status(400)
+        .status(500)
         .json({
           status: "FAILED",
           message: error
@@ -34,37 +42,35 @@ class ActivityCategoryController {
 
     if (validation.fails()) {
       return response
-        .status(400)
+        .status(500)
         .json({
           status: "FAILED",
           message: validation.messages()
         });
-    } else {
-      try {
-        const { name } = request.all();
-        const category = new Category();
-        category.name = name;
+    }
 
-        await category.save();
+    try {
+      const { name } = request.all();
+      const category = new Category();
+      category.name = name;
+      await category.save();
 
-        const categories = await Category.findOrFail(category.id);
+      const categories = await Category.findOrFail(category.id);
 
-        return response
-          .status(201)
-          .json({
-            status: "SUCCESS",
-            message: "Data Kategori Aktivitas berhasil dibuat!",
-            data: categories,
-          });
-
-      } catch (error) {
-        return response
-          .status(400)
-          .json({
-            status: "FAILED",
-            message: error
-          });
-      }
+      return response
+        .status(201)
+        .json({
+          status: "SUCCESS",
+          message: "Data Kategori Aktivitas berhasil dibuat!",
+          data: categories,
+        });
+    } catch (error) {
+      return response
+        .status(500)
+        .json({
+          status: "FAILED",
+          message: error
+        });
     }
   }
 
@@ -72,25 +78,25 @@ class ActivityCategoryController {
     try {
       const { id } = params;
       const categories = await Category.find(id);
-      if (categories) {
-        return response
-          .status(200)
-          .json({
-            status: "SUCCESS",
-            message: "Data Kategori Aktivitas berhasil dimuat!",
-            data: categories,
-          });
-      } else {
+      if (!categories) {
         return response
           .status(400)
           .json({
             status: "FAILED",
             message: "Tidak ada data yang ditemukan"
           });
+
       }
+      return response
+        .status(200)
+        .json({
+          status: "SUCCESS",
+          message: "Data Kategori Aktivitas berhasil dimuat!",
+          data: categories,
+        });
     } catch (error) {
       return response
-        .status(400)
+        .status(500)
         .json({
           status: "FAILED",
           message: error
@@ -103,48 +109,7 @@ class ActivityCategoryController {
     const { id } = params;
     const category = await Category.find(id);
 
-    if (category) {
-
-      const rules = {
-        name: "required",
-      };
-
-      const data = request.all();
-      const validation = await validate(data, rules);
-
-      if (validation.fails()) {
-        return response
-          .status(400)
-          .json({
-            status: "FAILED",
-            message: validation.messages()
-          });
-      } else {
-
-        try {
-
-          category.name = data.name;
-          await category.save();
-
-          const categories = await Category.find(category.id);
-
-          return response
-            .status(200)
-            .json({
-              status: "SUCCESS",
-              message: "Data Kategori Aktivitas berhasil diperbarui!",
-              data: categories,
-            });
-        } catch (error) {
-          return response
-            .status(400)
-            .json({
-              status: "FAILED",
-              message: error
-            });
-        }
-      }
-    } else {
+    if (!category) {
       return response
         .status(400)
         .json({
@@ -152,37 +117,79 @@ class ActivityCategoryController {
           message: "Tidak ada data yang ditemukan"
         });
     }
+
+    const rules = {
+      name: "required",
+    };
+
+    const data = request.all();
+    const validation = await validate(data, rules);
+
+    if (validation.fails()) {
+      return response
+        .status(400)
+        .json({
+          status: "FAILED",
+          message: validation.messages()
+        });
+    }
+
+    try {
+      category.name = data.name;
+      await category.save();
+
+      const categories = await Category.find(category.id);
+
+      return response
+        .status(200)
+        .json({
+          status: "SUCCESS",
+          message: "Data Kategori Aktivitas berhasil diperbarui!",
+          data: categories,
+        });
+    } catch (error) {
+      return response
+        .status(500)
+        .json({
+          status: "FAILED",
+          message: error
+        });
+    }
   }
 
-  async destroy({ params, response }) {
+  async setActive({ params, response }) {
 
     const { id } = params;
     const category = await Category.find(id);
 
-    if (category) {
-      try {
-        await category.delete();
-        return response
-          .status(200)
-          .json({
-            status: "SUCCESS",
-            message: "Data Kategori Aktivitas berhasil dihapus!",
-            data: category,
-          });
-      } catch (error) {
-        return response
-          .status(400)
-          .json({
-            status: "FAILED",
-            message: error.messages
-          });
-      }
-    } else {
+    if (!category) {
       return response
         .status(400)
         .json({
           status: "FAILED",
           message: "Tidak ada data yang ditemukan"
+        });
+    }
+
+    try {
+      const message = category.is_active ? "Data Kategori Aktivitas berhasil dinonaktifkan" : "Data Kategori Aktivitas berhasil diaktifkan";
+      
+      category.is_active = category.is_active ? false : true;
+      await category.save();
+      
+      return response
+        .status(200)
+        .json({
+          status: "SUCCESS",
+          message,
+          data: category,
+        });
+    } catch (error) {
+      return response
+        .status(400)
+        .json({
+          status: "FAILED",
+          message: error.messages
         });
     }
   }

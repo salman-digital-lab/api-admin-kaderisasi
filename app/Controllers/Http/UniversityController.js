@@ -1,144 +1,116 @@
-'use strict'
+"use strict";
 
-const Database = use('Database');
-const { validate } = use('Validator');
+const University = use("App/Models/University");
+const { validate, sanitizor } = use("Validator");
 
 class UniversityController {
+  async getUniversities({ request, response }) {
+    try {
+      const data = request.all();
+      const page = data.page ? data.page : 1;
+      const perPage = data.perPage ? data.perPage : 10;
+      const sortField = data.sortField ? data.sortField : "created_at"
+      const sortDirection = data.sortDirection ? data.sortDirection : "desc"
+      const name = sanitizor.escape(data.name) || ""
+      const universities = await University.query()
+        .where("name", "like", `%${name}%`)
+        .orderBy(sortField, sortDirection)
+        .paginate(page, perPage);
 
-    async getUniversities({ response }) {
-        try {
-            const universities = await Database
-                .select('*')
-                .from('universities')
+      response.status(200).json({
+        status: "SUCCESS",
+        message: "Berhasil mendapatkan data universitas",
+        data: universities,
+      });
+    } catch (err) {
+      response.status(500).json({
+        status: "FAILED",
+        message: "Gagal mendapatkan data universitas karena kesalahan server",
+      });
+    }
+  }
 
-            response.status(200).json({
-                status: "SUCCESS",
-                message: "Berhasil mendapatkan data universitas",
-                data: universities
-            })
-        } catch(err) {
-            response.status(500).json({
-                status: "FAILED",
-                message: "Gagal mendapatkan data universitas karena kesalahan server"
-            })
-        }
+  async createUniversity({ request, response }) {
+    const rules = {
+      name: "required",
+    };
+
+    const validation = await validate(request.all(), rules);
+
+    if (validation.fails()) {
+      response.status(400).json({
+        status: "FAILED",
+        message:
+          "Gagal menambahkan universitas. Harap memasukkan nama universitas",
+      });
     }
 
-    async createUniversity({ request, response }) {
-        const rules = {
-            name: 'required'
-        }
+    try {
+      const data = request.only(["name"]);
+      const university = await University.create(data);
+      response.status(201).json({
+        status: "SUCCESS",
+        message: "Berhasil menambahkan universitas",
+        data: university,
+      });
+    } catch (err) {
+      response.status(500).json({
+        status: "FAILED",
+        message: "Gagal menambahkan universitas karena kesalahan server",
+      });
+    }
+  }
 
-        const validation = await validate(request.all(), rules)
-        
-        if (validation.fails()) {
-            response.status(400).json({
-                status: "FAILED",
-                message: "Gagal menambahkan universitas. Harap memasukkan nama universitas"
-            })
-        }
-        
-        const body = validation._data;
-        
-        try {
-            const id = await Database
-                .table('universities')
-                .insert({
-                    name: body.name
-                })
+  async updateUniversity({ params, request, response }) {
+    const rules = {
+      name: "required",
+    };
 
-            const university = await Database
-                .table('universities')
-                .where({
-                    id
-                })
-            
-            response.status(201).json({
-                status: "SUCCESS",
-                message: "Berhasil menambahkan universitas",
-                data: university
-            })
-        } catch(err) {
-            response.status(500).json({
-                status: "FAILED",
-                message: "Gagal menambahkan universitas karena kesalahan server"
-            })
-        }
+    const validation = await validate(request.all(), rules);
+
+    if (validation.fails()) {
+      response.status(400).json({
+        status: "FAILED",
+        message:
+          "Gagal mengubah data universitas. Harap memasukkan nama universitas",
+      });
     }
 
-    async updateUniversity({ params, request, response }) {
-        const rules = {
-            name: 'required'
-        }
+    const body = validation._data;
 
-        const validation = await validate(request.all(), rules)
-        
-        if (validation.fails()) {
-            response.status(400).json({
-                status: "FAILED",
-                message: "Gagal mengubah data universitas. Harap memasukkan nama universitas"
-            })
-        }
-        
-        const body = validation._data;
-        
-        try {
-            await Database
-                .table('universities')
-                .where({
-                    id: params.id
-                })
-                .update({
-                    name: body.name
-                })
-
-            const university = await Database
-                .table('universities')
-                .where({
-                    id: params.id
-                })
-            
-            response.status(200).json({
-                status: "SUCCESS",
-                message: "Berhasil mengubah data universitas",
-                data: university
-            })
-        } catch(err) {
-            response.status(500).json({
-                status: "FAILED",
-                message: "Gagal mengubah data universitas karena kesalahan server"
-            })
-        }
+    try {
+      const university = await University.find(params.id);
+      university.name = body.name;
+      await university.save();
+      response.status(200).json({
+        status: "SUCCESS",
+        message: "Berhasil mengubah data universitas",
+        data: university,
+      });
+    } catch (err) {
+      response.status(500).json({
+        status: "FAILED",
+        message: "Gagal mengubah data universitas karena kesalahan server",
+      });
     }
+  }
 
-    async deleteUniversity({ params, response }) {
-        try {
-            const university = await Database
-                .table('universities')
-                .where({
-                    id: params.id
-                })
-
-            await Database
-                .table('universities')
-                .where({
-                    id: params.id
-                })
-                .delete()
-            
-            response.status(200).json({
-                status: "SUCCESS",
-                message: "Berhasil menghapus universitas",
-                data: university
-            })
-        } catch(err) {
-            response.status(500).json({
-                status: "FAILED",
-                message: "Gagal menghapus universitas karena kesalahan server"
-            })
-        }
+  async deleteUniversity({ params, response }) {
+    try {
+      const university = await University.find(params.id);
+      await university.delete();
+      response.status(200).json({
+        status: "SUCCESS",
+        message: "Berhasil menghapus universitas",
+        data: university,
+      });
+    } catch (err) {
+      response.status(500).json({
+        status: "FAILED",
+        message: "Gagal menghapus universitas karena kesalahan server",
+      });
     }
-
+  }
 }
 
-module.exports = UniversityController
+module.exports = UniversityController;
