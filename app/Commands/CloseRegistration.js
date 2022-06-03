@@ -19,7 +19,7 @@ class CloseRegistration extends Command {
       // get activities with status = OPENED
       var activities = await Activity
           .query()
-          .select('slug', 'register_end_date', 'status')
+          .select('slug', 'register_end_date')
           .where('status', 'OPENED')
           .fetch()
 
