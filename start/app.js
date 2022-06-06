@@ -56,7 +56,8 @@ const aliases = {};
 |
 */
 const commands = [
-  'App/Commands/ResetAdminPassword'
+  'App/Commands/ResetAdminPassword',
+  'App/Commands/CloseRegistration'
 ];
 
 module.exports = { providers, aceProviders, aliases, commands };
