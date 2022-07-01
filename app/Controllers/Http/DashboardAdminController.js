@@ -14,6 +14,10 @@ class DasbordAdminController {
             value: role_members[0][0].jumlah_member
         });
         let remove = count_members.splice(2);
+        let temp = count_members
+        count_members[1] = temp[2]
+        count_members[2] = temp[1]
+        
         return response.status(200).json({
             status: "SUCCESS", 
             message: "jumlah memmber ",
