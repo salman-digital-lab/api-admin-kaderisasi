@@ -7,16 +7,16 @@ const Database = use('Database')
 class DasbordAdminController {
     async CountMembers ({response}){
         let count_members = await Database.raw(`SELECT member_roles.name, COUNT(member_roles.name) AS jumlah
-        FROM member_roles INNER JOIN members on member_roles.id = members.role_id GROUP BY member_roles.name`)
+        FROM member_roles INNER JOIN members on member_roles.id = members.role_id GROUP BY member_roles.name ORDER BY member_roles.id`)
         let role_members= await Database.raw(`SELECT COUNT(id) AS jumlah_member FROM members`)
         count_members[0].unshift({
-            name: "jumlah_member",
+            name: "Akun",
             value: role_members[0][0].jumlah_member
         });
         let remove = count_members.splice(2);
         return response.status(200).json({
             status: "SUCCESS", 
-            message: "jumlah memmber ",
+            message: "jumlah member ",
             data:count_members[0],
         })
 
