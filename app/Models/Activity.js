@@ -42,6 +42,10 @@ class Activity extends Model {
     return this.hasOne("App/Models/MemberRole", "minimum_role_id", "id");
   }
 
+  maximumRole() {
+    return this.hasOne("App/Models/MemberRole", "maximum_role_id", "id");
+  }
+
   carousel() {
     return this.hasMany("App/Models/ActivityCarousel", "id", "activity_id");
   }
