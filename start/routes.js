@@ -76,3 +76,8 @@ Route.group(() => {
   Route.delete('/untick/:member_id/:checklist_id', 'ChecklistController.untick')
   Route.get('/member/:member_id', 'ChecklistController.member')
 }).prefix('v1/checklist').middleware(['auth', 'activeUser'])
+
+Route.group(() => {
+  Route.get('member-roles', 'MemberRolesController.index')
+  Route.get('member-roles/:id', 'MemberRolesController.show')
+}).prefix('v1')
