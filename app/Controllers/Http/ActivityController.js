@@ -103,7 +103,7 @@ class ActivityController {
       register_end_date: "required|date",
       category_id: "required|number",
       minimum_role_id: "required|number",
-      maximum_role_id: "required|numver",
+      maximum_role_id: "required|number",
       status: "required_if:status|in:OPENED,CLOSED",
       is_published: "required_if:is_published|in:0,1",
     };
