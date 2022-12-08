@@ -7,27 +7,40 @@ const Database = use("Database");
 class DasbordAdminController {
   async CountMembers({ response }) {
     let count_members = await Database.raw(
-      `SELECT member_roles.name, COUNT(member_roles.name) AS jumlah FROM member_roles INNER JOIN members on member_roles.id = members.role_id GROUP BY member_roles.name ORDER BY member_roles.name`
+      `SELECT member_roles.name, COUNT(member_roles.name) AS total FROM member_roles INNER JOIN members on member_roles.id = members.role_id GROUP BY member_roles.name ORDER BY member_roles.name`
     );
-    let role_members = await Database.raw(
-      `SELECT COUNT(id) AS jumlah_member FROM members`
+    let count_all_members = await Database.raw(
+      `SELECT COUNT(id) AS total FROM members`
     );
     let graduated_members = await Database.raw(
-      `SELECT COUNT(id) AS jumlah FROM members WHERE is_graduated = 1`
+      `SELECT COUNT(id) AS total FROM members WHERE is_graduated = 1`
     );
     count_members[0].unshift({
       name: "Akun",
-      value: role_members[0][0].jumlah_member,
+      total: count_all_members[0][0].total,
     });
-    count_members[0].push({
-      name: "Alumni",
-      value: graduated_members[0][0].jumlah,
+
+    let is_alumni_role_exist = false;
+
+    const members = count_members[0].map((data) => {
+      if (data.name == "Alumni") {
+        data.total = graduated_members[0][0].total;
+        is_alumni_role_exist = true;
+      }
+      return data;
     });
-    count_members.splice(2);
+
+    if (!is_alumni_role_exist) {
+      members.push({
+        name: "Alumni",
+        total: graduated_members[0][0].total,
+      });
+    }
+
     return response.status(200).json({
       status: "SUCCESS",
-      message: "jumlah member ",
-      data: count_members[0],
+      message: "jumlah member",
+      data: members,
     });
   }
 
@@ -44,7 +57,7 @@ class DasbordAdminController {
   }
 
   async CountMemberProvinces({ request, response }) {
-    /** const id untuk mendapatkan id dari role_member dan responya itu akan menampilkan jumlah member
+    /* const id untuk mendapatkan id dari role_member dan responya itu akan menampilkan jumlah member
      * perprovinsi dengan hanya 1 jenis role misalnya memberikan nilai id dengan 1 maka hanya akan menampilkan
      * jumlah menber perprovinsi dengan role kader saja dan untuk menampilkan semua role maka maka tidak perlu untuk
      * memberikan nilai apapun ke id
@@ -135,7 +148,7 @@ class DasbordAdminController {
     );
     return response.status(200).json({
       status: "SUCCESS",
-      message: "succes jumlah memmber  per gender",
+      message: "succes jumlah member per gender",
       data: count_gender[0],
     });
   }
