@@ -6,7 +6,7 @@ const Schema = use('Schema')
 class AddMaximumRoleIdSchema extends Schema {
   up () {
     this.table('activities', (table) => {
-      table.integer('maximum_role_id', 11).default(0)
+      table.integer('maximum_role_id', 11).default(50)
     })
   }
 
