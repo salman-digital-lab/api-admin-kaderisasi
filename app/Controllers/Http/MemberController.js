@@ -18,7 +18,7 @@ class MemberController {
       search_query: "string",
       ssc: "number",
       lmd: "number",
-      spectra: "number"
+      spectra: "number",
     };
 
     const validation = await validate(params, rules);
@@ -60,13 +60,13 @@ class MemberController {
               .orWhere("university.name", "LIKE", `%${searchQuery}%`)
               .orWhere("major", "LIKE", `%${searchQuery}%`)
               .orWhere("faculty", "LIKE", `%${searchQuery}%`)
-              .orWhere("line_id", "LIKE", `%${searchQuery}%`)
+              .orWhere("line_id", "LIKE", `%${searchQuery}%`);
           })
-          .andWhere(this.searchFilter(gender, 'gender'))
-          .andWhere(this.searchFilter(dateOfBirthday, 'date_of_birthday'))
-          .andWhere(this.searchFilter(ssc, 'ssc'))
-          .andWhere(this.searchFilter(lmd, 'lmd'))
-          .andWhere(this.searchFilter(spectra, 'spectra'))
+          .andWhere(this.searchFilter(gender, "gender"))
+          .andWhere(this.searchFilter(dateOfBirthday, "date_of_birthday"))
+          .andWhere(this.searchFilter(ssc, "ssc"))
+          .andWhere(this.searchFilter(lmd, "lmd"))
+          .andWhere(this.searchFilter(spectra, "spectra"))
           .paginate(page, page_size)
       ).toJSON();
 
@@ -86,7 +86,7 @@ class MemberController {
         data: members,
       });
     } catch (error) {
-      console.log(error)
+      console.log(error);
       response.status(500).json({
         status: "FAILED",
         message: "Gagal mendapatkan data member karena kesalahan server",
@@ -95,15 +95,19 @@ class MemberController {
   }
 
   searchFilter(data, columnName) {
-    return function() {
+    return function () {
       if (data) {
-        if (columnName == 'date_of_birthday') {
-          this.whereNotNull(columnName).andWhere(columnName, 'LIKE', `%${data}%`);
+        if (columnName == "date_of_birthday") {
+          this.whereNotNull(columnName).andWhere(
+            columnName,
+            "LIKE",
+            `%${data}%`
+          );
         } else {
           this.whereNotNull(columnName).andWhere(columnName, data);
         }
       }
-    }
+    };
   }
 
   async getMember({ params, response }) {
@@ -139,18 +143,19 @@ class MemberController {
         .where("members.id", params.id)
         .fetch();
 
-      member = member.toJSON()[0]
+      member = member.toJSON()[0];
 
       if (!member) {
-        const err = new Error('Gagal mendapatkan data member karena data tidak ditemukan')
-        err.code = 404
+        const err = new Error(
+          "Gagal mendapatkan data member karena data tidak ditemukan"
+        );
+        err.code = 404;
 
-        throw err
+        throw err;
       }
 
       if (member.file_image) {
-        member.file_image =
-          Env.get("PROFILE_URL") + member.file_image;
+        member.file_image = Env.get("PROFILE_URL") + member.file_image;
       }
 
       member = {
@@ -289,6 +294,7 @@ class MemberController {
       spectra: "number",
       role_id: "number",
       komprof: "string",
+      is_graduated: "boolean",
     };
 
     const validation = await validate(all, rules);
