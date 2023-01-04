@@ -44,12 +44,12 @@ class MemberController {
         await Member.query()
           .select([
             "members.*",
-            "universities.name AS university",
+            "university.name AS university",
             "member_roles.name AS role_name",
             "member_roles.description AS role_description",
           ])
           .from("members")
-          .leftJoin("universities", "members.university_id", "universities.id")
+          .leftJoin("university", "members.university_id", "university.id")
           .leftJoin("member_roles", "members.role_id", "member_roles.id")
           .where(function () {
             this.where("members.name", "LIKE", `%${searchQuery}%`)
@@ -57,7 +57,7 @@ class MemberController {
               .orWhere("email", "LIKE", `%${searchQuery}%`)
               .orWhere("from_address", "LIKE", `%${searchQuery}%`)
               .orWhere("current_address", "LIKE", `%${searchQuery}%`)
-              .orWhere("universities.name", "LIKE", `%${searchQuery}%`)
+              .orWhere("university.name", "LIKE", `%${searchQuery}%`)
               .orWhere("major", "LIKE", `%${searchQuery}%`)
               .orWhere("faculty", "LIKE", `%${searchQuery}%`)
               .orWhere("line_id", "LIKE", `%${searchQuery}%`);
@@ -115,14 +115,14 @@ class MemberController {
       let member = await Member.query()
         .select([
           "members.*",
-          "universities.name AS university",
+          "university.name AS university",
           "member_roles.name AS role_name",
           "region_provinces.name as province_name",
           "region_regencies.name as regency_name",
           "region_districts.name as district_name",
           "region_villages.name as village_name",
         ])
-        .leftJoin("universities", "members.university_id", "universities.id")
+        .leftJoin("university", "members.university_id", "university.id")
         .leftJoin("member_roles", "members.role_id", "member_roles.id")
         .leftJoin(
           "region_provinces",

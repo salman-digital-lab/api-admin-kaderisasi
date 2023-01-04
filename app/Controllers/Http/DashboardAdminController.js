@@ -85,16 +85,17 @@ class DasbordAdminController {
         await Database.raw(`SELECT DISTINCT(region_provinces.name) AS nama_provinsi,
             member_roles.name AS jenis_member,  COUNT(member_roles.name) AS jumlah_permember
             FROM region_provinces INNER JOIN members ON region_provinces.id = members.province_id INNER JOIN member_roles
-            ON member_roles.id = members.role_id INNER JOIN  universities ON universities.id = members.university_id 
-            WHERE universities.id IN (${universities.universities}) GROUP BY region_provinces.name, member_roles.name`);
-      return response.status(200).json({
-        status: "SUCCESS",
-        message: "succes jumlah memmber per provinsi",
-        data: count_all[0],
-      });
-    } else if (id.id != undefined && universities.universities == undefined) {
-      const count_role =
-        await Database.raw(`SELECT DISTINCT(region_provinces.name) AS nama_provinsi,
+            ON member_roles.id = members.role_id INNER JOIN  university ON university.id = members.university_id 
+            WHERE university.id IN (${universities.universities}) GROUP BY region_provinces.name, member_roles.name`)
+            return response.status(200).json({
+                status: "SUCCESS",
+                message: "succes jumlah memmber per provinsi",
+                data:count_all[0],
+            })
+        }
+
+        else if (id.id != undefined && universities.universities == undefined){
+            const count_role = await Database.raw(`SELECT DISTINCT(region_provinces.name) AS nama_provinsi,
             member_roles.name AS jenis_member,  COUNT(member_roles.name) AS jumlah_permember
             FROM region_provinces INNER JOIN members ON region_provinces.id = members.province_id INNER JOIN member_roles
             ON member_roles.id = members.role_id WHERE member_roles.id = ${id.id} GROUP BY region_provinces.name`);
@@ -108,28 +109,27 @@ class DasbordAdminController {
         await Database.raw(`SELECT DISTINCT(region_provinces.name) AS nama_provinsi,
             member_roles.name AS jenis_member,  COUNT(member_roles.name) AS jumlah_permember
             FROM region_provinces INNER JOIN members ON region_provinces.id = members.province_id INNER JOIN member_roles
-            ON member_roles.id = members.role_id INNER JOIN  universities ON universities.id = members.university_id
-             WHERE member_roles.id = ${id.id} AND universities.id IN (${universities.universities}) GROUP BY region_provinces.name`);
-      return response.status(200).json({
-        status: "SUCCESS",
-        message: "jumlah member per provinsi dengan 1 jenis role",
-        data: count_role[0],
-      });
+            ON member_roles.id = members.role_id INNER JOIN  university ON university.id = members.university_id
+             WHERE member_roles.id = ${id.id} AND university.id IN (${universities.universities}) GROUP BY region_provinces.name`)
+            return response.status(200).json({
+                status: "SUCCESS",
+                message: "jumlah member per provinsi dengan 1 jenis role",
+                data:count_role[0],
+            })
+        }
     }
-  }
 
-  async CountMembersUniversities({ response }) {
-    const count_universities =
-      await Database.raw(`SELECT DISTINCT(universities.name) AS nama_universitas,
+    async CountMembersUniversities ({response}){
+        const count_universities = await Database.raw(`SELECT DISTINCT(university.name) AS nama_universitas,
         member_roles.name AS jenis_member, COUNT(member_roles.name) AS jumlah_permember
-        FROM universities INNER JOIN members ON universities.id = members.university_id INNER JOIN member_roles
-        ON member_roles.id = members.role_id GROUP BY universities.name, member_roles.name`);
-    return response.status(200).json({
-      status: "SUCCESS",
-      message: " jumlah memmber per universitas ",
-      data: count_universities[0],
-    });
-  }
+        FROM university INNER JOIN members ON university.id = members.university_id INNER JOIN member_roles
+        ON member_roles.id = members.role_id GROUP BY university.name, member_roles.name`)
+        return response.status(200).json({
+            status: "SUCCESS",
+            message: " jumlah memmber per universitas ",
+            data:count_universities[0] 
+        })
+    }
 
   async CountMembersYears({ response }) {
     const count_years =
