@@ -24,7 +24,7 @@ class DasbordAdminController {
 
     async AutocompleteUniversities ({request, response}){
         const universities = request.all()
-        const listuniversities = await Database.raw(`SELECT * FROM universities WHERE name LIKE '%${universities.universities[0]}%'`)
+        const listuniversities = await Database.raw(`SELECT * FROM university WHERE name LIKE '%${universities.universities[0]}%'`)
         return response.status(200).json({
             status: "SUCCESS",
             message: "nama universitas",
@@ -61,8 +61,8 @@ class DasbordAdminController {
             const count_all = await Database.raw(`SELECT DISTINCT(region_provinces.name) AS nama_provinsi,
             member_roles.name AS jenis_member,  COUNT(member_roles.name) AS jumlah_permember
             FROM region_provinces INNER JOIN members ON region_provinces.id = members.province_id INNER JOIN member_roles
-            ON member_roles.id = members.role_id INNER JOIN  universities ON universities.id = members.university_id 
-            WHERE universities.id IN (${universities.universities}) GROUP BY region_provinces.name, member_roles.name`)
+            ON member_roles.id = members.role_id INNER JOIN  university ON university.id = members.university_id 
+            WHERE university.id IN (${universities.universities}) GROUP BY region_provinces.name, member_roles.name`)
             return response.status(200).json({
                 status: "SUCCESS",
                 message: "succes jumlah memmber per provinsi",
@@ -86,8 +86,8 @@ class DasbordAdminController {
             const count_role = await Database.raw(`SELECT DISTINCT(region_provinces.name) AS nama_provinsi,
             member_roles.name AS jenis_member,  COUNT(member_roles.name) AS jumlah_permember
             FROM region_provinces INNER JOIN members ON region_provinces.id = members.province_id INNER JOIN member_roles
-            ON member_roles.id = members.role_id INNER JOIN  universities ON universities.id = members.university_id
-             WHERE member_roles.id = ${id.id} AND universities.id IN (${universities.universities}) GROUP BY region_provinces.name`)
+            ON member_roles.id = members.role_id INNER JOIN  university ON university.id = members.university_id
+             WHERE member_roles.id = ${id.id} AND university.id IN (${universities.universities}) GROUP BY region_provinces.name`)
             return response.status(200).json({
                 status: "SUCCESS",
                 message: "jumlah member per provinsi dengan 1 jenis role",
@@ -98,10 +98,10 @@ class DasbordAdminController {
 
     
     async CountMembersUniversities ({response}){
-        const count_universities = await Database.raw(`SELECT DISTINCT(universities.name) AS nama_universitas,
+        const count_universities = await Database.raw(`SELECT DISTINCT(university.name) AS nama_universitas,
         member_roles.name AS jenis_member, COUNT(member_roles.name) AS jumlah_permember
-        FROM universities INNER JOIN members ON universities.id = members.university_id INNER JOIN member_roles
-        ON member_roles.id = members.role_id GROUP BY universities.name, member_roles.name`)
+        FROM university INNER JOIN members ON university.id = members.university_id INNER JOIN member_roles
+        ON member_roles.id = members.role_id GROUP BY university.name, member_roles.name`)
         return response.status(200).json({
             status: "SUCCESS",
             message: " jumlah memmber per universitas ",

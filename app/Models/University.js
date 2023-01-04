@@ -8,6 +8,10 @@ class University extends Model {
 		super.boot()
 	}
 
+	static get table () {
+        return 'university'
+    }
+
 	static get updatedAtColumn() {
 		return null;
 	  }
