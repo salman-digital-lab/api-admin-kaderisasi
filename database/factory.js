@@ -33,10 +33,9 @@ Factory.blueprint('App/Models/University', (faker) => {
 Factory.blueprint('App/Models/Activity', async (faker, index, data) => {
   const name = faker.sentence()
   const form_data = QuestionnaireSeedingHelper.formObject
-  const minimum_role_id = faker.pickone(data.roles.rows).id
-  let maximum_role_id = faker.pickone(data.roles.rows).id
-  if(maximum_role_id < minimum_role_id) maximum_role_id = minimum_role_id
-
+  const minimum_role_id = faker.pickone(data.roles.rows)
+  let maximum_role_id = faker.pickone(data.roles.rows)
+  if(maximum_role_id.index < minimum_role_id.index) maximum_role_id.id = minimum_role_id.id
 
   return {
     name: name,
@@ -44,11 +43,11 @@ Factory.blueprint('App/Models/Activity', async (faker, index, data) => {
     description: faker.text,
     begin_date: faker.date(),
     end_date: faker.date(),
-    minimum_role_id: minimum_role_id,
+    minimum_role_id: minimum_role_id.id,
     register_begin_date: faker.date({ year: 2021, month: 1 }),
     register_end_date: faker.date({ year: 2021, month: faker.integer({ min: 1, max: 10 }) }),
     category_id: faker.pickone(data.categories.rows).id,
-    maximum_role_id : maximum_role_id,
+    maximum_role_id : maximum_role_id.id,
     form_data: JSON.stringify(form_data)
   }
 })
