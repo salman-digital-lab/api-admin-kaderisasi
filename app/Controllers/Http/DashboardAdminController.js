@@ -43,7 +43,7 @@ class DasbordAdminController {
   async AutocompleteUniversities({ request, response }) {
     const universities = request.all();
     const listuniversities = await Database.raw(
-      `SELECT * FROM universities WHERE name LIKE '%${universities.universities[0]}%'`
+      `SELECT * FROM university WHERE name LIKE '%${universities.universities[0]}%'`
     );
     return response.status(200).json({
       status: "SUCCESS",
@@ -81,7 +81,7 @@ class DasbordAdminController {
         await Database.raw(`SELECT DISTINCT(region_provinces.name) AS nama_provinsi,
             member_roles.name AS jenis_member,  COUNT(member_roles.name) AS jumlah_member
             FROM region_provinces INNER JOIN members ON region_provinces.id = members.province_id INNER JOIN member_roles
-            ON member_roles.id = members.role_id INNER JOIN  university ON university.id = members.university_id 
+            ON member_roles.id = members.role_id INNER JOIN university ON university.id = members.university_id 
             WHERE university.id IN (${universities.universities}) GROUP BY region_provinces.name, member_roles.name`);
       return response.status(200).json({
         status: "SUCCESS",
@@ -104,7 +104,7 @@ class DasbordAdminController {
         await Database.raw(`SELECT DISTINCT(region_provinces.name) AS nama_provinsi,
             member_roles.name AS jenis_member,  COUNT(member_roles.name) AS jumlah_member
             FROM region_provinces INNER JOIN members ON region_provinces.id = members.province_id INNER JOIN member_roles
-            ON member_roles.id = members.role_id INNER JOIN  university ON university.id = members.university_id
+            ON member_roles.id = members.role_id INNER JOIN university ON university.id = members.university_id
              WHERE member_roles.id = ${id.id} AND university.id IN (${universities.universities}) GROUP BY region_provinces.name`);
       return response.status(200).json({
         status: "SUCCESS",
