@@ -5,7 +5,7 @@ const Schema = use('Schema')
 
 class UniversitiesSchema extends Schema {
   up () {
-    this.create('universities', (table) => {
+    this.create('university', (table) => {
       table.increments('id')
       table.string('name', 100)
       table.timestamp('created_at').defaultTo(this.fn.now())
@@ -13,7 +13,7 @@ class UniversitiesSchema extends Schema {
   }
 
   down () {
-    this.drop('universities')
+    this.drop('university')
   }
 }
 
