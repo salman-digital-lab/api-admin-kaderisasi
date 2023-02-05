@@ -13,6 +13,7 @@ class ActivityController {
     const rules = {
       category_id: "number",
       minimum_roles_id: "number",
+      maximum_roles_id: "number",
       date: "date",
       search: "string",
       page: "number",
@@ -40,6 +41,10 @@ class ActivityController {
         whereClause.minimum_role_id = data.minimum_roles_id;
       }
 
+      if(data.maximum_roles_id){
+        whereClause.maximum_role_id = data.maximum_roles_id;
+      }
+
       if (data.date) {
         whereClause.begin_date = data.date;
       }
@@ -57,6 +62,7 @@ class ActivityController {
         .orderBy(sortField, sortDirection)
         .with("activityCategory")
         .with("minimumRole")
+        .with("maximumRole")
         .with("carousel")
         .paginate(page, perPage);
 
@@ -97,6 +103,7 @@ class ActivityController {
       register_end_date: "required|date",
       category_id: "required|number",
       minimum_role_id: "required|number",
+      maximum_role_id: `required|number|above:${data.minimum_role_id -1}`,
       status: "required_if:status|in:OPENED,CLOSED",
       is_published: "required_if:is_published|in:0,1",
     };
@@ -140,6 +147,7 @@ class ActivityController {
       activity.description = data.description;
       activity.status = data.status;
       activity.minimum_role_id = data.minimum_role_id;
+      activity.maximum_role_id = data.maximum_role_id;
       activity.is_published = data.is_published;
       activity.form_data = "[]";
       await activity.save();
@@ -182,6 +190,7 @@ class ActivityController {
       .where({ id: id, is_deleted: 0 })
       .with("activityCategory")
       .with("minimumRole")
+      .with("maximumRole")
       .with("carousel")
       .fetch();
 
@@ -235,6 +244,7 @@ class ActivityController {
       register_end_date: "required_if:register_end_date|date",
       category_id: "required_if:category_id|number",
       minimum_role_id: "required_if:minimum_role_id|number",
+      maximum_role_id: `required|number|above:${data.minimum_role_id -1}`,
       status: "required_if:status|in:OPENED,CLOSED",
       is_published: "required_if:is_published|in:0,1",
     };
@@ -287,6 +297,10 @@ class ActivityController {
 
       if (data.minimum_role_id) {
         activity.minimum_role_id = data.minimum_role_id;
+      }
+
+      if(data.maximum_role_id) {
+        activity.maximum_role_id = data.maximum_role_id;
       }
 
       activity.is_published = data.is_published;
