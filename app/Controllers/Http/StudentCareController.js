@@ -179,7 +179,7 @@ async export ({ request, response }) {
       ]
       let no = 1
       let row = await student_cares.toJSON().map(item => {
-        var propertiesNull = {name: " "};
+        var propertiesNull = {display_name: "-"};
         if(item.id_counselor === null) item.counselor = propertiesNull
         let row_data = {
           no: no++,
@@ -196,6 +196,7 @@ async export ({ request, response }) {
           created_at: item.created_at,
         }
         worksheet.addRow(row_data);
+        console.log(item.counselor)
       })
       const formatted = Date.now()
       row = await Promise.all(row)
