@@ -2,6 +2,7 @@
 const Database = use('Database')
 const d = Date(Date.now())
 const date = d.toString()
+const Excel = require('exceljs')
 
 const { validate, sanitizor } = use('Validator')
 
@@ -146,6 +147,77 @@ class StudentCareController {
       data: data
     })
   }
-}
+
+async export ({ request, response }) {
+  const timeNow = new Date()
+  let {time_start, time_end} = request.all()
+  if(!time_end) time_end = `${timeNow.getFullYear()}-${(timeNow.getMonth()+1)}-${timeNow.getDate()}`
+  if(!time_start) time_start = timeNow.getFullYear() + "-" + (timeNow.getMonth()+1) + "-01"
+    const student_cares = await StudentCare.query()
+    .whereBetween('created_at', [time_start, time_end])
+    .with('member')
+    .with('counselor')
+    .fetch()
+    try {
+      const workbook = new Excel.Workbook()
+      const worksheet = workbook.addWorksheet('Sheet 1')
+      const font = { name: 'Times New Roman', size: 12 }
+
+      worksheet.columns = [
+        { header: 'No', key: 'no', width: 5, style: { font: font } },
+        { header: 'Name Member', key: 'name', width: 30, style: { font: font } },
+        { header: 'Problem Owner', key: 'problem_owner', width: 15, style: { font: font } },
+        { header: 'Problem Owner Name', key: 'problem_owner_name', width: 23, style: { font: font } },
+        { header: 'Problem Category', key: 'problem_category', width: 30, style: { font: font } },
+        { header: 'Problem Category Desk', key: 'problem_category_desk', width: 70, style: { font: font } },
+        { header: 'Technical Handling', key: 'technical_handling', width: 20, style: { font: font } },
+        { header: 'Counselor Gender', key: 'counselor_gender', width: 20, style: { font: font } },
+        { header: 'Counselor Name', key: 'counselor_name', width: 20, style: { font: font } },
+        { header: 'Status Handling', key: 'status_handling', width: 20, style: { font: font } },
+        { header: 'Desk Handling', key: 'desk_handling', width: 100, style: { font: font } },
+        { header: 'Created At', key: 'created_at', width: 20, style: { font: font } },
+      ]
+      let no = 1
+      let row = await student_cares.toJSON().map(item => {
+        var propertiesNull = {display_name: "-"};
+        if(item.id_counselor === null) item.counselor = propertiesNull
+        let row_data = {
+          no: no++,
+          name: item.member.name,
+          problem_owner: item.problem_owner,
+          problem_owner_name: item.problem_owner_name,
+          problem_category: item.problem_category,
+          problem_category_desk: item.problem_category_desk,
+          technical_handling: item.technical_handling,
+          counselor_gender: item.counselor_gender,
+          counselor_name: item.counselor.display_name,
+          status_handling: item.status_handling,
+          desk_handling: item.desk_handling,
+          created_at: item.created_at,
+        }
+        worksheet.addRow(row_data);
+      })
+      const formatted = Date.now()
+      row = await Promise.all(row)
+      const buffer = await workbook.xlsx.writeBuffer()
+      const exportName =`Data-Student-Care-${time_start}-${time_end}`
+
+      return response
+        .status(200)
+        .safeHeader('Content-type', 'application/vnd-ms-excel')
+        .safeHeader('Content-Disposition', `attachment; filename=${exportName}.xls`)
+        .send(buffer)
+    } catch (error) {
+      console.log(error);
+      return response
+        .status(400)
+        .json({
+          status: 'FAILED',
+          message: error
+        })
+    }
+  }
+    
+  }
 
 module.exports = StudentCareController
