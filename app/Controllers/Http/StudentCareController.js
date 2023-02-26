@@ -190,7 +190,7 @@ async export ({ request, response }) {
           problem_category_desk: item.problem_category_desk,
           technical_handling: item.technical_handling,
           counselor_gender: item.counselor_gender,
-          counselor_name: item.counselor.name,
+          counselor_name: item.counselor.display_name,
           status_handling: item.status_handling,
           desk_handling: item.desk_handling,
           created_at: item.created_at,
