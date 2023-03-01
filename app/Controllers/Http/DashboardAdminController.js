@@ -4,6 +4,9 @@
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 const Database = use("Database");
 
+const MINIMUM_SPECTRA_GENERATION = 1;
+const MINIMUM_LMD_GENERATION = 165;
+
 class DasbordAdminController {
   async CountMembers({ response }) {
     let countMembersByRole = await Database.raw(
@@ -14,8 +17,8 @@ class DasbordAdminController {
       `SELECT 
         COUNT(id) AS Akun,
         SUM(CASE WHEN is_graduated = 1 then 1 else 0 end) AS Alumni,
-        SUM(CASE WHEN ssc is not null then 1 else 0 end) AS "Alumni SSC",
-        SUM(CASE WHEN lmd is not null then 1 else 0 end) AS "Alumni LMD",
+        SUM(CASE WHEN ssc >= ${MINIMUM_SPECTRA_GENERATION} then 1 else 0 end) AS "Alumni SSC",
+        SUM(CASE WHEN lmd >= ${MINIMUM_LMD_GENERATION} then 1 else 0 end) AS "Alumni LMD",
         SUM(CASE WHEN spectra is not null then 1 else 0 end) AS "Alumni Spectra"
       FROM members`
     );
