@@ -1,11 +1,7 @@
 "use strict";
 
 const Komprof = use("App/Models/Komprof");
-const { rule, validate, sanitize } = use("Validator");
-const { ModelNotFoundException } = require("@adonisjs/lucid/src/Exceptions");
-const ActivityRegistration = use("App/Models/ActivityRegistration");
-
-const Env = use("Env");
+const { validate } = use("Validator");
 
 class KomprofController {
   async index({ request, response }) {
@@ -23,6 +19,23 @@ class KomprofController {
         status: "SUCCESS",
         message: "Data Komprof berhasil dimuat!",
         data: komprofs,
+      });
+    } catch (error) {
+      return response.status(500).json({
+        status: "FAILED",
+        message: error,
+      });
+    }
+  }
+
+  async show({ params, request, response }) {
+    try {
+      const { id } = params;
+      let komprof = await Komprof.find(id);
+      return response.status(200).json({
+        status: "SUCCESS",
+        message: "Data Komprof berhasil dimuat!",
+        data: komprof,
       });
     } catch (error) {
       return response.status(500).json({
