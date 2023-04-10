@@ -170,6 +170,7 @@ class MemberKomprofController {
       const members = await Member.query()
         .select("id")
         .whereIn("email", data)
+        .where("role_id", MEMBER_ROLE_BEFORE_KOMPROF_NAME)
         .fetch();
 
       const participants = [];
