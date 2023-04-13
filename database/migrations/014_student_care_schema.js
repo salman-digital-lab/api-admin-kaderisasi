@@ -16,7 +16,7 @@ class StudentCareSchema extends Schema {
       table.enu('technical_handling', ['Online', 'Bertemu langsung']).default(null)
       table.enu('counselor_gender', ['Laki-laki', 'Perempuan', 'Keduanya']).default(null)
       table.integer('id_counselor').nullable().unsigned().references('id').inTable('users').onDelete('CASCADE')
-      table.enu('status_handling', ['Belum Ditangani', 'Sedang Ditangani', 'Sudah Ditangani']).default('Belum Ditangani')
+      table.enu('status_handling', ['Belum Ditangani', 'Akan Ditangani', 'Sedang Ditangani', 'Sudah Ditangani']).default('Belum Ditangani')
       table.text('desk_handling').default(null)
       table.timestamps()
       table.integer('deleted').default(2)
