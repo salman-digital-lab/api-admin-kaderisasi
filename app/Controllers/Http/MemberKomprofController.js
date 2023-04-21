@@ -6,8 +6,9 @@ const { validate } = use("Validator");
 const Database = use("Database");
 const Excel = require("exceljs");
 
-const MEMBER_ROLE_AFTER_KOMPROF = 7;
-const MEMBER_ROLE_BEFORE_KOMPROF_NAME = 6;
+const ROLE_KADER_KOMPROF = 53;
+const ROLE_KADER_INVENTRA = 52;
+const ROLE_KADER_KOMPROF_INDEX = 6;
 
 class MemberKomprofController {
   async index({ params, request, response }) {
@@ -46,7 +47,7 @@ class MemberKomprofController {
       const data = request.all();
 
       const rules = {
-        member_id: "required|number",
+        email: "required|email",
         batch: "required|number",
       };
 
@@ -59,7 +60,12 @@ class MemberKomprofController {
         });
       }
 
-      const member = await Member.find(data.member_id);
+      const rawMember = await Member.query()
+        .where("email", data.email)
+        .with("member_role")
+        .first();
+
+      const member = rawMember.toJSON();
       if (!member.is_active) {
         return response.status(400).json({
           status: "FAILED",
@@ -67,15 +73,14 @@ class MemberKomprofController {
         });
       }
 
-      // need to validate what role_id for member who already registered komprof
-      if (member.role_id !== MEMBER_ROLE_AFTER_KOMPROF) {
-        member.role_id = MEMBER_ROLE_AFTER_KOMPROF;
-        await member.save();
+      if (member.member_role.index < ROLE_KADER_KOMPROF_INDEX) {
+        rawMember.role_id = ROLE_KADER_KOMPROF;
+        await rawMember.save();
       }
 
       const participant = new MemberKomprof();
       participant.komprof_id = Number(komprof_id);
-      participant.member_id = data.member_id;
+      participant.member_id = member.id;
       participant.batch = data.batch;
       await participant.save();
 
@@ -106,7 +111,9 @@ class MemberKomprofController {
         });
       }
 
-      const member = await Member.find(participant.member_id);
+      await participant.delete();
+
+      const member = await Member.find(member_id);
       if (!member) {
         return response.status(400).json({
           status: "FAILED",
@@ -118,13 +125,10 @@ class MemberKomprofController {
         .where({ member_id })
         .fetch();
 
-      if (!registeredKomprofOfMember) {
-        // need to validate what role_id for member who already downgraded from komprof
-        member.role_id = MEMBER_ROLE_BEFORE_KOMPROF_NAME;
+      if (registeredKomprofOfMember.toJSON().length == 0) {
+        member.role_id = ROLE_KADER_INVENTRA;
         await member.save();
       }
-
-      await participant.delete();
 
       return response.status(200).json({
         status: "SUCCESS",
@@ -140,6 +144,8 @@ class MemberKomprofController {
   }
 
   async import({ params, request, response }) {
+    const trx = await Database.beginTransaction();
+
     try {
       let { komprof_id } = params;
       komprof_id = Number(komprof_id);
@@ -170,7 +176,6 @@ class MemberKomprofController {
       const members = await Member.query()
         .select("id")
         .whereIn("email", data)
-        .where("role_id", MEMBER_ROLE_BEFORE_KOMPROF_NAME)
         .fetch();
 
       const participants = [];
@@ -185,13 +190,17 @@ class MemberKomprofController {
         participants.push(participant);
       });
 
-      await Database.insert(participants).into("member_komprofs");
+      await trx.table("member_komprofs").insert(participants);
 
       const query = "UPDATE members SET role_id = ? WHERE id IN (?)";
-      await Database.raw(query, [
-        MEMBER_ROLE_AFTER_KOMPROF,
-        members.rows.map((member) => member.id),
+      await trx.raw(query, [
+        ROLE_KADER_KOMPROF,
+        members.rows
+          .filter((member) => member.role_id == ROLE_KADER_INVENTRA)
+          .map((member) => member.id),
       ]);
+
+      await trx.commit();
 
       return response.status(200).json({
         status: "SUCCESS",
@@ -199,6 +208,7 @@ class MemberKomprofController {
       });
     } catch (error) {
       console.log(error);
+      await trx.rollback();
       return response.status(500).json({
         status: "FAILED",
         message: error,

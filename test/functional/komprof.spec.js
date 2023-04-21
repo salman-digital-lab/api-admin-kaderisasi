@@ -146,7 +146,7 @@ test("add komprof participants test", async ({
   const komprof = await getKomprof();
   const body = {
     komprof_id: komprof.id,
-    member_id: member.id,
+    email: member.email,
     batch: 1,
   };
   const response = await client
@@ -170,7 +170,7 @@ test("delete komprof participants test", async ({
 
   const body = {
     komprof_id: komprof.id,
-    member_id: member.id,
+    email: member.email,
     batch: 1,
   };
   await client
