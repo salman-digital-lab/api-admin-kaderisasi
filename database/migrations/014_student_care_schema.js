@@ -19,7 +19,7 @@ class StudentCareSchema extends Schema {
       table.enu('status_handling', ['Belum Ditangani', 'Akan Ditangani', 'Sedang Ditangani', 'Sudah Ditangani']).default('Belum Ditangani')
       table.text('desk_handling').default(null)
       table.timestamps()
-      table.integer('deleted').default(2)
+      table.integer('deleted').default(0)
     })
   }
 
