@@ -15,7 +15,7 @@ class StudentCareController {
     const hapusData = await Database
       .table('student_care')
       .where('id', data)
-      .delete()
+      .update('deleted', 1)
 
     if (hapusData) {
       return response.status(200).json({
@@ -60,6 +60,7 @@ class StudentCareController {
         .query()
         .innerJoin('members', 'student_care.member_id', 'members.id')
         .where('members.name', 'like', `%${name}%`)
+        .where('deleted', 0)
         .with('member')
         .with('counselor')
         .orderBy(sortField, 'desc')
