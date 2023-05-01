@@ -60,7 +60,7 @@ class StudentCareController {
         .query()
         .innerJoin('members', 'student_care.member_id', 'members.id')
         .where('members.name', 'like', `%${name}%`)
-        .where('deleted', 2)
+        .where('deleted', 0)
         .with('member')
         .with('counselor')
         .orderBy(sortField, 'desc')
