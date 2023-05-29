@@ -14,11 +14,13 @@ class MemberKomprofController {
   async index({ params, request, response }) {
     try {
       const { komprof_id } = params;
-      const data = request.all();
-      const page = data.page ? data.page : 1;
-      const perPage = data.perPage ? data.perPage : 10;
-      const sortField = data.sortField ? data.sortField : "created_at";
-      const sortDirection = data.sortDirection ? data.sortDirection : "desc";
+      const {
+        page = 1,
+        perPage = 10,
+        sortField = "created_at",
+        sortDirection = "desc",
+      } = request.all();
+
       const participants = await MemberKomprof.getParticipants(
         { komprof_id },
         page,
@@ -103,23 +105,23 @@ class MemberKomprofController {
       komprof_id = Number(komprof_id);
       member_id = Number(member_id);
 
+      const member = await Member.find(member_id);
+      if (!member) {
+        return response.status(404).json({
+          status: "FAILED",
+          message: "Anggota tidak ditemukan!",
+        });
+      }
+
       const participant = await MemberKomprof.findBy({ komprof_id, member_id });
       if (!participant) {
-        return response.status(400).json({
+        return response.status(404).json({
           status: "FAILED",
           message: "Peserta komprof tidak ditemukan!",
         });
       }
 
       await participant.delete();
-
-      const member = await Member.find(member_id);
-      if (!member) {
-        return response.status(400).json({
-          status: "FAILED",
-          message: "Anggota tidak ditemukan!",
-        });
-      }
 
       const registeredKomprofOfMember = await MemberKomprof.query()
         .where({ member_id })
@@ -145,75 +147,76 @@ class MemberKomprofController {
 
   async import({ params, request, response }) {
     const trx = await Database.beginTransaction();
-
     try {
-      let { komprof_id } = params;
-      komprof_id = Number(komprof_id);
+      const { komprof_id } = params;
       const batch = Number(request.input("batch"));
 
-      // Get file
-      const fileOption = {
-        types: ["xlsx"],
-        size: "2mb",
-      };
-      const file = request.file("file", fileOption);
+      // Validate and read file
+      const file = await this.validateAndReadFile(request);
 
-      // Read file
-      const workbook = new Excel.Workbook();
-      await workbook.xlsx.readFile(file.tmpPath);
+      // Read worksheet data
+      const data = await this.readWorksheetData(file);
 
-      // Get worksheet
-      const worksheet = workbook.getWorksheet(1);
+      // Fetch member IDs
+      const memberEmails = data.slice(1); // Exclude the header row
+      const memberIds = await Member.query()
+        .where("role_id", ROLE_KADER_INVENTRA)
+        .whereIn("email", memberEmails)
+        .pluck("id");
 
-      // get data
-      const data = [];
-      worksheet.eachRow((row, rowNumber) => {
-        if (rowNumber > 1) {
-          data.push(row.getCell(1).value);
-        }
-      });
-
-      const members = await Member.query()
-        .select("id")
-        .whereIn("email", data)
-        .fetch();
-
-      const participants = [];
-      members.toJSON().forEach((member) => {
-        const participant = {
+      if (memberIds.length > 0) {
+        // Create participants
+        const participants = memberIds.map((memberId) => ({
           komprof_id,
-          member_id: member.id,
-          batch: batch,
+          member_id: memberId,
+          batch,
           created_at: new Date(),
           updated_at: new Date(),
-        };
-        participants.push(participant);
-      });
+        }));
 
-      await trx.table("member_komprofs").insert(participants);
+        await trx.table("member_komprofs").insert(participants);
 
-      const query = "UPDATE members SET role_id = ? WHERE id IN (?)";
-      await trx.raw(query, [
-        ROLE_KADER_KOMPROF,
-        members.rows
-          .filter((member) => member.role_id == ROLE_KADER_INVENTRA)
-          .map((member) => member.id),
-      ]);
-
-      await trx.commit();
+        const query = "UPDATE members SET role_id = ? WHERE id IN (?)";
+        await trx.raw(query, [ROLE_KADER_KOMPROF, memberIds]);
+        await trx.commit();
+      }
 
       return response.status(200).json({
         status: "SUCCESS",
         message: "Data peserta komprof berhasil diimport!",
       });
     } catch (error) {
-      console.log(error);
       await trx.rollback();
       return response.status(500).json({
         status: "FAILED",
-        message: error,
+        message: error.message,
       });
     }
+  }
+
+  async validateAndReadFile(request) {
+    const fileOption = {
+      types: ["xlsx"],
+      size: "2mb",
+    };
+    const file = request.file("file", fileOption);
+
+    const workbook = new Excel.Workbook();
+    await workbook.xlsx.readFile(file.tmpPath);
+
+    return workbook;
+  }
+
+  async readWorksheetData(workbook) {
+    const worksheet = workbook.getWorksheet(1);
+    const data = [];
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber > 1) {
+        data.push(row.getCell(1).value);
+      }
+    });
+
+    return data;
   }
 }
 

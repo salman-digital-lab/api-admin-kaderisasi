@@ -28,19 +28,27 @@ class KomprofController {
     }
   }
 
-  async show({ params, request, response }) {
+  async show({ params, response }) {
+    const { id } = params;
     try {
-      const { id } = params;
-      let komprof = await Komprof.find(id);
+      let komprof = await Komprof.findOrFail(id);
+
       return response.status(200).json({
         status: "SUCCESS",
         message: "Data Komprof berhasil dimuat!",
         data: komprof,
       });
     } catch (error) {
+      if (error.name === "ModelNotFoundException") {
+        return response.status(404).json({
+          status: "FAILED",
+          message: "Data Komprof tidak ditemukan",
+        });
+      }
+
       return response.status(500).json({
         status: "FAILED",
-        message: error,
+        message: error.message,
       });
     }
   }
@@ -53,7 +61,7 @@ class KomprofController {
     const validation = await validate(request.all(), rules);
 
     if (validation.fails()) {
-      return response.status(500).json({
+      return response.status(400).json({
         status: "FAILED",
         message: validation.messages(),
       });
@@ -84,31 +92,24 @@ class KomprofController {
 
   async update({ params, request, response }) {
     const { id } = params;
-    let komprof = await Komprof.find(id);
-
-    if (!komprof) {
-      return response.status(400).json({
-        status: "FAILED",
-        message: "Tidak ada data yang ditemukan",
-      });
-    }
-
-    const data = request.all();
-
     try {
+      let komprof = await Komprof.findOrFail(id);
+
+      const data = request.all();
+
       if (data.program_name) {
         komprof.program_name = data.program_name;
       }
       if (data.program_desc) {
         komprof.program_desc = data.program_desc;
       }
-      if (data.is_active != null) {
+      if (data.is_active !== undefined) {
         komprof.is_active = data.is_active;
       }
 
       await komprof.save();
 
-      komprof = await Komprof.find(komprof.id);
+      komprof = await Komprof.find(id);
 
       return response.status(200).json({
         status: "SUCCESS",
@@ -116,9 +117,16 @@ class KomprofController {
         data: komprof,
       });
     } catch (error) {
+      if (error.name === "ModelNotFoundException") {
+        return response.status(404).json({
+          status: "FAILED",
+          message: "Tidak ada data yang ditemukan",
+        });
+      }
+
       return response.status(500).json({
         status: "FAILED",
-        message: error,
+        message: error.message,
       });
     }
   }
