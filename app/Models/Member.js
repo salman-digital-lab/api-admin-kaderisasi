@@ -35,6 +35,10 @@ class Member extends Model {
     return this.hasOne("App/Models/MemberRole", "role_id", "id");
   }
 
+  member_komprof() {
+    return this.hasOne("App/Models/MemberKomprof", "role_id", "id");
+  }
+
   university() {
     return this.hasOne("App/Models/University", "university_id", "id");
   }

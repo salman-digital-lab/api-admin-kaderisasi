@@ -58,7 +58,6 @@ test("test user with unknown email", async ({ getUser, client }) => {
       password: "Example",
     })
     .end();
-  console.log(response);
   // Assert Response
   response.assertStatus(401);
 });

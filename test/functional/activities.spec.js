@@ -88,13 +88,15 @@ function assertResponseIsSameWithActivity(responseObject, sampleActivity) {
 
 function assertParticipantResponse(responseObject, sampleRegistration) {
   responseObject.assertJSONSubset({
+    status: "SUCCESS",
+    message: responseObject.body.message,
     data: [
       {
         id: sampleRegistration.id,
         member_id: sampleRegistration.member_id,
         activity_id: sampleRegistration.activity_id,
         status: sampleRegistration.status,
-        created_at: sampleRegistration.created_at,
+        questionnaire: sampleRegistration.questionnaire,
       },
     ],
   });
@@ -224,6 +226,7 @@ test("get participant data", async ({ assert, client, getUser }) => {
   const user = await getUser();
   const registration = await ActivityRegistration.query()
     .orderByRaw("rand()")
+    .with("member")
     .first();
 
   // Ideal spec: check API response is same as expected from member + registration
@@ -234,7 +237,7 @@ test("get participant data", async ({ assert, client, getUser }) => {
     .end();
 
   response.assertStatus(200);
-  assertParticipantResponse(response, registration);
+  assertParticipantResponse(response, registration.toJSON());
 });
 
 // Test that we can change participation status
@@ -243,6 +246,7 @@ test("change participation status", async ({ assert, client, getUser }) => {
   const user = await getUser();
   const registration = await ActivityRegistration.query()
     .orderByRaw("rand()")
+    .with("member")
     .first();
 
   // get a random element
@@ -259,7 +263,7 @@ test("change participation status", async ({ assert, client, getUser }) => {
   registration.status = expectedStatus;
 
   response.assertStatus(200);
-  assertParticipantResponse(response, registration);
+  assertParticipantResponse(response, registration.toJSON());
 });
 
 // Test that we can not change participation status not inside the defined status list
@@ -296,7 +300,6 @@ test("test for data export", async ({
     .get(`v1/activity/${activity.id}/participant/export`)
     .loginVia(user)
     .end();
-
   response.assertStatus(200);
 });
 
