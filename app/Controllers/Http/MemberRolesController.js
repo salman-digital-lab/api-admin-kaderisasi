@@ -5,7 +5,7 @@ const Roles = use("App/Models/MemberRole");
 class MemberRolesController {
     async index({ response }) {
         try {
-          const roles = await Roles.all()
+          const roles = await Database.table('member_roles').orderBy('index', 'asc')
           
           return response
             .status(200)
