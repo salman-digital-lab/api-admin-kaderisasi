@@ -10,7 +10,7 @@ const MINIMUM_LMD_GENERATION = 165;
 class DasbordAdminController {
   async CountMembers({ response }) {
     let countMembersByRole = await Database.raw(
-      `SELECT member_roles.name, COUNT(member_roles.name) AS total FROM member_roles INNER JOIN members on member_roles.id = members.role_id GROUP BY member_roles.name ORDER BY member_roles.name`
+      `SELECT member_roles.name, COUNT(member_roles.name) AS total FROM member_roles INNER JOIN members on member_roles.id = members.role_id GROUP BY member_roles.name ORDER BY member_roles.index`
     );
 
     let countMembers = await Database.raw(
