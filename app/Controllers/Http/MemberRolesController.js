@@ -1,6 +1,7 @@
 'use strict'
 
 const Roles = use("App/Models/MemberRole");
+const Database = use("Database");
 
 class MemberRolesController {
     async index({ response }) {
