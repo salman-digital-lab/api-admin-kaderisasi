@@ -66,6 +66,13 @@ class AlumniController {
 
         } catch (error) {
 
+            if (error.name === "ModelNotFoundException") {
+                return response.status(404).json({
+                status: "FAILED",
+                message: "Data tidak ditemukan",
+                });
+            }
+
             return response.status(500).json({
                 status: "FAILED",
                 message: error.message,
@@ -106,19 +113,13 @@ class AlumniController {
             }
 
             let alumni = new Alumni();
-            alumni.name = data.name;
-            alumni.email = data.email;
-            alumni.whatsapp_number = (data.whatsapp_number != null) ? data.whatsapp_number : null ;
-            alumni.full_address = data.full_address;
-            alumni.occupation = data.occupation;
-            alumni.current_instance = data.current_instance;
-            alumni.bachelor_degree = data.bachelor_degree;
-            alumni.master_degree = data.master_degree;
-            alumni.doctoral_degree = data.doctoral_degree;
-            alumni.contributions = data.contributions;
-            alumni.is_donor = data.is_donor;
-            alumni.is_subscriber = data.is_subscriber;
-            alumni.notes = data.notes;
+
+            Object.keys(data).forEach((column) => {
+                alumni.merge({
+                [column]: data[column],
+                });
+            });
+
             await alumni.save();
         
             alumni = await Alumni.findOrFail(alumni.id);
@@ -141,8 +142,10 @@ class AlumniController {
     async update({request, response, params}) {
 
         const rules = {
-            name: "required",
-            email: "required"
+            name: "string",
+            email: "string",
+            is_donor: "boolean",
+            is_subscriber: "boolean",
         };
       
         const validation = await validate(request.all(), rules);
@@ -159,7 +162,7 @@ class AlumniController {
 
         try {
             const data = request.all()
-            const alumni = await Alumni.findByOrFail("id", id);
+            let alumni = await Alumni.findByOrFail("id", id);
 
             Object.keys(data).forEach((column) => {
                 alumni.merge({
@@ -182,7 +185,7 @@ class AlumniController {
             if (error.name === "ModelNotFoundException") {
                 return response.status(404).json({
                 status: "FAILED",
-                message: "Tidak ada data yang ditemukan",
+                message: "Data yang ingin diperbarui tidak ditemukan",
                 });
             }
 
