@@ -57,6 +57,11 @@ class AlumniController {
         try {
 
             let alumni = await Alumni.findOrFail(id)
+            
+            if (alumni.contributions != null) {
+                let contributions = alumni.contributions
+                alumni.contributions = JSON.parse(contributions)
+            }
 
             return response.status(200).json({
                 status: "SUCCESS",
@@ -68,8 +73,8 @@ class AlumniController {
 
             if (error.name === "ModelNotFoundException") {
                 return response.status(404).json({
-                status: "FAILED",
-                message: "Data tidak ditemukan",
+                    status: "FAILED",
+                    message: "Data tidak ditemukan",
                 });
             }
 
