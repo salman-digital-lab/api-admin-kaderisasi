@@ -27,12 +27,15 @@ class AlumniController {
         const searchQuery = params.search_query || "";
 
         try {
-            const alumni = await Alumni.query()
-                .select('*')
+            let alumni = await Alumni.query()
+                .select('name', 'email', 'whatsapp_number', 'full_address', 'occupation', 'current_instance', 'bachelor_degree')
                 .where(function () {
-                    this.where("alumni.name", "LIKE", `%${searchQuery}%`)
-                        .orWhere("alumni.email", "LIKE", `%${searchQuery}%`)
+                    this.where("name", "LIKE", `%${searchQuery}%`)
+                        .orWhere("email", "LIKE", `%${searchQuery}%`)
                         .orWhere("full_address", "LIKE", `%${searchQuery}%`)
+                        .orWhere("occupation", "LIKE", `%${searchQuery}%`)
+                        .orWhere("current_instance", "LIKE", `%${searchQuery}%`)
+                        .orWhere("bachelor_degree", "LIKE", `%${searchQuery}%`)
                 })
                 .paginate(page, page_size)
             
@@ -57,7 +60,7 @@ class AlumniController {
         try {
 
             let alumni = await Alumni.findOrFail(id)
-            
+
             if (alumni.contributions != null) {
                 let contributions = alumni.contributions
                 alumni.contributions = JSON.parse(contributions)
@@ -125,6 +128,9 @@ class AlumniController {
                 });
             });
 
+            let contributions = data.contributions
+            alumni.contributions = JSON.stringify(contributions)
+
             await alumni.save();
         
             alumni = await Alumni.findOrFail(alumni.id);
@@ -174,6 +180,9 @@ class AlumniController {
                 [column]: data[column],
                 });
             });
+
+            let contributions = data.contributions
+            alumni.contributions = JSON.stringify(contributions)
 
             await alumni.save();
 
