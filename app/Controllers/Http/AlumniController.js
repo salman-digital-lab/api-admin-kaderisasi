@@ -28,7 +28,7 @@ class AlumniController {
 
         try {
             let alumni = await Alumni.query()
-                .select('name', 'email', 'whatsapp_number', 'full_address', 'occupation', 'current_instance', 'bachelor_degree')
+                .select('id', 'name', 'email', 'whatsapp_number', 'full_address', 'occupation', 'current_instance', 'bachelor_degree')
                 .where(function () {
                     this.where("name", "LIKE", `%${searchQuery}%`)
                         .orWhere("email", "LIKE", `%${searchQuery}%`)
