@@ -26,6 +26,7 @@ require('./routes/Activity/ActivityRoutes')
 require('./routes/Activity/ActivityQuestionnaireRoutes')
 require('./routes/User/routes')
 require('./routes/KomprofRoutes')
+require('./routes/AlumniRoutes')
 
 Route.get('/', ({ view }) => {
   return view.render('welcome')
