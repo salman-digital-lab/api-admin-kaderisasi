@@ -17,4 +17,4 @@ Route.group(() => {
   );
 })
   .prefix("/v1/komprof")
-  .middleware(["auth", "activeUser", "privileges:member"]);
+  .middleware(["auth", "activeUser", "privileges:members"]);
