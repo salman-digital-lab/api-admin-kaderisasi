@@ -8,4 +8,4 @@ Route.group(() => {
   Route.delete("/:id", "AlumniController.delete");
 })
   .prefix("/v1/alumni")
-  .middleware(["auth", "activeUser", "privileges:member"]);
+  .middleware(["auth", "activeUser", "privileges:members"]);
